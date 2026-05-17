@@ -442,10 +442,10 @@ export function Craft() {
             </div>
             <div className="mt-14 hairline" />
             <div className="mt-6 flex flex-wrap gap-4 md:gap-8 text-xs tracking-[0.2em] uppercase text-charcoal/70">
-              <span><b className="text-emerald font-display text-xl mr-1">500+</b>Designs</span>
-              <span><b className="text-emerald font-display text-xl mr-1">₹180</b>Start</span>
-              <span><b className="text-emerald font-display text-xl mr-1">100</b>MOQ</span>
-              <span><b className="text-emerald font-display text-xl mr-1">20+</b>States</span>
+              <span className="whitespace-nowrap"><b className="text-emerald font-display text-lg md:text-xl mr-1">500+</b>Designs</span>
+              <span className="whitespace-nowrap"><b className="text-emerald font-display text-lg md:text-xl mr-1">₹180</b>Start</span>
+              <span className="whitespace-nowrap"><b className="text-emerald font-display text-lg md:text-xl mr-1">100</b>MOQ</span>
+              <span className="whitespace-nowrap"><b className="text-emerald font-display text-lg md:text-xl mr-1">20+</b>States</span>
             </div>
           </div>
         </div>
@@ -534,10 +534,10 @@ export function Stats() {
         <div className="mb-16">
           <span className="text-xs uppercase tracking-[0.3em] text-emerald">07 — By the Numbers</span>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-6">
           {items.map((it, i) => (
-            <div key={i} className="text-center md:text-left">
-              <CountUp end={it.v} prefix={it.prefix} suffix={it.suffix} className="font-display text-emerald text-7xl md:text-8xl font-light leading-none" />
+            <div key={i} className="text-center md:text-left min-w-0">
+              <CountUp end={it.v} prefix={it.prefix} suffix={it.suffix} className="font-display text-emerald text-[2.8rem] md:text-8xl font-light leading-none whitespace-nowrap" />
               <div className="hairline my-5 md:w-16" />
               <div className="text-xs uppercase tracking-[0.25em] text-charcoal/70">{it.label}</div>
             </div>
@@ -583,7 +583,7 @@ export function HowItWorks() {
               className="relative pt-8 z-10"
             >
               <div className="absolute top-14 left-0 w-4 h-4 rounded-full bg-cloud border-2 border-[var(--gold)]" />
-              <div className="outline-num text-8xl mb-6 pl-8">{s.n}</div>
+              <div className="outline-num text-6xl md:text-8xl mb-6 pl-8">{s.n}</div>
               <h3 className="font-display text-emerald text-3xl font-light mb-4 pl-8">{s.title}</h3>
               <p className="text-charcoal/70 leading-relaxed pl-8">{s.copy}</p>
             </motion.div>

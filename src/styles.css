@@ -133,8 +133,16 @@
   font-family: var(--font-display); 
   overflow-wrap: break-word;
   word-break: normal;
+  white-space: normal;
 }
 .font-body { font-family: var(--font-body); }
+
+/* Prevent stat numbers from ever wrapping */
+[class*="CountUp"], 
+.stat-number {
+  white-space: nowrap;
+  display: inline-block;
+}
 
 .text-gold { color: var(--gold); }
 .bg-gold { background-color: var(--gold); }
