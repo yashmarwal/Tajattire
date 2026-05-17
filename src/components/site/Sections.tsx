@@ -683,9 +683,13 @@ export function Footer() {
 
       <div className="max-w-[1500px] mx-auto px-6 lg:px-12">
         <div className="text-center mb-16">
-          <svg viewBox="0 0 40 28" className="w-12 h-9 mx-auto mb-4">
-            <path d="M20 3 L8 13 L8 24 L32 24 L32 13 Z M20 3 L20 24 M14 9 L26 9" stroke="#C9A84C" strokeWidth="1.5" fill="none" />
-          </svg>
+          {/* TODO: replace with actual logo.png from client */}
+          <img 
+            src="/logo.png" 
+            alt="TajAttire Logo" 
+            className="h-14 w-auto mx-auto mb-3" 
+            style={{ mixBlendMode: "lighten", filter: "brightness(1)" }} 
+          />
           <h3 className="font-display text-cloud text-5xl tracking-wider">TajAttire</h3>
           <p className="font-display italic text-[var(--gold)] mt-2">Handcrafted Heritage</p>
         </div>

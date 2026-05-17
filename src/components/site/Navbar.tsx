@@ -31,9 +31,13 @@ export function Navbar() {
       >
         <div className="max-w-[1500px] mx-auto px-6 lg:px-12 h-20 flex items-center justify-between">
           <a href="#top" data-cursor="Home" className="flex items-center gap-3">
-            <svg viewBox="0 0 40 28" className="w-9 h-7">
-              <path d="M20 3 L8 13 L8 24 L32 24 L32 13 Z M20 3 L20 24 M14 9 L26 9" stroke="#C9A84C" strokeWidth="1.5" fill="none" />
-            </svg>
+            {/* TODO: replace with actual logo.png from client */}
+            <img 
+              src="/logo.png" 
+              alt="TajAttire Logo" 
+              className={`h-10 w-auto transition-all ${scrolled ? "drop-shadow-sm" : ""}`}
+              style={{ mixBlendMode: scrolled ? "normal" : "lighten" }}
+            />
             <span className="font-display text-2xl tracking-wider text-cloud">TajAttire</span>
           </a>
           <div className="hidden md:flex items-center gap-10">
