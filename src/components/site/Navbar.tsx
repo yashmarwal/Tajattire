@@ -30,9 +30,9 @@ export function Navbar() {
         }`}
       >
         <div className="max-w-[1500px] mx-auto px-6 lg:px-12 h-20 flex items-center justify-between">
-          <a href="#top" data-cursor="Home" className="flex flex-col">
-            <span className="font-display text-2xl tracking-wider text-[var(--gold)] font-bold leading-none">TajAttire</span>
-            <span className="font-display italic text-[11px] text-[var(--gold)]/70 mt-1">Handcrafted Heritage</span>
+          <a href="#top" data-cursor="Home" className="flex items-center gap-3">
+            <img src="/logo.png" alt="TajAttire Logo" style={{ height: '36px', width: 'auto', mixBlendMode: 'lighten' }} />
+            <span className="font-display text-2xl tracking-wider text-cloud font-bold">TajAttire</span>
           </a>
           <div className="hidden md:flex items-center gap-10">
             {links.map((l) => (
