@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 export function SmoothScroll() {
   useEffect(() => {
+    if (window.innerWidth < 768 || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) return;
     let lenis: any;
     let rafId: number;
     (async () => {

@@ -34,7 +34,7 @@ export function Hero() {
   })), []);
 
   return (
-    <section ref={ref} id="top" className="relative min-h-[100vh] w-full overflow-hidden bg-deep-black grain">
+    <section ref={ref} id="top" className="relative min-h-[100vh] w-full overflow-hidden overflow-x-hidden bg-deep-black grain">
       <motion.div style={{ y: imgY }} className="absolute inset-0">
         <motion.img 
           src={IMG.hero} 
@@ -74,7 +74,7 @@ export function Hero() {
 
       <motion.div style={{ y: textY, opacity: textOpacity }} className="relative z-10 max-w-[1500px] mx-auto px-6 lg:px-12 pt-44 pb-32">
         <h1 className="font-display text-cloud leading-[0.95] tracking-[-0.02em]">
-          <span className="block text-[12vw] md:text-[9vw] font-light">
+          <span className="block max-w-full overflow-hidden text-[9vw] font-light">
             {headlineA.map((c, i) => (
               <motion.span
                 key={`a${i}`}
@@ -86,7 +86,7 @@ export function Hero() {
               >{c}</motion.span>
             ))}
           </span>
-          <span className="block text-[12vw] md:text-[9vw] font-bold">
+          <span className="block max-w-full overflow-hidden text-[9vw] font-bold">
             {headlineB.map((c, i) => (
               <motion.span
                 key={`b${i}`}
@@ -159,7 +159,7 @@ export function Marquee() {
     <div className="overflow-hidden">
       <div className={`flex gap-12 whitespace-nowrap ${dir === "left" ? "marquee-left" : "marquee-right"}`} style={{ width: "max-content" }}>
         {[...items, ...items, ...items, ...items].map((t, i) => (
-          <span key={i} className="flex items-center gap-12 font-display text-cloud text-3xl md:text-5xl italic font-light">
+          <span key={i} className="flex items-center gap-12 font-display text-cloud text-xl md:text-5xl italic font-light">
             {t}
             <span className="text-[var(--gold)] text-2xl">✦</span>
           </span>
@@ -168,7 +168,7 @@ export function Marquee() {
     </div>
   );
   return (
-    <section className="relative bg-[var(--emerald-deep)] py-10 grain marquee-wrap border-y border-[var(--gold)]/20">
+    <section className="relative bg-[var(--emerald-deep)] py-10 grain marquee-wrap border-y border-[var(--gold)]/20 overflow-hidden">
       <div className="space-y-6">
         <Row items={top} dir="left" />
         <Row items={bot} dir="right" />
@@ -211,6 +211,37 @@ export function Collections() {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
   const x = useTransform(scrollYProgress, [0, 1], ["0%", "-66%"]);
+
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  if (isMobile) {
+    return (
+      <section id="collections" className="relative bg-deep-black flex flex-col pt-24 pb-12 gap-12 overflow-hidden">
+        <div className="px-6 flex items-center justify-between mb-6">
+          <span className="text-xs uppercase tracking-[0.3em] text-[var(--gold)]">04 — Our Collections</span>
+        </div>
+        {collections.map((c) => (
+          <div key={c.tag} className="relative w-full min-h-[70vh] flex flex-col overflow-hidden border-y border-[var(--gold)]/20" data-cursor="View">
+            <img src={c.img} alt={c.title} className="absolute inset-0 w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/40 to-transparent" />
+            <div className="absolute top-6 left-6 text-xs tracking-[0.3em] text-[var(--gold)]">{c.tag}</div>
+            <div className="absolute bottom-0 left-0 right-0 p-8">
+              <div className="text-xs uppercase tracking-[0.3em] text-[var(--gold)] mb-3">{c.count}</div>
+              <h3 className="font-display text-cloud text-5xl font-light mb-5">{c.title}</h3>
+              <p className="text-cloud/70 max-w-md mb-6 leading-relaxed">{c.copy}</p>
+              <MagneticButton href="#order" variant="gold" cursorLabel="Enquire">Enquire This Collection →</MagneticButton>
+            </div>
+          </div>
+        ))}
+      </section>
+    );
+  }
 
   return (
     <section id="collections" ref={ref} className="relative bg-deep-black" style={{ height: "400vh" }}>
@@ -379,7 +410,7 @@ export function Craft() {
       <div className="max-w-[1500px] mx-auto px-6 lg:px-12 grid md:grid-cols-2 gap-16 items-center">
         <CurtainImage src={IMG.craft} alt="The craft" className="aspect-[3/4] w-full" />
         <div className="relative">
-          <div className="outline-num text-[18rem] absolute -top-20 -left-4 md:-left-10 select-none pointer-events-none">05</div>
+          <div className="absolute inset-0 overflow-hidden pointer-events-none -m-10 p-10"><div className="outline-num text-[clamp(6rem,20vw,18rem)] absolute -top-20 -left-4 md:-left-10 select-none max-w-full overflow-hidden">05</div></div>
           <div className="relative">
             <SplitHeading text="Not Just Fabric." as="h2" className="block font-display text-emerald text-5xl md:text-7xl font-light leading-tight" />
             <SplitHeading text="A Philosophy." delay={0.3} as="h2" className="block font-display text-emerald italic text-5xl md:text-7xl font-light leading-tight" />
@@ -437,7 +468,7 @@ export function Why() {
                 initial={{ opacity: 0, y: 70 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-10%" }}
-                transition={{ type: "spring", stiffness: 40, damping: 18, mass: 1.2, delay: i * 0.15 }}
+                transition={{ type: "spring", stiffness: 38, damping: 16, mass: 1, delay: i * 0.15 }}
                 className="card-lift relative border border-[var(--gold)]/20 border-l-2 border-l-[var(--gold)] p-10 bg-black/20 backdrop-blur-sm"
                 data-cursor="Read"
               >
@@ -454,7 +485,7 @@ export function Why() {
                 initial={{ opacity: 0, y: 70 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-10%" }}
-                transition={{ type: "spring", stiffness: 40, damping: 18, mass: 1.2, delay: 0.3 + i * 0.15 }}
+                transition={{ type: "spring", stiffness: 38, damping: 16, mass: 1, delay: 0.3 + i * 0.15 }}
                 className="card-lift relative border border-[var(--gold)]/20 border-l-2 border-l-[var(--gold)] p-8 bg-black/20 backdrop-blur-sm"
                 data-cursor="Read"
               >
@@ -533,7 +564,7 @@ export function HowItWorks() {
               initial={{ opacity: 0, y: 70 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-10%" }}
-              transition={{ type: "spring", stiffness: 40, damping: 18, mass: 1.2, delay: i * 1.8 }}
+              transition={{ type: "spring", stiffness: 38, damping: 16, mass: 1, delay: i * 0.15 }}
               className="relative pt-8 z-10"
             >
               <div className="absolute top-14 left-0 w-4 h-4 rounded-full bg-cloud border-2 border-[var(--gold)]" />
@@ -567,10 +598,10 @@ export function Testimonials() {
           {testimonials.map((t, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, y: 60 }}
+              initial={{ opacity: 0, y: 70 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-10%" }}
-              transition={{ type: "spring", stiffness: 35, damping: 16, delay: i * 0.2 }}
+              transition={{ type: "spring", stiffness: 38, damping: 16, mass: 1, delay: i * 0.15 }}
               whileHover={{ y: [0, -6, 0], transition: { duration: 3, repeat: Infinity, ease: "easeInOut" } }}
               className={`bg-black/30 backdrop-blur-md border border-[var(--gold)]/20 border-l-2 border-l-[var(--gold)] p-8 ${i === 1 ? "md:mt-12" : ""} ${i === 2 ? "md:mt-6" : ""}`}
               data-cursor="Read"

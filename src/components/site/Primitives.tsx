@@ -68,20 +68,23 @@ export function SplitHeading({ text, className = "", as: As = "h2", delay = 0 }:
   const chars = text.split("");
   return (
     <As ref={ref} className={className}>
-      <span className="inline-block">
-        {chars.map((c, i) => (
-          <motion.span
-            key={i}
-            initial={{ y: "100%", opacity: 0 }}
-            animate={inView ? { y: 0, opacity: 1 } : {}}
-            transition={{ duration: 0.6, delay: delay + i * 0.04, ease: [0.2, 0.8, 0.2, 1] }}
-            className="inline-block"
-            style={{ whiteSpace: "pre" }}
-          >
-            {c}
-          </motion.span>
-        ))}
-      </span>
+      <div style={{ overflow: "hidden" }}>
+        <span className="inline-block">
+          {chars.map((c, i) => (
+            <span key={i} style={{ display: "inline-block", overflow: "hidden" }}>
+              <motion.span
+                initial={{ y: "100%", opacity: 0 }}
+                animate={inView ? { y: 0, opacity: 1 } : {}}
+                transition={{ duration: 0.6, delay: delay + i * 0.04, ease: [0.2, 0.8, 0.2, 1] }}
+                className="inline-block"
+                style={{ whiteSpace: "pre" }}
+              >
+                {c}
+              </motion.span>
+            </span>
+          ))}
+        </span>
+      </div>
     </As>
   );
 }
@@ -96,7 +99,7 @@ export function FadeLines({ lines, className = "", lineClass = "" }: { lines: st
           key={i}
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.7, delay: i * 0.12, ease: [0.2, 0.8, 0.2, 1] }}
+          transition={{ type: "spring", stiffness: 40, damping: 18, delay: i * 0.14 }}
           className={lineClass}
         >
           {l}
@@ -123,7 +126,7 @@ export function CurtainImage({ src, alt, className = "" }: { src: string; alt: s
       <motion.div
         initial={{ x: "0%" }}
         animate={inView ? { x: "100%" } : {}}
-        transition={{ duration: 1.1, ease: [0.76, 0, 0.24, 1], delay: 0.2 }}
+        transition={{ duration: 1.4, ease: [0.76, 0, 0.24, 1], delay: 0.2 }}
         className="absolute inset-0 bg-[var(--emerald-deep)]"
       />
     </div>
