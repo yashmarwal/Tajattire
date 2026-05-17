@@ -225,19 +225,28 @@ export function Collections() {
       <section id="collections" className="relative bg-deep-black flex flex-col pt-24 pb-12 gap-12 overflow-hidden">
         <div className="px-6 flex items-center justify-between mb-6">
           <span className="text-xs uppercase tracking-[0.3em] text-[var(--gold)]">04 — Our Collections</span>
+          <span className="text-[10px] uppercase tracking-[0.3em] text-[var(--gold)]">Scroll to explore ↓</span>
         </div>
-        {collections.map((c) => (
-          <div key={c.tag} className="relative w-full min-h-[70vh] flex flex-col overflow-hidden border-y border-[var(--gold)]/20" data-cursor="View">
+        {collections.map((c, index) => (
+          <motion.div 
+            key={c.tag} 
+            initial={{ opacity: 0, y: 60, scale: 0.97 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true, margin: "-10%" }}
+            transition={{ type: "spring", stiffness: 38, damping: 16, delay: index * 0.15 }}
+            className="relative w-full min-h-[75vh] flex flex-col overflow-hidden border-y border-[var(--gold)]/20" 
+            data-cursor="View"
+          >
             <img src={c.img} alt={c.title} className="absolute inset-0 w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/40 to-transparent" />
             <div className="absolute top-6 left-6 text-xs tracking-[0.3em] text-[var(--gold)]">{c.tag}</div>
             <div className="absolute bottom-0 left-0 right-0 p-8">
               <div className="text-xs uppercase tracking-[0.3em] text-[var(--gold)] mb-3">{c.count}</div>
-              <h3 className="font-display text-cloud text-5xl font-light mb-5">{c.title}</h3>
+              <h3 className="font-display text-cloud text-[2rem] leading-tight md:text-7xl font-light mb-5">{c.title}</h3>
               <p className="text-cloud/70 max-w-md mb-6 leading-relaxed">{c.copy}</p>
               <MagneticButton href="#order" variant="gold" cursorLabel="Enquire">Enquire This Collection →</MagneticButton>
             </div>
-          </div>
+          </motion.div>
         ))}
       </section>
     );
@@ -370,7 +379,13 @@ export function CustomOrder() {
   return (
     <section className="relative bg-[#1A5C38] grain py-32 overflow-hidden border-t border-[var(--gold)]/20">
       <div className="max-w-[1500px] mx-auto px-6 lg:px-12">
-        <div className="text-center max-w-2xl flex flex-col items-center w-full mx-auto">
+        <motion.div 
+          initial={{ opacity: 0, y: 60, scale: 0.97 }}
+          whileInView={{ opacity: 1, y: 0, scale: 1 }}
+          viewport={{ once: true, margin: "-10%" }}
+          transition={{ type: "spring", stiffness: 38, damping: 16, delay: 3 * 0.15 }}
+          className="text-center max-w-2xl flex flex-col items-center w-full mx-auto"
+        >
           <h3 className="font-display text-cloud text-[2rem] leading-tight md:text-7xl mb-6 md:mb-8">
             <span className="block font-light">Can't find</span>
             <span className="block font-light">your style?</span>
@@ -397,7 +412,7 @@ export function CustomOrder() {
           <p className="mt-8 md:mt-10 text-[var(--gold)]/50 text-[10px] md:text-xs tracking-widest uppercase">
             Minimum 100 pieces apply for custom orders
           </p>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

@@ -9,9 +9,10 @@ import {
 
 export default function App() {
   const [ready, setReady] = useState(false);
+  const [showPreloader, setShowPreloader] = useState(true);
   return (
     <main className="relative bg-cloud grain-fixed">
-      <Preloader onDone={() => setReady(true)} />
+      {showPreloader && <Preloader onDone={() => { setReady(true); setTimeout(() => setShowPreloader(false), 500); }} />}
       {ready && <SmoothScroll />}
       <CustomCursor />
       <Navbar />

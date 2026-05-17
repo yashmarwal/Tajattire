@@ -1,10 +1,13 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-export function Preloader({ onDone }: { onDone: () => void }) {
+export const Preloader = React.memo(function Preloader({ onDone }: { onDone: () => void }) {
   const [stage, setStage] = useState(0);
+  const firedRef = useRef(false);
 
   useEffect(() => {
+    if (firedRef.current) return;
+    firedRef.current = true;
     const t1 = setTimeout(() => setStage(1), 300);      // start animations
     const t2 = setTimeout(() => setStage(2), 3500);     // begin fade out
     const t3 = setTimeout(() => onDone(), 4200);        // unmount, show site
@@ -73,4 +76,4 @@ export function Preloader({ onDone }: { onDone: () => void }) {
       )}
     </AnimatePresence>
   );
-}
+});
