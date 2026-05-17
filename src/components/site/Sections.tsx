@@ -192,6 +192,26 @@ export function Statement() {
 }
 
 /* ─────────── COLLECTIONS (horizontal scroll) ─────────── */
+const ProductGrid = () => (
+  <div className="mb-6 w-full mt-2">
+    <div className="hidden md:grid grid-cols-2 gap-3 max-w-[220px]">
+      {[1, 2, 3, 4].map(i => (
+        <div key={i} className="overflow-hidden rounded-[8px] shadow-md border border-[rgba(201,168,76,0.3)] aspect-[4/5] bg-black/20">
+          <img src="https://placehold.co/400x500/1A5C38/C9A84C?text=Coming+Soon" className="w-full h-full object-cover transition-transform duration-300 hover:scale-[1.05]" alt="Coming Soon" />
+        </div>
+      ))}
+    </div>
+    <div className="flex md:hidden overflow-x-auto snap-x snap-mandatory gap-3 pb-2 w-full [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
+      {[1, 2, 3, 4].map(i => (
+        <div key={i} className="snap-start shrink-0 w-[45%] overflow-hidden rounded-[8px] shadow-md border border-[rgba(201,168,76,0.3)] aspect-[4/5] bg-black/20">
+          <img src="https://placehold.co/400x500/1A5C38/C9A84C?text=Coming+Soon" className="w-full h-full object-cover transition-transform duration-300 hover:scale-[1.05]" alt="Coming Soon" />
+        </div>
+      ))}
+    </div>
+    <p className="mt-3 font-display italic text-[var(--gold)] text-sm">More designs available on enquiry</p>
+  </div>
+);
+
 const collections = [
   { tag: "01", title: "Kurti Collection", count: "180+ Designs", copy: "Cotton. Rayon. Printed. Embroidered. The range your customers reach for before they reach for anything else.", img: IMG.kurti },
   { tag: "02", title: "Gown Collection", count: "80+ Designs", copy: "Floor-length. Occasion-ready. Wholesale-priced. Because your buyers deserve evening wear that moves — and margins that don't hurt.", img: IMG.gown },
@@ -220,6 +240,9 @@ export function Collections() {
               <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12">
                 <div className="text-xs uppercase tracking-[0.3em] text-[var(--gold)] mb-3">{c.count}</div>
                 <h3 className="font-display text-cloud text-5xl md:text-7xl font-light mb-5">{c.title}</h3>
+                
+                <ProductGrid />
+
                 <p className="text-cloud/70 max-w-md mb-6 leading-relaxed">{c.copy}</p>
                 <MagneticButton href="#order" variant="gold" cursorLabel="Enquire">Enquire This Collection →</MagneticButton>
               </div>
@@ -227,10 +250,34 @@ export function Collections() {
           ))}
 
           {/* Final panel */}
-          <div className="relative w-[85vw] md:w-[60vw] h-full flex-shrink-0 flex items-center justify-center bg-[var(--emerald-deep)] grain border border-[var(--gold)]/20">
-            <div className="text-center max-w-md px-8">
-              <p className="font-display italic text-[var(--gold)] text-5xl md:text-6xl leading-tight mb-8">"Can't find your style? We do custom too."</p>
-              <MagneticButton href="https://wa.me/919999999999" variant="wa" cursorLabel="Chat">WhatsApp Us</MagneticButton>
+          <div className="relative w-[85vw] md:w-[60vw] h-full flex-shrink-0 flex flex-col items-center justify-center bg-[#1A5C38] grain border border-[var(--gold)]/20 px-6 py-12 md:p-12">
+            <div className="text-center max-w-2xl flex flex-col items-center w-full">
+              <h3 className="font-display text-cloud text-5xl md:text-7xl leading-[1.1] mb-6 md:mb-8">
+                <span className="block font-light">Can't find</span>
+                <span className="block font-light">your style?</span>
+                <span className="block font-bold italic text-[var(--gold)] mt-2">We do custom.</span>
+              </h3>
+              
+              <div className="flex flex-wrap justify-center gap-2 md:gap-3 mb-6 md:mb-8">
+                {["Custom Prints", "Fabric Selection", "Bulk Embroidery", "Private Label"].map(pill => (
+                  <span key={pill} className="px-3 md:px-4 py-1.5 rounded-full border border-cloud/30 text-cloud/90 text-[10px] md:text-xs uppercase tracking-wider bg-white/5">
+                    {pill}
+                  </span>
+                ))}
+              </div>
+              
+              <p className="text-cloud/70 mb-8 md:mb-10 max-w-md mx-auto leading-relaxed text-sm md:text-base">
+                From fabric selection to final stitch — if you can imagine it, we can manufacture it. Share your reference and we'll build it from scratch.
+              </p>
+              
+              <div className="flex flex-col gap-3 w-full md:w-auto min-w-[260px]">
+                <MagneticButton href="https://wa.me/919999999999" variant="gold" cursorLabel="Chat">Discuss Custom Order</MagneticButton>
+                <MagneticButton href="mailto:orders@tajattire.com" variant="outline" cursorLabel="Email">Send Reference Images</MagneticButton>
+              </div>
+              
+              <p className="mt-8 md:mt-10 text-[var(--gold)]/50 text-[10px] md:text-xs tracking-widest uppercase">
+                Minimum 100 pieces apply for custom orders
+              </p>
             </div>
           </div>
         </motion.div>
