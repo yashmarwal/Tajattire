@@ -30,15 +30,9 @@ export function Navbar() {
         }`}
       >
         <div className="max-w-[1500px] mx-auto px-6 lg:px-12 h-20 flex items-center justify-between">
-          <a href="#top" data-cursor="Home" className="flex items-center gap-3">
-            {/* TODO: replace with actual logo.png from client */}
-            <img 
-              src="/logo.png" 
-              alt="TajAttire Logo" 
-              className={`h-10 w-auto transition-all ${scrolled ? "drop-shadow-sm" : ""}`}
-              style={{ mixBlendMode: scrolled ? "normal" : "lighten" }}
-            />
-            <span className="font-display text-2xl tracking-wider text-cloud">TajAttire</span>
+          <a href="#top" data-cursor="Home" className="flex flex-col">
+            <span className="font-display text-2xl tracking-wider text-[var(--gold)] font-bold leading-none">TajAttire</span>
+            <span className="font-display italic text-[11px] text-[var(--gold)]/70 mt-1">Handcrafted Heritage</span>
           </a>
           <div className="hidden md:flex items-center gap-10">
             {links.map((l) => (

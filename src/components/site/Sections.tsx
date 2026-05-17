@@ -683,13 +683,6 @@ export function Footer() {
 
       <div className="max-w-[1500px] mx-auto px-6 lg:px-12">
         <div className="text-center mb-16">
-          {/* TODO: replace with actual logo.png from client */}
-          <img 
-            src="/logo.png" 
-            alt="TajAttire Logo" 
-            className="h-14 w-auto mx-auto mb-3" 
-            style={{ mixBlendMode: "lighten", filter: "brightness(1)" }} 
-          />
           <h3 className="font-display text-cloud text-5xl tracking-wider">TajAttire</h3>
           <p className="font-display italic text-[var(--gold)] mt-2">Handcrafted Heritage</p>
         </div>
