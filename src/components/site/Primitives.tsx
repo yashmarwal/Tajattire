@@ -123,7 +123,7 @@ export function CurtainImage({ src, alt, className = "" }: { src: string; alt: s
       <motion.div
         initial={{ x: "0%" }}
         animate={inView ? { x: "100%" } : {}}
-        transition={{ duration: 1.2, ease: [0.7, 0, 0.3, 1] }}
+        transition={{ duration: 1.1, ease: [0.76, 0, 0.24, 1], delay: 0.2 }}
         className="absolute inset-0 bg-[var(--emerald-deep)]"
       />
     </div>
@@ -134,19 +134,31 @@ export function CountUp({ end, prefix = "", suffix = "", className = "" }: { end
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true });
   const [val, setVal] = useState(0);
+  const [isDone, setIsDone] = useState(false);
   useEffect(() => {
     if (!inView) return;
     const start = performance.now();
-    const dur = 1800;
+    const dur = 2200;
     const tick = (t: number) => {
       const p = Math.min(1, (t - start) / dur);
-      const eased = 1 - Math.pow(1 - p, 3);
+      const eased = p === 1 ? 1 : 1 - Math.pow(2, -10 * p);
       setVal(Math.round(end * eased));
       if (p < 1) requestAnimationFrame(tick);
+      else setIsDone(true);
     };
     requestAnimationFrame(tick);
   }, [inView, end]);
-  return <span ref={ref} className={className}>{prefix}{val.toLocaleString()}{suffix}</span>;
+  return (
+    <motion.span 
+      ref={ref} 
+      className={className}
+      initial={{ textShadow: "0px 0px 0px transparent" }}
+      animate={isDone ? { textShadow: ["0px 0px 20px var(--gold)", "0px 0px 0px transparent"] } : {}}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+    >
+      {prefix}{val.toLocaleString()}{suffix}
+    </motion.span>
+  );
 }
 
 export function Parallax({ children, speed = 0.3, className = "" }: { children: React.ReactNode; speed?: number; className?: string }) {

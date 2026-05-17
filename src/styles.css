@@ -168,11 +168,11 @@
 
 /* Card hover */
 .card-lift {
-  transition: transform .4s cubic-bezier(.2,.8,.2,1), box-shadow .4s ease, border-color .4s ease;
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .card-lift:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 0 30px rgba(201,168,76,0.35);
+  transform: translateY(-12px) scale(1.02);
+  box-shadow: 0 0 15px rgba(201,168,76,0.6);
   border-color: var(--gold);
 }
 
@@ -193,10 +193,11 @@
 /* Marquee */
 @keyframes marquee-left { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 @keyframes marquee-right { from { transform: translateX(-50%); } to { transform: translateX(0); } }
-.marquee-left { animation: marquee-left 30s linear infinite; }
-.marquee-right { animation: marquee-right 30s linear infinite; }
+.marquee-left, .marquee-right { transition: animation-duration 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.marquee-left { animation: marquee-left 45s linear infinite; }
+.marquee-right { animation: marquee-right 45s linear infinite; }
 .marquee-wrap:hover .marquee-left,
-.marquee-wrap:hover .marquee-right { animation-duration: 75s; }
+.marquee-wrap:hover .marquee-right { animation-duration: 90s; }
 
 /* Particles */
 @keyframes drift {
@@ -214,17 +215,17 @@
 .cursor-dot {
   position: fixed;
   top: 0; left: 0;
-  width: 10px; height: 10px;
+  width: 8px; height: 8px;
   border-radius: 999px;
   background: var(--gold);
   pointer-events: none;
   z-index: 9999;
   transform: translate(-50%, -50%);
-  transition: width .3s ease, height .3s ease, background .3s ease;
+  transition: width 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), height 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.35s ease;
   mix-blend-mode: difference;
 }
 .cursor-dot.expand {
-  width: 64px; height: 64px;
+  width: 28px; height: 28px;
   background: transparent;
   border: 1px solid var(--gold);
 }

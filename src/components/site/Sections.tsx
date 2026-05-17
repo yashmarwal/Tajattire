@@ -36,7 +36,14 @@ export function Hero() {
   return (
     <section ref={ref} id="top" className="relative min-h-[100vh] w-full overflow-hidden bg-deep-black grain">
       <motion.div style={{ y: imgY }} className="absolute inset-0">
-        <img src={IMG.hero} alt="" className="w-full h-[130%] object-cover opacity-50" />
+        <motion.img 
+          src={IMG.hero} 
+          alt="" 
+          initial={{ scale: 1.08 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 6, ease: "easeOut" }}
+          className="w-full h-[130%] object-cover opacity-50 origin-center" 
+        />
         <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/70 via-[#0A0A0A]/50 to-[#0A0A0A]" />
       </motion.div>
 
@@ -60,7 +67,7 @@ export function Hero() {
       <motion.div
         initial={{ scaleX: 0 }}
         animate={{ scaleX: 1 }}
-        transition={{ delay: 2.5, duration: 0.9, ease: "easeInOut" }}
+        transition={{ delay: 2.5, duration: 1.4, ease: "easeInOut" }}
         style={{ transformOrigin: "left" }}
         className="absolute top-32 left-12 right-12 h-px bg-[var(--gold)]"
       />
@@ -73,7 +80,7 @@ export function Hero() {
                 key={`a${i}`}
                 initial={{ opacity: 0, x: (Math.random() - 0.5) * 200, y: (Math.random() - 0.5) * 200, rotate: (Math.random() - 0.5) * 60 }}
                 animate={{ opacity: 1, x: 0, y: 0, rotate: 0 }}
-                transition={{ delay: 2.7 + i * 0.04, duration: 0.9, ease: [0.2, 0.8, 0.2, 1] }}
+                transition={{ delay: 2.7 + i * 0.06, duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
                 className="inline-block"
                 style={{ whiteSpace: "pre" }}
               >{c}</motion.span>
@@ -85,7 +92,7 @@ export function Hero() {
                 key={`b${i}`}
                 initial={{ opacity: 0, x: (Math.random() - 0.5) * 200, y: (Math.random() - 0.5) * 200, rotate: (Math.random() - 0.5) * 60 }}
                 animate={{ opacity: 1, x: 0, y: 0, rotate: 0 }}
-                transition={{ delay: 3.2 + i * 0.04, duration: 0.9, ease: [0.2, 0.8, 0.2, 1] }}
+                transition={{ delay: 3.2 + i * 0.06, duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
                 className={`inline-block ${i >= 6 ? "text-[var(--gold)] italic font-light" : ""}`}
                 style={{ whiteSpace: "pre" }}
               >{c}</motion.span>
@@ -348,10 +355,10 @@ export function Why() {
             {whys.filter(w => w.big).map((w, i) => (
               <motion.div
                 key={w.n}
-                initial={{ opacity: 0, y: 40 }}
+                initial={{ opacity: 0, y: 70 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-10%" }}
-                transition={{ duration: 0.7, delay: i * 0.12 }}
+                transition={{ type: "spring", stiffness: 40, damping: 18, mass: 1.2, delay: i * 0.15 }}
                 className="card-lift relative border border-[var(--gold)]/20 border-l-2 border-l-[var(--gold)] p-10 bg-black/20 backdrop-blur-sm"
                 data-cursor="Read"
               >
@@ -365,10 +372,10 @@ export function Why() {
             {whys.filter(w => !w.big).map((w, i) => (
               <motion.div
                 key={w.n}
-                initial={{ opacity: 0, y: 40 }}
+                initial={{ opacity: 0, y: 70 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-10%" }}
-                transition={{ duration: 0.7, delay: 0.24 + i * 0.12 }}
+                transition={{ type: "spring", stiffness: 40, damping: 18, mass: 1.2, delay: 0.3 + i * 0.15 }}
                 className="card-lift relative border border-[var(--gold)]/20 border-l-2 border-l-[var(--gold)] p-8 bg-black/20 backdrop-blur-sm"
                 data-cursor="Read"
               >
@@ -424,10 +431,6 @@ const steps = [
 ];
 
 export function HowItWorks() {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const pathScale = useTransform(scrollYProgress, [0.1, 0.8], [0, 1]);
-
   return (
     <section className="relative bg-cloud grain py-32 overflow-hidden">
       <div className="max-w-[1500px] mx-auto px-6 lg:px-12">
@@ -437,16 +440,22 @@ export function HowItWorks() {
           <p className="mt-6 text-charcoal/70 max-w-xl">Three steps. Zero confusion. Exactly how wholesale should work.</p>
         </div>
 
-        <div ref={ref} className="relative grid md:grid-cols-3 gap-10">
-          <motion.div style={{ scaleX: pathScale, transformOrigin: "left" }} className="hidden md:block absolute top-20 left-0 right-0 h-px bg-[var(--gold)]" />
+        <div className="relative grid md:grid-cols-3 gap-10">
+          <svg className="hidden md:block absolute top-20 left-0 right-0 w-full h-1 overflow-visible z-0 pointer-events-none">
+            <motion.line x1="16" y1="0" x2="100%" y2="0" stroke="var(--gold)" strokeWidth="1"
+              initial={{ pathLength: 0 }}
+              whileInView={{ pathLength: 1 }}
+              viewport={{ once: true, margin: "-10%" }}
+              transition={{ duration: 3.6, ease: [0.76, 0, 0.24, 1] }} />
+          </svg>
           {steps.map((s, i) => (
             <motion.div
               key={s.n}
-              initial={{ opacity: 0, y: 60 }}
+              initial={{ opacity: 0, y: 70 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-10%" }}
-              transition={{ duration: 0.7, delay: i * 0.2 }}
-              className="relative pt-8"
+              transition={{ type: "spring", stiffness: 40, damping: 18, mass: 1.2, delay: i * 1.8 }}
+              className="relative pt-8 z-10"
             >
               <div className="absolute top-14 left-0 w-4 h-4 rounded-full bg-cloud border-2 border-[var(--gold)]" />
               <div className="outline-num text-8xl mb-6 pl-8">{s.n}</div>
@@ -479,11 +488,12 @@ export function Testimonials() {
           {testimonials.map((t, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, y: 40 }}
+              initial={{ opacity: 0, y: 60 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-10%" }}
-              transition={{ duration: 0.7, delay: i * 0.15 }}
-              className={`card-lift bg-black/30 backdrop-blur-md border border-[var(--gold)]/20 border-l-2 border-l-[var(--gold)] p-8 ${i === 1 ? "md:mt-12" : ""} ${i === 2 ? "md:mt-6" : ""}`}
+              transition={{ type: "spring", stiffness: 35, damping: 16, delay: i * 0.2 }}
+              whileHover={{ y: [0, -6, 0], transition: { duration: 3, repeat: Infinity, ease: "easeInOut" } }}
+              className={`bg-black/30 backdrop-blur-md border border-[var(--gold)]/20 border-l-2 border-l-[var(--gold)] p-8 ${i === 1 ? "md:mt-12" : ""} ${i === 2 ? "md:mt-6" : ""}`}
               data-cursor="Read"
             >
               <div className="flex gap-1 mb-5 text-[var(--gold)]">
