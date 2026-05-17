@@ -124,7 +124,7 @@ export function Hero() {
         className="absolute left-6 bottom-32 text-[10px] tracking-[0.4em] text-[var(--gold)]/70 font-body"
         style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
       >
-        EST. 2024 · DELHI, INDIA
+        EST. 2004 · JAIPUR, INDIA
       </motion.div>
 
       {/* Scroll indicator */}
@@ -185,7 +185,7 @@ export function Statement() {
           className="font-display italic text-[var(--gold)] text-[7vw] md:text-[4.5vw] leading-[1.1] tracking-tight"
         />
         <div className="hairline mt-16 mx-auto w-32" />
-        <p className="mt-6 text-cloud/50 text-xs tracking-[0.3em] uppercase">— TajAttire, crafting wholesale fashion since 2024</p>
+        <p className="mt-6 text-cloud/50 text-xs tracking-[0.3em] uppercase">— TajAttire, crafting wholesale fashion since 2004</p>
       </div>
     </section>
   );
@@ -415,7 +415,7 @@ export function HowItWorks() {
 
 /* ─────────── TESTIMONIALS ─────────── */
 const testimonials = [
-  { quote: "TajAttire has been our go-to wholesale partner for over two years. Consistent quality, designs that always sell, and a team that actually picks up the phone.", name: "Priya Sharma", role: "Boutique Owner · Jaipur" },
+  { quote: "TajAttire has been our go-to wholesale partner for over a decade. Consistent quality, designs that always sell, and a team that actually picks up the phone.", name: "Priya Sharma", role: "Boutique Owner · Jaipur" },
   { quote: "The 100-piece MOQ was the reason we started. Today we order 5x that every season. The margins are the best we've seen in this category.", name: "Rajan Mehta", role: "Multi-brand Fashion Retailer · Surat" },
   { quote: "From kurtis to gowns — every collection delivers. Our customers don't just buy these pieces. They ask for them by name.", name: "Neha Kapoor", role: "Fashion Store Owner · Lucknow" },
 ];
@@ -575,7 +575,7 @@ export function Footer() {
             <ul className="space-y-2 text-sm">
               <li>WhatsApp: +91 99999 99999</li>
               <li>Email: orders@tajattire.com</li>
-              <li>Location: Delhi, India</li>
+              <li>Location: Jaipur, India</li>
             </ul>
             <div className="mt-5 flex gap-4">
               <a href="#" data-cursor="IG" className="text-[var(--gold)] hover:scale-125 transition-transform inline-block">
