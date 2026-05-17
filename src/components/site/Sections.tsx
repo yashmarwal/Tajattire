@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useMemo } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { MagneticButton, SplitHeading, FadeLines, CurtainImage, CountUp, Parallax } from "./Primitives";
 
 const IMG = {
@@ -199,25 +199,7 @@ export function Statement() {
 }
 
 /* ─────────── COLLECTIONS (horizontal scroll) ─────────── */
-const ProductGrid = () => (
-  <div className="mb-6 w-full mt-2">
-    <div className="hidden md:grid grid-cols-2 gap-3 max-w-[220px]">
-      {[1, 2, 3, 4].map(i => (
-        <div key={i} className="overflow-hidden rounded-[8px] shadow-md border border-[rgba(201,168,76,0.3)] aspect-[4/5] bg-black/20">
-          <img src="https://placehold.co/400x500/1A5C38/C9A84C?text=Coming+Soon" className="w-full h-full object-cover transition-transform duration-300 hover:scale-[1.05]" alt="Coming Soon" />
-        </div>
-      ))}
-    </div>
-    <div className="flex md:hidden overflow-x-auto snap-x snap-mandatory gap-3 pb-2 w-full [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
-      {[1, 2, 3, 4].map(i => (
-        <div key={i} className="snap-start shrink-0 w-[45%] overflow-hidden rounded-[8px] shadow-md border border-[rgba(201,168,76,0.3)] aspect-[4/5] bg-black/20">
-          <img src="https://placehold.co/400x500/1A5C38/C9A84C?text=Coming+Soon" className="w-full h-full object-cover transition-transform duration-300 hover:scale-[1.05]" alt="Coming Soon" />
-        </div>
-      ))}
-    </div>
-    <p className="mt-3 font-display italic text-[var(--gold)] text-sm">More designs available on enquiry</p>
-  </div>
-);
+
 
 const collections = [
   { tag: "01", title: "Kurti Collection", count: "180+ Designs", copy: "Cotton. Rayon. Printed. Embroidered. The range your customers reach for before they reach for anything else.", img: IMG.kurti },
@@ -228,7 +210,7 @@ const collections = [
 export function Collections() {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
-  const x = useTransform(scrollYProgress, [0, 1], ["0%", "-75%"]);
+  const x = useTransform(scrollYProgress, [0, 1], ["0%", "-66%"]);
 
   return (
     <section id="collections" ref={ref} className="relative bg-deep-black" style={{ height: "400vh" }}>
@@ -248,7 +230,6 @@ export function Collections() {
                 <div className="text-xs uppercase tracking-[0.3em] text-[var(--gold)] mb-3">{c.count}</div>
                 <h3 className="font-display text-cloud text-5xl md:text-7xl font-light mb-5">{c.title}</h3>
                 
-                <ProductGrid />
 
                 <p className="text-cloud/70 max-w-md mb-6 leading-relaxed">{c.copy}</p>
                 <MagneticButton href="#order" variant="gold" cursorLabel="Enquire">Enquire This Collection →</MagneticButton>
@@ -256,38 +237,136 @@ export function Collections() {
             </div>
           ))}
 
-          {/* Final panel */}
-          <div className="relative w-[85vw] md:w-[60vw] h-full flex-shrink-0 flex flex-col items-center justify-center bg-[#1A5C38] grain border border-[var(--gold)]/20 px-6 py-12 md:p-12">
-            <div className="text-center max-w-2xl flex flex-col items-center w-full">
-              <h3 className="font-display text-cloud text-5xl md:text-7xl leading-[1.1] mb-6 md:mb-8">
-                <span className="block font-light">Can't find</span>
-                <span className="block font-light">your style?</span>
-                <span className="block font-bold italic text-[var(--gold)] mt-2">We do custom.</span>
-              </h3>
-              
-              <div className="flex flex-wrap justify-center gap-2 md:gap-3 mb-6 md:mb-8">
-                {["Custom Prints", "Fabric Selection", "Bulk Embroidery", "Private Label"].map(pill => (
-                  <span key={pill} className="px-3 md:px-4 py-1.5 rounded-full border border-cloud/30 text-cloud/90 text-[10px] md:text-xs uppercase tracking-wider bg-white/5">
-                    {pill}
-                  </span>
-                ))}
-              </div>
-              
-              <p className="text-cloud/70 mb-8 md:mb-10 max-w-md mx-auto leading-relaxed text-sm md:text-base">
-                From fabric selection to final stitch — if you can imagine it, we can manufacture it. Share your reference and we'll build it from scratch.
-              </p>
-              
-              <div className="flex flex-col gap-3 w-full md:w-auto min-w-[260px]">
-                <MagneticButton href="https://wa.me/919999999999" variant="gold" cursorLabel="Chat">Discuss Custom Order</MagneticButton>
-                <MagneticButton href="mailto:orders@tajattire.com" variant="outline" cursorLabel="Email">Send Reference Images</MagneticButton>
-              </div>
-              
-              <p className="mt-8 md:mt-10 text-[var(--gold)]/50 text-[10px] md:text-xs tracking-widest uppercase">
-                Minimum 100 pieces apply for custom orders
-              </p>
-            </div>
-          </div>
+
         </motion.div>
+      </div>
+    </section>
+  );
+}
+
+export function Catalogue() {
+  const [activeTab, setActiveTab] = useState("Kurtis");
+  const tabs = ["Kurtis", "Gowns", "Tops"];
+  
+  const generateItems = (category: string) => {
+    return Array.from({ length: 6 }).map((_, i) => ({
+      id: `${category}-${i}`,
+      img: "https://placehold.co/600x750/F0EBE1/C9A84C?text=TajAttire",
+      label: `${category.toUpperCase().slice(0, -1)} — ${
+        category === "Kurtis" ? (i % 2 === 0 ? "COTTON PRINTED" : "RAYON EMBROIDERED") :
+        category === "Gowns" ? (i % 2 === 0 ? "FLOOR LENGTH" : "ANARKALI STYLE") :
+        (i % 2 === 0 ? "CONTEMPORARY CUT" : "TUNIC STYLE")
+      }`,
+      price: "₹180 onwards · MOQ 100 pcs"
+    }));
+  };
+
+  const items = useMemo(() => generateItems(activeTab), [activeTab]);
+
+  return (
+    <section className="relative bg-cloud grain py-32 overflow-hidden">
+      <div className="max-w-[1500px] mx-auto px-6 lg:px-12">
+        <div className="mb-16 text-center flex flex-col items-center">
+          <span className="text-[10px] uppercase tracking-[0.3em] text-[var(--gold)] mb-6">— Our Catalogue</span>
+          <SplitHeading text="Every Design. Ready to Ship." as="h2" className="font-display text-charcoal text-5xl md:text-7xl font-light leading-tight mb-6" />
+          <p className="text-charcoal/60 max-w-xl font-body leading-relaxed">
+            Browse a snapshot of our current catalogue. 500+ designs available — request the full lookbook via WhatsApp.
+          </p>
+        </div>
+
+        <div className="flex justify-center gap-3 mb-16">
+          {tabs.map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-6 py-2.5 rounded-full text-xs uppercase tracking-[0.15em] transition-colors border ${
+                activeTab === tab 
+                  ? "bg-[var(--gold)] border-[var(--gold)] text-deep-black" 
+                  : "border-charcoal text-charcoal hover:bg-charcoal/5"
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.4 }}
+            className="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-10"
+          >
+            {items.map((item, i) => (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                className="group relative bg-white rounded-lg shadow-sm border border-charcoal/5 overflow-hidden flex flex-col cursor-pointer card-lift"
+              >
+                <div className="relative aspect-[4/5] overflow-hidden bg-black/5">
+                  <img src={item.img} alt={item.label} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
+                  <div className="absolute inset-0 bg-[var(--gold)] opacity-0 group-hover:opacity-10 transition-opacity duration-500" />
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                    <span className="text-[var(--gold)] text-xs tracking-widest uppercase bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg">Enquire →</span>
+                  </div>
+                </div>
+                <div className="p-5 md:p-6 flex flex-col flex-grow bg-white relative z-10">
+                  <div className="h-px w-full bg-[var(--gold)]/30 mb-4" />
+                  <h4 className="text-[10px] md:text-xs font-semibold tracking-wider text-charcoal mb-2">{item.label}</h4>
+                  <p className="text-[10px] md:text-xs text-charcoal/50">{item.price}</p>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </AnimatePresence>
+
+        <div className="mt-20 flex flex-col items-center">
+          <p className="text-sm text-charcoal/70 mb-6">Want to see the full catalogue?</p>
+          <MagneticButton href="https://wa.me/919999999999" variant="wa" cursorLabel="WhatsApp">
+            Request Full Lookbook on WhatsApp
+          </MagneticButton>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export function CustomOrder() {
+  return (
+    <section className="relative bg-[#1A5C38] grain py-32 overflow-hidden border-t border-[var(--gold)]/20">
+      <div className="max-w-[1500px] mx-auto px-6 lg:px-12">
+        <div className="text-center max-w-2xl flex flex-col items-center w-full mx-auto">
+          <h3 className="font-display text-cloud text-5xl md:text-7xl leading-[1.1] mb-6 md:mb-8">
+            <span className="block font-light">Can't find</span>
+            <span className="block font-light">your style?</span>
+            <span className="block font-bold italic text-[var(--gold)] mt-2">We do custom.</span>
+          </h3>
+          
+          <div className="flex flex-wrap justify-center gap-2 md:gap-3 mb-6 md:mb-8">
+            {["Custom Prints", "Fabric Selection", "Bulk Embroidery", "Private Label"].map(pill => (
+              <span key={pill} className="px-3 md:px-4 py-1.5 rounded-full border border-cloud/30 text-cloud/90 text-[10px] md:text-xs uppercase tracking-wider bg-white/5">
+                {pill}
+              </span>
+            ))}
+          </div>
+          
+          <p className="text-cloud/70 mb-8 md:mb-10 max-w-md mx-auto leading-relaxed text-sm md:text-base">
+            From fabric selection to final stitch — if you can imagine it, we can manufacture it. Share your reference and we'll build it from scratch.
+          </p>
+          
+          <div className="flex flex-col gap-3 w-full md:w-auto min-w-[260px]">
+            <MagneticButton href="https://wa.me/919999999999" variant="gold" cursorLabel="Chat">Discuss Custom Order</MagneticButton>
+            <MagneticButton href="mailto:orders@tajattire.com" variant="outline" cursorLabel="Email">Send Reference Images</MagneticButton>
+          </div>
+          
+          <p className="mt-8 md:mt-10 text-[var(--gold)]/50 text-[10px] md:text-xs tracking-widest uppercase">
+            Minimum 100 pieces apply for custom orders
+          </p>
+        </div>
       </div>
     </section>
   );

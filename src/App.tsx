@@ -3,7 +3,7 @@ import { SmoothScroll, CustomCursor } from "@/components/site/SmoothScroll";
 import { Preloader } from "@/components/site/Preloader";
 import { Navbar } from "@/components/site/Navbar";
 import {
-  Hero, Marquee, Statement, Collections, Craft, Why, Stats,
+  Hero, Marquee, Statement, Collections, Catalogue, CustomOrder, Craft, Why, Stats,
   HowItWorks, Testimonials, CtaBand, Inquiry, Footer
 } from "@/components/site/Sections";
 
@@ -19,6 +19,8 @@ export default function App() {
       <Marquee />
       <Statement />
       <Collections />
+      <Catalogue />
+      <CustomOrder />
       <Craft />
       <Why />
       <Stats />
