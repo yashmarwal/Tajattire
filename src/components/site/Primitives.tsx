@@ -65,21 +65,20 @@ export function MagneticButton({
 export function SplitHeading({ text, className = "", as: As = "h2", delay = 0 }: { text: string; className?: string; as?: any; delay?: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-10%" });
-  const chars = text.split("");
+  const words = text.split(" ");
   return (
-    <As ref={ref} className={className}>
+    <As ref={ref} className={className} style={{ wordBreak: "normal", overflowWrap: "normal" }}>
       <div style={{ overflow: "hidden" }}>
         <span className="inline-block">
-          {chars.map((c, i) => (
-            <span key={i} style={{ display: "inline-block", overflow: "hidden" }}>
+          {words.map((w, i) => (
+            <span key={i} style={{ display: "inline-block", overflow: "hidden", marginRight: "0.25em", whiteSpace: "nowrap" }}>
               <motion.span
                 initial={{ y: "100%", opacity: 0 }}
                 animate={inView ? { y: 0, opacity: 1 } : {}}
                 transition={{ duration: 0.6, delay: delay + i * 0.04, ease: [0.2, 0.8, 0.2, 1] }}
                 className="inline-block"
-                style={{ whiteSpace: "pre" }}
               >
-                {c}
+                {w}
               </motion.span>
             </span>
           ))}

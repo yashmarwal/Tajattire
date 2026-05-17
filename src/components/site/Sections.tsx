@@ -8,7 +8,7 @@ const IMG = {
   gown: "https://images.unsplash.com/photo-1583391733981-8498408cf57f?w=1200&q=80",
   tops: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=1200&q=80",
   craft: "https://images.unsplash.com/photo-1610189025214-7b6c6c44f6f0?w=1200&q=80",
-  cta: "https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=1920&q=80",
+  cta: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1920&q=80",
   form: "https://images.unsplash.com/photo-1617059062265-1ca7b50d6e92?w=1200&q=80",
 };
 
@@ -189,7 +189,7 @@ export function Statement() {
         <SplitHeading
           text={`"We don't just make clothes. We build the inventory that builds your business."`}
           as="blockquote"
-          className="font-display italic text-[var(--gold)] text-[7vw] md:text-[4.5vw] leading-[1.1] tracking-tight"
+          className="font-display italic text-[var(--gold)] leading-[1.1] tracking-tight text-[clamp(1.5rem,5vw,3.5rem)]"
         />
         <div className="hairline mt-16 mx-auto w-32" />
         <p className="mt-6 text-cloud/50 text-xs tracking-[0.3em] uppercase">— TajAttire, crafting wholesale fashion since 2004</p>
@@ -259,7 +259,7 @@ export function Collections() {
               <div className="absolute top-6 left-6 text-xs tracking-[0.3em] text-[var(--gold)]">{c.tag}</div>
               <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12">
                 <div className="text-xs uppercase tracking-[0.3em] text-[var(--gold)] mb-3">{c.count}</div>
-                <h3 className="font-display text-cloud text-5xl md:text-7xl font-light mb-5">{c.title}</h3>
+                <h3 className="font-display text-cloud text-[2rem] leading-tight md:text-7xl font-light mb-5">{c.title}</h3>
                 
 
                 <p className="text-cloud/70 max-w-md mb-6 leading-relaxed">{c.copy}</p>
@@ -299,7 +299,7 @@ export function Catalogue() {
       <div className="max-w-[1500px] mx-auto px-6 lg:px-12">
         <div className="mb-16 text-center flex flex-col items-center">
           <span className="text-[10px] uppercase tracking-[0.3em] text-[var(--gold)] mb-6">— Our Catalogue</span>
-          <SplitHeading text="Every Design. Ready to Ship." as="h2" className="font-display text-charcoal text-5xl md:text-7xl font-light leading-tight mb-6" />
+          <SplitHeading text="Every Design. Ready to Ship." as="h2" className="font-display text-charcoal text-[2rem] leading-tight md:text-7xl font-light mb-6" />
           <p className="text-charcoal/60 max-w-xl font-body leading-relaxed">
             Browse a snapshot of our current catalogue. 500+ designs available — request the full lookbook via WhatsApp.
           </p>
@@ -371,7 +371,7 @@ export function CustomOrder() {
     <section className="relative bg-[#1A5C38] grain py-32 overflow-hidden border-t border-[var(--gold)]/20">
       <div className="max-w-[1500px] mx-auto px-6 lg:px-12">
         <div className="text-center max-w-2xl flex flex-col items-center w-full mx-auto">
-          <h3 className="font-display text-cloud text-5xl md:text-7xl leading-[1.1] mb-6 md:mb-8">
+          <h3 className="font-display text-cloud text-[2rem] leading-tight md:text-7xl mb-6 md:mb-8">
             <span className="block font-light">Can't find</span>
             <span className="block font-light">your style?</span>
             <span className="block font-bold italic text-[var(--gold)] mt-2">We do custom.</span>
@@ -412,8 +412,8 @@ export function Craft() {
         <div className="relative">
           <div className="absolute inset-0 overflow-hidden pointer-events-none -m-10 p-10"><div className="outline-num text-[clamp(6rem,20vw,18rem)] absolute -top-20 -left-4 md:-left-10 select-none max-w-full overflow-hidden">05</div></div>
           <div className="relative">
-            <SplitHeading text="Not Just Fabric." as="h2" className="block font-display text-emerald text-5xl md:text-7xl font-light leading-tight" />
-            <SplitHeading text="A Philosophy." delay={0.3} as="h2" className="block font-display text-emerald italic text-5xl md:text-7xl font-light leading-tight" />
+            <SplitHeading text="Not Just Fabric." as="h2" className="block font-display text-emerald text-[2rem] leading-tight md:text-7xl font-light" />
+            <SplitHeading text="A Philosophy." delay={0.3} as="h2" className="block font-display text-emerald italic text-[2rem] leading-tight md:text-7xl font-light" />
             <div className="mt-10 space-y-6">
               <FadeLines
                 lines={[
@@ -455,7 +455,7 @@ export function Why() {
           <SplitHeading
             text="The Partner Your Margins Have Been Waiting For."
             as="h2"
-            className="font-display text-cloud text-5xl md:text-7xl font-light max-w-3xl leading-[1.05]"
+            className="font-display text-cloud font-light max-w-3xl leading-[1.05] text-[clamp(1.8rem,6vw,4.5rem)]"
           />
           <span className="text-xs uppercase tracking-[0.3em] text-[var(--gold)]">06 — Why TajAttire</span>
         </div>
@@ -546,7 +546,7 @@ export function HowItWorks() {
       <div className="max-w-[1500px] mx-auto px-6 lg:px-12">
         <div className="mb-20 max-w-3xl">
           <span className="text-xs uppercase tracking-[0.3em] text-emerald">08 — How It Works</span>
-          <SplitHeading text="From First Look to First Shipment." as="h2" className="mt-4 font-display text-emerald text-5xl md:text-7xl font-light leading-tight" />
+          <SplitHeading text="From First Look to First Shipment." as="h2" className="mt-4 font-display text-emerald text-[2rem] leading-tight md:text-7xl font-light" />
           <p className="mt-6 text-charcoal/70 max-w-xl">Three steps. Zero confusion. Exactly how wholesale should work.</p>
         </div>
 
@@ -592,7 +592,7 @@ export function Testimonials() {
       <div className="max-w-[1500px] mx-auto px-6 lg:px-12">
         <div className="mb-20 max-w-3xl">
           <span className="text-xs uppercase tracking-[0.3em] text-[var(--gold)]">09 — Testimonials</span>
-          <SplitHeading text="1,000+ Retailers. One Thing in Common." as="h2" className="mt-4 font-display text-cloud text-5xl md:text-7xl font-light leading-[1.05]" />
+          <SplitHeading text="1,000+ Retailers. One Thing in Common." as="h2" className="mt-4 font-display text-cloud font-light leading-[1.05] text-[clamp(1.8rem,6vw,4.5rem)]" />
         </div>
         <div className="grid md:grid-cols-3 gap-8">
           {testimonials.map((t, i) => (
@@ -630,7 +630,7 @@ export function CtaBand() {
         <div className="absolute inset-0 bg-[var(--emerald-deep)]/80" />
       </div>
       <div className="relative max-w-5xl mx-auto px-6 text-center py-24">
-        <SplitHeading text="Your next bestseller is already in our catalog." as="h2" className="font-display text-cloud text-5xl md:text-7xl font-light leading-[1.05]" />
+        <SplitHeading text="Your next bestseller is already in our catalog." as="h2" className="font-display text-cloud font-light leading-[1.05] text-[clamp(2rem,7vw,4.5rem)]" />
         <p className="mt-8 font-display italic text-[var(--gold)] text-2xl md:text-3xl">The only question is — when do you want to start?</p>
         <div className="mt-12 flex flex-wrap gap-5 justify-center">
           <MagneticButton href="#order" variant="gold" cursorLabel="Catalog">Download Catalog</MagneticButton>
@@ -650,7 +650,7 @@ export function Inquiry() {
       <div className="max-w-[1500px] mx-auto px-6 lg:px-12">
         <div className="mb-20 max-w-3xl">
           <span className="text-xs uppercase tracking-[0.3em] text-emerald">10 — Inquiry</span>
-          <SplitHeading text="Ready to Stock Smart? Let's Talk." as="h2" className="mt-4 font-display text-emerald text-5xl md:text-7xl font-light leading-tight" />
+          <SplitHeading text="Ready to Stock Smart? Let's Talk." as="h2" className="mt-4 font-display text-emerald font-light leading-tight text-[clamp(1.8rem,6vw,4.5rem)]" />
           <p className="mt-6 text-charcoal/70 max-w-xl">Fill in your details and we'll reach out within 2 business hours. No spam. No fluff. Just a conversation about your next order.</p>
         </div>
 
