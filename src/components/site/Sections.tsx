@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useMemo } from "react";
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import { motion, useScroll, useTransform, AnimatePresence, useSpring } from "framer-motion";
 import { MagneticButton, SplitHeading, FadeLines, CurtainImage, CountUp, Parallax } from "./Primitives";
 
 const IMG = {
@@ -255,10 +255,11 @@ const collections = [
 export function Collections() {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
-  const x = useTransform(scrollYProgress, [0, 1], ["calc(0% + 0vw)", "calc(-100% + 100vw)"]);
+  const smoothProgress = useSpring(scrollYProgress, { damping: 50, stiffness: 400, mass: 0.1 });
+  const x = useTransform(smoothProgress, [0, 1], ["calc(0% + 0vw)", "calc(-100% + 100vw)"]);
 
   const [currentCard, setCurrentCard] = useState("01");
-  const cardIndexTransform = useTransform(scrollYProgress, [0, 0.33, 0.66, 1], [1, 2, 3, 4]);
+  const cardIndexTransform = useTransform(smoothProgress, [0, 0.33, 0.66, 1], [1, 2, 3, 4]);
 
   useEffect(() => {
     return cardIndexTransform.onChange((latest) => {
@@ -275,8 +276,8 @@ export function Collections() {
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  const progressWidth = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
-  const hintOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
+  const progressWidth = useTransform(smoothProgress, [0, 1], ["0%", "100%"]);
+  const hintOpacity = useTransform(smoothProgress, [0, 0.1], [1, 0]);
 
   return (
     <section id="collections" ref={ref} className="relative bg-deep-black" style={{ height: "500vh" }}>
@@ -291,7 +292,7 @@ export function Collections() {
           </span>
         </div>
 
-        <motion.div style={{ x }} className="flex h-full w-max gap-4 md:gap-6 px-6 lg:px-12 pt-24 md:pt-32 pb-12 items-center">
+        <motion.div style={{ x, willChange: "transform" }} className="flex h-full w-max gap-4 md:gap-6 px-6 lg:px-12 pt-24 md:pt-32 pb-12 items-center">
           {collections.map((c, i) => (
             <div key={c.tag} className="relative w-[90vw] md:w-[75vw] h-full flex-shrink-0 overflow-hidden border border-[var(--gold)]/20 rounded-md" data-cursor="View">
               <img src={c.img} alt={c.title} className="absolute inset-0 w-full h-full object-cover" />
