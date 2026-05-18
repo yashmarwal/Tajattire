@@ -1021,8 +1021,6 @@ export function FactoryVisitPopup() {
   });
 
   useEffect(() => {
-    if (sessionStorage.getItem("factoryVisitShown")) return;
-
     let lastScrollY = window.scrollY;
     let maxScrollY = window.scrollY;
     const handleScroll = () => {
@@ -1030,7 +1028,6 @@ export function FactoryVisitPopup() {
       if (sy > maxScrollY) maxScrollY = sy;
       if (maxScrollY > 600 && sy < lastScrollY - 20) {
         setVisible(true);
-        sessionStorage.setItem("factoryVisitShown", "true");
         window.removeEventListener("scroll", handleScroll);
       }
       lastScrollY = sy;
@@ -1086,7 +1083,7 @@ export function FactoryVisitPopup() {
           <div className="w-full h-[4px] bg-gradient-to-r from-transparent via-[#C9A84C] to-transparent" />
           
           <div className="p-7 relative">
-            <button onClick={() => { setVisible(false); sessionStorage.setItem("factoryVisitShown", "true"); }} className="absolute top-6 right-6 text-[var(--gold)] hover:text-white transition-colors">
+            <button onClick={() => setVisible(false)} className="absolute top-6 right-6 text-[var(--gold)] hover:text-white transition-colors">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
             </button>
             
