@@ -44,7 +44,13 @@ export const Preloader = React.memo(function Preloader({ onDone }: { onDone: () 
         {/* LAYER 2 — HORIZONTAL THREAD LINE */}
         <motion.div 
           className="absolute left-0 w-full flex items-center justify-start"
-          style={{ top: "25%", height: "4px", marginTop: "-2px" }}
+          style={{ 
+            top: "50%", 
+            height: "4px", 
+            marginTop: "-2px",
+            maskImage: "linear-gradient(to right, black 0%, black calc(50% - 90px), transparent calc(50% - 90px), transparent calc(50% + 90px), black calc(50% + 90px), black 100%)",
+            WebkitMaskImage: "linear-gradient(to right, black 0%, black calc(50% - 90px), transparent calc(50% - 90px), transparent calc(50% + 90px), black calc(50% + 90px), black 100%)"
+          }}
           animate={stage >= 4 ? { opacity: 0 } : { opacity: 1 }}
           transition={{ duration: 0.3 }}
         >
