@@ -668,14 +668,15 @@ export function Stats() {
         className="absolute inset-0 opacity-[0.04]"
         style={{ backgroundImage: "linear-gradient(var(--gold) 1px, transparent 1px), linear-gradient(90deg, var(--gold) 1px, transparent 1px)", backgroundSize: "60px 60px" }}
       />
-      <motion.div 
+      <motion.div
         animate={{ opacity: [0, 1, 0], scale: [0.8, 1.2, 1.4] }}
         transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
         className="absolute inset-0 z-0 pointer-events-none"
-        style={{ 
-          background: "radial-gradient(circle at center, rgba(201,168,76,0.08) 2px, transparent 2px)", 
-          backgroundSize: "60px 60px" 
-        }} 
+        style={{
+          background: "radial-gradient(circle at center, rgba(201,168,76,0.08) 2px, transparent 2px)",
+          backgroundSize: "60px 60px",
+          willChange: "transform, opacity",
+        }}
       />
       <div className="relative max-w-[1500px] mx-auto px-6 lg:px-12">
         <div className="mb-16">
@@ -730,8 +731,8 @@ export function HowItWorks() {
               className="relative pt-8 z-10"
             >
               <div className="absolute top-14 left-0 w-4 h-4 rounded-full bg-cloud border-2 border-[var(--gold)]" />
-              <motion.div 
-                animate={{ textShadow: ["0 0 40px rgba(201,168,76,0.0)", "0 0 40px rgba(201,168,76,0.15)", "0 0 40px rgba(201,168,76,0.0)"] }}
+              <motion.div
+                animate={{ opacity: [0.35, 0.65, 0.35] }}
                 transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                 className="outline-num text-6xl md:text-8xl mb-6 pl-8"
               >{s.n}</motion.div>
