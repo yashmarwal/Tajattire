@@ -101,9 +101,7 @@
     word-break: normal;
     hyphens: none;
   }
-  section {
-    overflow-x: hidden;
-  }
+
   ::selection { background: var(--gold); color: var(--deep-black); }
 }
 

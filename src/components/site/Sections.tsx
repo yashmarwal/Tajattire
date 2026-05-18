@@ -210,7 +210,7 @@ const collections = [
 export function Collections() {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
-  const x = useTransform(scrollYProgress, [0, 1], ["0vw", "-300vw"]);
+  const x = useTransform(scrollYProgress, [0, 1], ["0%", "-75%"]);
 
   const [currentCard, setCurrentCard] = useState("01");
   const cardIndexTransform = useTransform(scrollYProgress, [0, 0.33, 0.66, 1], [1, 2, 3, 4]);
