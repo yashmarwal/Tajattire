@@ -171,15 +171,14 @@ function RotatingBox({ texts, isFilled, interval }: { texts: string[]; isFilled:
           ? "bg-[var(--gold)] text-[#0A0A0A]" 
           : "border border-[var(--gold)] text-[var(--gold)] bg-transparent"
       }`}
-      transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ type: "spring", stiffness: 400, damping: 30 }}
     >
       <AnimatePresence initial={false}>
         <motion.div
           key={index}
-          initial={{ y: 30, opacity: 0, position: "absolute" }}
-          animate={{ y: 0, opacity: 1, position: "relative" }}
-          exit={{ y: -30, opacity: 0, position: "absolute" }}
-          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          initial={{ y: 20, opacity: 0, position: "absolute" }}
+          animate={{ y: 0, opacity: 1, position: "relative", transition: { duration: 0.2, ease: "easeOut" } }}
+          exit={{ y: -20, opacity: 0, position: "absolute", transition: { duration: 0.15, ease: "easeIn" } }}
           className={`whitespace-nowrap text-[9px] md:text-[11px] uppercase tracking-[0.1em] md:tracking-[0.15em] font-body ${isFilled ? "font-bold" : "font-medium"}`}
         >
           {texts[index]}
@@ -191,14 +190,14 @@ function RotatingBox({ texts, isFilled, interval }: { texts: string[]; isFilled:
 
 export function Marquee() {
   const boxesData = [
-    { texts: ["500+ Designs", "Kurtis", "Gowns and Tops", "New Arrivals"], filled: true, delay: 3400 },
-    { texts: ["MOQ 100 Pieces", "Bulk Orders", "Custom Made", "Private Label"], filled: false, delay: 4100 },
-    { texts: ["Starting ₹180", "Best Margins", "Wholesale Price", "Trade Only"], filled: true, delay: 4900 },
-    { texts: ["Pan India Delivery", "20+ States", "Fast Dispatch", "On Time"], filled: false, delay: 3700 },
+    { texts: ["500+ Designs", "Kurtis", "Gowns and Tops", "New Arrivals"], filled: true, delay: 1800 },
+    { texts: ["MOQ 100 Pieces", "Bulk Orders", "Custom Made", "Private Label"], filled: false, delay: 2100 },
+    { texts: ["Starting ₹180", "Best Margins", "Wholesale Price", "Trade Only"], filled: true, delay: 2400 },
+    { texts: ["Pan India Delivery", "20+ States", "Fast Dispatch", "On Time"], filled: false, delay: 2700 },
   ];
 
   return (
-    <section className="w-full bg-[#0A0A0A] border-y border-[var(--gold)]/40 py-5 md:py-8 relative z-20 flex justify-center overflow-hidden">
+    <section className="w-full bg-[#0A0A0A] border-y border-[var(--gold)]/40 py-[10px] md:py-[12px] relative z-20 flex justify-center overflow-hidden">
       <div className="flex gap-3 md:gap-6 items-center w-max max-w-full px-4 overflow-x-auto scrollbar-hide">
         {boxesData.map((box, i) => (
           <RotatingBox key={i} texts={box.texts} isFilled={box.filled} interval={box.delay} />
