@@ -530,7 +530,7 @@ const whys = [
 
 export function Why() {
   return (
-    <section className="relative bg-[var(--emerald-deep)] grain py-32 overflow-hidden">
+    <section className="relative bg-[var(--emerald-deep)] grain py-32 overflow-x-clip">
       <div className="max-w-[1500px] mx-auto px-6 lg:px-12">
         <div className="flex items-end justify-between mb-20 flex-wrap gap-6">
           <SplitHeading
@@ -550,7 +550,8 @@ export function Why() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-10%" }}
                 transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1], delay: i * 0.15 }}
-                className="card-lift relative border border-[var(--gold)]/20 border-l-2 border-l-[var(--gold)] p-10 bg-black/20 backdrop-blur-sm"
+                style={{ top: `calc(6rem + ${i * 2}rem)` }}
+                className="sticky z-10 card-lift border border-[var(--gold)]/20 border-l-2 border-l-[var(--gold)] p-10 bg-[#0A2416] shadow-[0_-20px_40px_rgba(0,0,0,0.3)]"
                 data-cursor="Read"
               >
                 <span className="absolute top-4 right-6 outline-num text-7xl opacity-40">{w.n}</span>
@@ -567,7 +568,8 @@ export function Why() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-10%" }}
                 transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1], delay: 0.3 + i * 0.15 }}
-                className="card-lift relative border border-[var(--gold)]/20 border-l-2 border-l-[var(--gold)] p-8 bg-black/20 backdrop-blur-sm"
+                style={{ top: `calc(6rem + ${i * 2}rem)` }}
+                className="sticky z-10 card-lift border border-[var(--gold)]/20 border-l-2 border-l-[var(--gold)] p-8 bg-[#0A2416] shadow-[0_-20px_40px_rgba(0,0,0,0.3)]"
                 data-cursor="Read"
               >
                 <span className="absolute top-3 right-5 outline-num text-5xl opacity-40">{w.n}</span>
