@@ -780,7 +780,7 @@ export function Inquiry() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            access_key: "YOUR_WEB3FORMS_KEY_HERE",
+            access_key: "eac902e8-cb07-44ff-b8d0-6fb0785f6ba0",
             name: formData.name,
             business: formData.business,
             city: formData.city,
@@ -995,7 +995,7 @@ export function FactoryVisitPopup() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            access_key: "YOUR_WEB3FORMS_KEY_HERE",
+            access_key: "eac902e8-cb07-44ff-b8d0-6fb0785f6ba0",
             subject: "Factory Visit Request — TajAttire",
             name: formData.name,
             business_type: formData.businessType,
