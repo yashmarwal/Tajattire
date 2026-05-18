@@ -15,9 +15,9 @@ export default function App() {
 
   return (
     <main className="relative bg-cloud grain-fixed">
-      <motion.div 
+      <motion.div
         className="fixed top-0 left-0 right-0 h-[2px] bg-[#C9A84C] z-[8500]"
-        style={{ scaleX: scrollYProgress, transformOrigin: "left" }}
+        style={{ scaleX: scrollYProgress, transformOrigin: "left", willChange: "transform" }}
       />
       {showPreloader && <Preloader onDone={() => { setReady(true); setTimeout(() => setShowPreloader(false), 500); }} />}
       {ready && <SmoothScroll />}
@@ -38,7 +38,7 @@ export default function App() {
       <Inquiry />
       <Footer />
       <FactoryVisitPopup />
-      <FloatingWhatsApp />
+      {!showPreloader && <FloatingWhatsApp />}
     </main>
   );
 }

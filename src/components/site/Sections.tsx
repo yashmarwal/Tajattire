@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo } from "react";
+import { memo, useEffect, useState, useRef, useMemo } from "react";
 import { motion, useScroll, useTransform, AnimatePresence, useSpring } from "framer-motion";
 import { MagneticButton, SplitHeading, FadeLines, CurtainImage, CountUp, Parallax } from "./Primitives";
 
@@ -20,9 +20,9 @@ export function Hero() {
   const textY = useTransform(scrollYProgress, [0, 1], ["0%", "-50%"]);
   const textOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
 
-  // Scatter chars
-  const headlineA = "Where Craft".split("");
-  const headlineB = "Meets Commerce.".split("");
+  // Scatter words (split by word to prevent mid-word line breaks on mobile)
+  const headlineA = "Where Craft".split(" ");
+  const headlineB = "Meets Commerce.".split(" ");
 
   const floatingDots = useMemo(() => Array.from({ length: 6 }, (_, i) => ({
     id: `dot-${i}`,
@@ -36,13 +36,14 @@ export function Hero() {
   return (
     <section ref={ref} id="top" className="relative min-h-[100vh] w-full overflow-hidden overflow-x-hidden bg-deep-black grain">
       <motion.div style={{ y: imgY }} className="absolute inset-0">
-        <motion.img 
-          src={IMG.hero} 
-          alt="" 
+        <motion.img
+          src={IMG.hero}
+          alt=""
+          loading="lazy"
           initial={{ scale: 1.08 }}
           animate={{ scale: 1 }}
           transition={{ duration: 6, ease: "easeOut" }}
-          className="w-full h-[130%] object-cover opacity-50 origin-center" 
+          className="w-full h-[130%] object-cover opacity-50 origin-center"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/70 via-[#0A0A0A]/50 to-[#0A0A0A]" />
       </motion.div>
@@ -53,7 +54,7 @@ export function Hero() {
           <motion.div
             key={dot.id}
             className="absolute rounded-full bg-[#C9A84C]"
-            style={{ left: `${dot.left}%`, top: `${dot.top}%`, width: dot.size, height: dot.size }}
+            style={{ left: `${dot.left}%`, top: `${dot.top}%`, width: dot.size, height: dot.size, willChange: "transform" }}
             animate={{
               y: [0, -30, 0],
               x: [0, 10, -5, 0],
@@ -79,29 +80,29 @@ export function Hero() {
       />
 
       <motion.div style={{ y: textY, opacity: textOpacity }} className="relative z-10 max-w-[1500px] mx-auto px-6 lg:px-12 pt-44 pb-32">
-        <h1 className="font-display text-cloud leading-[0.95] tracking-[-0.02em]">
+        <h1 className="font-display text-cloud leading-[0.95] tracking-[-0.02em]" style={{ overflowWrap: "break-word", wordBreak: "normal", whiteSpace: "normal" }}>
           <span className="block max-w-full overflow-hidden text-[9vw] font-light">
-            {headlineA.map((c, i) => (
+            {headlineA.map((w, i) => (
               <motion.span
                 key={`a${i}`}
                 initial={{ opacity: 0, x: (Math.random() - 0.5) * 200, y: (Math.random() - 0.5) * 200, rotate: (Math.random() - 0.5) * 60 }}
                 animate={{ opacity: 1, x: 0, y: 0, rotate: 0 }}
-                transition={{ delay: 2.7 + i * 0.06, duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ delay: 2.7 + i * 0.15, duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
                 className="inline-block"
-                style={{ whiteSpace: "pre" }}
-              >{c}</motion.span>
+                style={{ whiteSpace: "nowrap", marginRight: "0.3em" }}
+              >{w}</motion.span>
             ))}
           </span>
           <span className="block max-w-full overflow-hidden text-[9vw] font-bold">
-            {headlineB.map((c, i) => (
+            {headlineB.map((w, i) => (
               <motion.span
                 key={`b${i}`}
                 initial={{ opacity: 0, x: (Math.random() - 0.5) * 200, y: (Math.random() - 0.5) * 200, rotate: (Math.random() - 0.5) * 60 }}
                 animate={{ opacity: 1, x: 0, y: 0, rotate: 0 }}
-                transition={{ delay: 3.2 + i * 0.06, duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
-                className={`inline-block ${i >= 6 ? "text-[var(--gold)] italic font-light" : ""}`}
-                style={{ whiteSpace: "pre" }}
-              >{c}</motion.span>
+                transition={{ delay: 3.2 + i * 0.15, duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
+                className={`inline-block ${i >= 1 ? "text-[var(--gold)] italic font-light" : ""}`}
+                style={{ whiteSpace: "nowrap", marginRight: "0.3em" }}
+              >{w}</motion.span>
             ))}
           </span>
         </h1>
@@ -195,7 +196,7 @@ function RotatingBox({ texts, isFilled, interval, minW }: { texts: string[]; isF
   );
 }
 
-export function Marquee() {
+export const Marquee = memo(function Marquee() {
   const boxesData = [
     { texts: ["500+ Designs", "Kurtis", "Gowns and Tops", "New Arrivals"], filled: true, delay: 3000, minW: 180 },
     { texts: ["MOQ 100 Pieces", "Bulk Orders", "Custom Made", "Private Label"], filled: false, delay: 3200, minW: 160 },
@@ -226,7 +227,7 @@ export function Marquee() {
       </div>
     </section>
   );
-}
+});
 
 /* ─────────── BRAND STATEMENT ─────────── */
 export function Statement() {
@@ -238,26 +239,26 @@ export function Statement() {
         <path d="M100 10 L60 50 L60 100 L140 100 L140 50 Z M100 10 L100 100 M80 40 L120 40 M70 70 L130 70" stroke="white" strokeWidth="0.5" fill="none" />
       </svg>
       <div className="relative max-w-5xl mx-auto px-6 text-center">
-        <motion.blockquote 
-          initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.5 }}
+        <motion.blockquote
+          initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-8%" }}
           className="font-display italic leading-[1.1] tracking-tight text-[clamp(1.5rem,5vw,3.5rem)] flex flex-wrap justify-center gap-[0.2em]"
         >
           {words.map((word, i) => {
             const cleanWord = word.replace(/[^a-zA-Z]/g, '').toLowerCase();
             const isHighlight = ["clothes", "inventory", "business"].includes(cleanWord);
             return (
-              <motion.span 
+              <motion.span
                 key={i}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 60 }}
                 variants={{
-                  visible: { 
-                    opacity: 1, 
+                  visible: {
+                    opacity: 1,
                     y: 0,
                     color: isHighlight ? ["var(--gold)", "#C9A84C", "var(--gold)"] : "var(--gold)",
                     textShadow: isHighlight ? ["0 0 0px transparent", "0 0 20px rgba(201,168,76,0.8)", "0 0 0px transparent"] : "0 0 0px transparent",
                     transition: {
-                      opacity: { duration: 0.6, delay: i * 0.05 },
-                      y: { duration: 0.6, ease: "easeOut", delay: i * 0.05 },
+                      opacity: { type: "spring", stiffness: 38, damping: 16, mass: 1, delay: i * 0.05 },
+                      y: { type: "spring", stiffness: 38, damping: 16, mass: 1, delay: i * 0.05 },
                       color: isHighlight ? { duration: 0.6, delay: 0.8 + (["clothes", "inventory", "business"].indexOf(cleanWord) * 0.4) } : {},
                       textShadow: isHighlight ? { duration: 0.6, delay: 0.8 + (["clothes", "inventory", "business"].indexOf(cleanWord) * 0.4) } : {}
                     }
@@ -290,7 +291,7 @@ export function Collections() {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
   const smoothProgress = useSpring(scrollYProgress, { damping: 50, stiffness: 400, mass: 0.1 });
-  const x = useTransform(smoothProgress, [0, 1], ["calc(0% + 0vw)", "calc(-100% + 100vw)"]);
+  const x = useTransform(smoothProgress, [0, 1], ["0vw", "-300vw"]);
 
   const [currentCard, setCurrentCard] = useState("01");
   const cardIndexTransform = useTransform(smoothProgress, [0, 0.33, 0.66, 1], [1, 2, 3, 4]);
@@ -327,21 +328,21 @@ export function Collections() {
           </span>
         </div>
 
-        <motion.div style={{ x, willChange: "transform" }} className="flex h-full w-max gap-4 md:gap-6 px-6 lg:px-12 pt-24 md:pt-32 pb-12 items-center">
+        <motion.div style={{ x, willChange: "transform" }} className="flex h-full w-max">
           {collections.map((c, i) => (
-            <div key={c.tag} className="relative w-[90vw] md:w-[75vw] h-full flex-shrink-0 overflow-hidden border border-[var(--gold)]/20 rounded-md" data-cursor="View">
-              <img src={c.img} alt={c.title} className="absolute inset-0 w-full h-full object-cover" />
+            <div key={c.tag} className="relative flex-shrink-0 overflow-hidden" style={{ width: "100vw", height: isMobile ? "100svh" : "100vh" }} data-cursor="View">
+              <img src={c.img} alt={c.title} loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/40 to-transparent" />
               
               <div className="absolute top-6 left-6 text-xs tracking-[0.3em] text-[var(--gold)]">{c.tag}</div>
               <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 pb-24 md:pb-32">
                 <div className="text-xs uppercase tracking-[0.3em] text-[var(--gold)] mb-3">{c.count}</div>
-                <motion.h3 style={{ x: textX }} className={`font-display text-cloud font-light mb-5 leading-tight ${isMobile ? 'text-[clamp(2rem,8vw,5rem)]' : 'text-5xl md:text-7xl'}`}>{c.title}</motion.h3>
+                <motion.h3 style={{ x: textX }} className={`font-display text-cloud font-light mb-5 leading-tight ${isMobile ? 'text-[clamp(2rem,8vw,5rem)]' : 'text-3xl md:text-7xl'}`}>{c.title}</motion.h3>
                 
                 {isMobile && (
                   <div className="mb-6 flex flex-row w-full gap-4">
-                    <img src="https://placehold.co/400x500/1A5C38/C9A84C?text=Coming+Soon" alt="Thumb" className="w-1/2 h-32 rounded-[8px] border border-[var(--gold)]/30 object-cover" />
-                    <img src="https://placehold.co/400x500/1A5C38/C9A84C?text=Coming+Soon" alt="Thumb" className="w-1/2 h-32 rounded-[8px] border border-[var(--gold)]/30 object-cover" />
+                    <img src="https://placehold.co/400x500/1A5C38/C9A84C?text=Coming+Soon" alt="Thumb" loading="lazy" className="w-1/2 h-32 rounded-[8px] border border-[var(--gold)]/30 object-cover" />
+                    <img src="https://placehold.co/400x500/1A5C38/C9A84C?text=Coming+Soon" alt="Thumb" loading="lazy" className="w-1/2 h-32 rounded-[8px] border border-[var(--gold)]/30 object-cover" />
                   </div>
                 )}
 
@@ -362,8 +363,8 @@ export function Collections() {
             </div>
           ))}
 
-          <div className="relative w-[90vw] md:w-[75vw] h-full flex-shrink-0 bg-[var(--emerald-deep)] grain flex flex-col justify-center items-center text-center p-8 border border-[var(--gold)]/20 rounded-md">
-            <h3 className={`font-display text-cloud font-light mb-6 leading-[1.1] ${isMobile ? 'text-[clamp(2rem,8vw,5rem)]' : 'text-5xl md:text-7xl'}`}>
+          <div className="relative flex-shrink-0 bg-[var(--emerald-deep)] grain flex flex-col justify-center items-center text-center p-8" style={{ width: "100vw", height: isMobile ? "100svh" : "100vh" }}>
+            <h3 className={`font-display text-cloud font-light mb-6 leading-[1.1] ${isMobile ? 'text-[clamp(2rem,8vw,5rem)]' : 'text-3xl md:text-7xl'}`}>
               <span className="block">Want something</span>
               <span className="block italic text-[var(--gold)] font-bold mt-2">custom?</span>
             </h3>
@@ -438,7 +439,7 @@ export function Catalogue() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.4 }}
-            className="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-10"
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-10"
           >
             {items.map((item, i) => (
               <motion.div
@@ -449,7 +450,7 @@ export function Catalogue() {
                 className="group relative bg-white rounded-lg shadow-sm border border-charcoal/5 overflow-hidden flex flex-col cursor-pointer card-lift"
               >
                 <div className="relative aspect-[4/5] overflow-hidden bg-black/5">
-                  <img src={item.img} alt={item.label} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-[1.04]" />
+                  <img src={item.img} alt={item.label} loading="lazy" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-[1.04]" />
                   <div className="absolute inset-0 bg-[var(--gold)] opacity-0 group-hover:opacity-10 transition-opacity duration-1000" />
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-1000">
                     <span className="text-[var(--gold)] text-xs tracking-widest uppercase bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg">Enquire →</span>
@@ -480,11 +481,11 @@ export function CustomOrder() {
   return (
     <section className="relative bg-[#1A5C38] grain py-32 overflow-hidden border-t border-[var(--gold)]/20">
       <div className="max-w-[1500px] mx-auto px-6 lg:px-12">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 60, scale: 0.97 }}
           whileInView={{ opacity: 1, y: 0, scale: 1 }}
-          viewport={{ once: true, margin: "-10%" }}
-          transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1], delay: 3 * 0.15 }}
+          viewport={{ once: true, margin: "-8%" }}
+          transition={{ type: "spring", stiffness: 38, damping: 16, mass: 1, delay: 0.45 }}
           className="text-center max-w-2xl flex flex-col items-center w-full mx-auto"
         >
           <h3 className="font-display text-cloud text-[2rem] leading-tight md:text-7xl mb-6 md:mb-8">
@@ -582,17 +583,17 @@ export function Why() {
             {whys.filter(w => w.big).map((w, i) => (
               <motion.div
                 key={`desktop-${w.n}`}
-                initial={{ opacity: 0, y: 70 }}
+                initial={{ opacity: 0, y: 60 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-10%" }}
-                transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1], delay: i * 0.15 }}
+                viewport={{ once: true, margin: "-8%" }}
+                transition={{ type: "spring", stiffness: 38, damping: 16, mass: 1, delay: i * 0.15 }}
                 style={{ top: `calc(6rem + ${i * 2}rem)` }}
                 className="sticky z-10 card-lift border border-[var(--gold)]/20 border-l-2 border-l-[var(--gold)] p-10 bg-[#0A2416] shadow-[0_-20px_40px_rgba(0,0,0,0.3)]"
                 data-cursor="Read"
               >
                 <span className="absolute top-4 right-6 outline-num text-7xl opacity-40">{w.n}</span>
                 <motion.div 
-                  initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true }}
+                  initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true, margin: "-8%" }}
                   transition={{ type: "spring", stiffness: 300, damping: 15, delay: 0.6 + i * 0.15 }}
                   className="absolute -top-3 -right-3 border border-[var(--gold)] bg-[#0A2416] text-[var(--gold)] text-[10px] uppercase font-bold py-1.5 px-3 rounded-full"
                 >
@@ -607,17 +608,17 @@ export function Why() {
             {whys.filter(w => !w.big).map((w, i) => (
               <motion.div
                 key={`desktop-${w.n}`}
-                initial={{ opacity: 0, y: 70 }}
+                initial={{ opacity: 0, y: 60 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-10%" }}
-                transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1], delay: 0.3 + i * 0.15 }}
+                viewport={{ once: true, margin: "-8%" }}
+                transition={{ type: "spring", stiffness: 38, damping: 16, mass: 1, delay: 0.3 + i * 0.15 }}
                 style={{ top: `calc(6rem + ${i * 2}rem)` }}
                 className="sticky z-10 card-lift border border-[var(--gold)]/20 border-l-2 border-l-[var(--gold)] p-8 bg-[#0A2416] shadow-[0_-20px_40px_rgba(0,0,0,0.3)]"
                 data-cursor="Read"
               >
                 <span className="absolute top-3 right-5 outline-num text-5xl opacity-40">{w.n}</span>
                 <motion.div 
-                  initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true }}
+                  initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true, margin: "-8%" }}
                   transition={{ type: "spring", stiffness: 300, damping: 15, delay: 0.9 + i * 0.15 }}
                   className="absolute -top-3 -right-3 border border-[var(--gold)] bg-[#0A2416] text-[var(--gold)] text-[10px] uppercase font-bold py-1.5 px-3 rounded-full"
                 >
@@ -635,10 +636,10 @@ export function Why() {
           {whys.map((w, i) => (
             <motion.div
               key={`mobile-${w.n}`}
-              initial={{ opacity: 0, y: 70 }}
+              initial={{ opacity: 0, y: 60 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-10%" }}
-              transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1], delay: i * 0.1 }}
+              viewport={{ once: true, margin: "-8%" }}
+              transition={{ type: "spring", stiffness: 38, damping: 16, mass: 1, delay: i * 0.1 }}
               style={{ top: `calc(6rem + ${i * 1.5}rem)` }}
               className={`sticky z-10 card-lift border border-[var(--gold)]/20 border-l-2 border-l-[var(--gold)] ${w.big ? 'p-8' : 'p-6'} bg-[#0A2416] shadow-[0_-15px_30px_rgba(0,0,0,0.4)]`}
               data-cursor="Read"
@@ -681,7 +682,7 @@ export function Stats() {
         <div className="mb-16">
           <span className="text-xs uppercase tracking-[0.3em] text-emerald">07 — By the Numbers</span>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 md:gap-6">
           {items.map((it, i) => (
             <div key={i} className="text-center md:text-left min-w-0">
               <CountUp end={it.v} prefix={it.prefix} suffix={it.suffix} className="font-display text-emerald text-[2.8rem] md:text-8xl font-light leading-none whitespace-nowrap" />
@@ -717,16 +718,16 @@ export function HowItWorks() {
             <motion.line x1="16" y1="0" x2="100%" y2="0" stroke="var(--gold)" strokeWidth="1"
               initial={{ pathLength: 0 }}
               whileInView={{ pathLength: 1 }}
-              viewport={{ once: true, margin: "-10%" }}
+              viewport={{ once: true, margin: "-8%" }}
               transition={{ duration: 3.6, ease: [0.76, 0, 0.24, 1] }} />
           </svg>
           {steps.map((s, i) => (
             <motion.div
               key={s.n}
-              initial={{ opacity: 0, y: 70 }}
+              initial={{ opacity: 0, y: 60 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-10%" }}
-              transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1], delay: i * 0.15 }}
+              viewport={{ once: true, margin: "-8%" }}
+              transition={{ type: "spring", stiffness: 38, damping: 16, mass: 1, delay: i * 0.15 }}
               className="relative pt-8 z-10"
             >
               <div className="absolute top-14 left-0 w-4 h-4 rounded-full bg-cloud border-2 border-[var(--gold)]" />
@@ -764,10 +765,10 @@ export function Testimonials() {
           {testimonials.map((t, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, y: 70 }}
+              initial={{ opacity: 0, y: 60 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-10%" }}
-              transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1], delay: i * 0.15 }}
+              viewport={{ once: true, margin: "-8%" }}
+              transition={{ type: "spring", stiffness: 38, damping: 16, mass: 1, delay: i * 0.15 }}
               style={{ top: `calc(6rem + ${i * 1.5}rem)` }}
               className={`sticky z-10 bg-[#0A2416] shadow-[0_-15px_30px_rgba(0,0,0,0.4)] border border-[var(--gold)]/20 border-l-2 border-l-[var(--gold)] p-8 ${i === 1 ? "md:mt-12" : ""} ${i === 2 ? "md:mt-6" : ""}`}
               data-cursor="Read"
@@ -775,6 +776,7 @@ export function Testimonials() {
               <motion.div
                 animate={{ y: [0, -6, 0] }}
                 transition={{ repeat: Infinity, duration: 4, ease: "easeInOut", delay: i * 1.3 }}
+                style={{ willChange: "transform" }}
               >
                 <div className="flex gap-1 mb-5 text-[var(--gold)]">
                   {Array.from({ length: 5 }).map((_, j) => <span key={j}>★</span>)}
@@ -797,7 +799,7 @@ export function CtaBand() {
   return (
     <section className="relative min-h-[80vh] grain shimmer-sweep overflow-hidden flex items-center">
       <div className="absolute inset-0">
-        <img src={IMG.cta} alt="" className="w-full h-full object-cover" />
+        <img src={IMG.cta} alt="" loading="lazy" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-[var(--emerald-deep)]/80" />
       </div>
       <div className="relative max-w-5xl mx-auto px-6 text-center py-24">
@@ -833,6 +835,7 @@ export function Inquiry() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          // TODO: Replace with real Web3Forms key before going live
           access_key: "eac902e8-cb07-44ff-b8d0-6fb0785f6ba0",
           subject: "New Bulk Order Enquiry — TajAttire",
           name: formData.name,
@@ -859,7 +862,7 @@ export function Inquiry() {
   return (
     <section id="order" className="relative bg-[#F8F6F1] flex flex-col md:flex-row min-h-screen">
       <div className="md:w-1/2 relative min-h-[500px] md:min-h-screen bg-[#1A5C38] flex items-center justify-center">
-        <img src="https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=1920&q=80" alt="Indian Fashion Editorial" className="absolute inset-0 w-full h-full object-cover" />
+        <img src={IMG.form} alt="Indian Fashion Editorial" loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-[#1A5C38]/60" />
         <div className="relative text-center px-8 flex flex-col items-center">
           <p className="font-display italic text-white text-4xl md:text-5xl leading-tight max-w-lg">
@@ -946,12 +949,12 @@ export function Inquiry() {
 }
 
 /* ─────────── FOOTER ─────────── */
-export function Footer() {
+export const Footer = memo(function Footer() {
   return (
     <footer id="connect" className="relative bg-deep-black grain pt-24 pb-8 overflow-hidden">
-      <motion.div 
-        initial={{ scaleY: 1 }} whileInView={{ scaleY: 0 }} viewport={{ once: true, amount: 0.1 }}
-        transition={{ duration: 1, ease: [0.76, 0, 0.24, 1] }}
+      <motion.div
+        initial={{ scaleY: 1 }} whileInView={{ scaleY: 0 }} viewport={{ once: true, margin: "-8%" }}
+        transition={{ type: "spring", stiffness: 38, damping: 16, mass: 1 }}
         style={{ transformOrigin: "bottom" }}
         className="absolute inset-0 z-50 bg-[#1A5C38]"
       />
@@ -963,8 +966,8 @@ export function Footer() {
 
       <div className="max-w-[1500px] mx-auto px-6 lg:px-12">
         <div className="text-center mb-16">
-          <img src="/logo.png" alt="TajAttire Logo" style={{ height: '48px', width: 'auto', mixBlendMode: 'lighten' }} className="mx-auto mb-4" />
-          <h3 className="font-display text-cloud text-5xl tracking-wider">TajAttire</h3>
+          <img src="/logo.png" alt="TajAttire Logo" loading="lazy" style={{ height: '48px', width: 'auto', mixBlendMode: 'lighten' }} className="mx-auto mb-4" />
+          <h3 className="font-display text-cloud text-4xl md:text-5xl tracking-wider">TajAttire</h3>
           <p className="font-display italic text-[var(--gold)] mt-2">Handcrafted Heritage</p>
         </div>
 
@@ -1010,7 +1013,7 @@ export function Footer() {
       </div>
     </footer>
   );
-}
+});
 
 /* ─────────── FACTORY VISIT POPUP ─────────── */
 export function FactoryVisitPopup() {
@@ -1052,6 +1055,7 @@ export function FactoryVisitPopup() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          // TODO: Replace with real Web3Forms key before going live
           access_key: "eac902e8-cb07-44ff-b8d0-6fb0785f6ba0",
           subject: "Factory Visit Request — TajAttire",
           name: formData.name,

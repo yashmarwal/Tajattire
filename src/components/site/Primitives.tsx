@@ -64,7 +64,7 @@ export function MagneticButton({
 
 export function SplitHeading({ text, className = "", as: As = "h2", delay = 0 }: { text: string; className?: string; as?: any; delay?: number }) {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-10%" });
+  const inView = useInView(ref, { once: true, margin: "-8%" });
   const words = text.split(" ");
   return (
     <As ref={ref} className={className} style={{ wordBreak: "normal", overflowWrap: "normal" }}>
@@ -75,7 +75,7 @@ export function SplitHeading({ text, className = "", as: As = "h2", delay = 0 }:
               <motion.span
                 initial={{ y: "100%", opacity: 0 }}
                 animate={inView ? { y: 0, opacity: 1 } : {}}
-                transition={{ duration: 1.2, delay: delay + i * 0.12, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ type: "spring", stiffness: 38, damping: 16, mass: 1, delay: delay + i * 0.12 }}
                 className="inline-block"
               >
                 {w}
@@ -90,15 +90,15 @@ export function SplitHeading({ text, className = "", as: As = "h2", delay = 0 }:
 
 export function FadeLines({ lines, className = "", lineClass = "" }: { lines: string[]; className?: string; lineClass?: string }) {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-15%" });
+  const inView = useInView(ref, { once: true, margin: "-8%" });
   return (
     <div ref={ref} className={className}>
       {lines.map((l, i) => (
         <motion.p
           key={i}
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 60 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: i * 0.2 }}
+          transition={{ type: "spring", stiffness: 38, damping: 16, mass: 1, delay: i * 0.2 }}
           className={lineClass}
         >
           {l}
@@ -110,7 +110,7 @@ export function FadeLines({ lines, className = "", lineClass = "" }: { lines: st
 
 export function CurtainImage({ src, alt, className = "" }: { src: string; alt: string; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-10%" });
+  const inView = useInView(ref, { once: true, margin: "-8%" });
   return (
     <div ref={ref} className={`relative overflow-hidden ${className}`}>
       <motion.img
@@ -118,14 +118,14 @@ export function CurtainImage({ src, alt, className = "" }: { src: string; alt: s
         alt={alt}
         initial={{ scale: 1.2 }}
         animate={inView ? { scale: 1 } : {}}
-        transition={{ duration: 2.2, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ type: "spring", stiffness: 38, damping: 16, mass: 1 }}
         className="w-full h-full object-cover"
         loading="lazy"
       />
       <motion.div
         initial={{ x: "0%" }}
         animate={inView ? { x: "100%" } : {}}
-        transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+        transition={{ type: "spring", stiffness: 38, damping: 16, mass: 1, delay: 0.2 }}
         className="absolute inset-0 bg-[var(--emerald-deep)]"
       />
     </div>
@@ -151,12 +151,12 @@ export function CountUp({ end, prefix = "", suffix = "", className = "" }: { end
     requestAnimationFrame(tick);
   }, [inView, end]);
   return (
-    <motion.span 
-      ref={ref} 
+    <motion.span
+      ref={ref}
       className={className}
-      initial={{ textShadow: "0px 0px 0px transparent" }}
-      animate={isDone ? { textShadow: ["0px 0px 20px var(--gold)", "0px 0px 0px transparent"] } : {}}
-      transition={{ duration: 1.2, ease: "easeOut" }}
+      initial={{ textShadow: "0 0 0px rgba(201,168,76,0)" }}
+      animate={isDone ? { textShadow: ["0 0 0px rgba(201,168,76,0)", "0 0 20px rgba(201,168,76,0.4)", "0 0 0px rgba(201,168,76,0)"] } : {}}
+      transition={{ duration: 0.8, ease: "easeOut" }}
     >
       {prefix}{val.toLocaleString()}{suffix}
     </motion.span>
