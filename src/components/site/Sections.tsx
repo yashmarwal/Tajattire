@@ -692,7 +692,7 @@ const testimonials = [
 
 export function Testimonials() {
   return (
-    <section className="relative bg-[var(--emerald-deep)] grain py-32 overflow-hidden">
+    <section className="relative bg-[var(--emerald-deep)] grain py-32 overflow-x-clip">
       <div className="max-w-[1500px] mx-auto px-6 lg:px-12">
         <div className="mb-20 max-w-3xl">
           <span className="text-xs uppercase tracking-[0.3em] text-[var(--gold)]">09 — Testimonials</span>
@@ -706,8 +706,8 @@ export function Testimonials() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-10%" }}
               transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1], delay: i * 0.15 }}
-              whileHover={{ y: [0, -6, 0], transition: { duration: 3, repeat: Infinity, ease: "easeInOut" } }}
-              className={`bg-black/30 backdrop-blur-md border border-[var(--gold)]/20 border-l-2 border-l-[var(--gold)] p-8 ${i === 1 ? "md:mt-12" : ""} ${i === 2 ? "md:mt-6" : ""}`}
+              style={{ top: `calc(6rem + ${i * 1.5}rem)` }}
+              className={`sticky z-10 bg-[#0A2416] shadow-[0_-15px_30px_rgba(0,0,0,0.4)] border border-[var(--gold)]/20 border-l-2 border-l-[var(--gold)] p-8 ${i === 1 ? "md:mt-12" : ""} ${i === 2 ? "md:mt-6" : ""}`}
               data-cursor="Read"
             >
               <div className="flex gap-1 mb-5 text-[var(--gold)]">
