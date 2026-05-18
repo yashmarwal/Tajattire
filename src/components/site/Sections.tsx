@@ -151,101 +151,58 @@ export function Hero() {
   );
 }
 
-/* ─────────── AMBIENT MARQUEE ─────────── */
-export function Marquee() {
-  const allTags = [
-    "500+ Designs", "MOQ 100 Pcs", "Starting ₹180", "Pan-India Delivery", 
-    "Kurtis", "Gowns", "Tops", "Custom Orders", "Handcrafted", 
-    "Wholesale", "20+ States", "Quality Checked", "Fast Dispatch", "Heritage Craft"
-  ];
+/* ─────────── BOLD ROTATING MARQUEE ─────────── */
 
-  const [activePills, setActivePills] = useState<{ id: string; label: string; x: number }[]>([]);
+function RotatingBox({ texts, isFilled, interval }: { texts: string[]; isFilled: boolean; interval: number }) {
+  const [index, setIndex] = useState(0);
 
   useEffect(() => {
-    const intervalId = setInterval(() => {
-      setActivePills((current) => {
-        if (current.length >= 7) return current;
-        
-        const newPills = [...current];
-        const numToAdd = Math.random() > 0.5 ? 2 : 1;
-        
-        for (let i = 0; i < numToAdd; i++) {
-          if (newPills.length >= 7) break;
-          
-          const label = allTags[Math.floor(Math.random() * allTags.length)];
-          const id = `${Date.now()}-${Math.random()}`;
-          const x = Math.random() * 83 + 2; // 2% to 85%
-          
-          newPills.push({ id, label, x });
-          
-          setTimeout(() => {
-            setActivePills((prev) => prev.filter(p => p.id !== id));
-          }, 2200);
-        }
-        
-        return newPills;
-      });
-    }, 600);
-    
-    return () => clearInterval(intervalId);
-  }, []);
+    const timer = setInterval(() => {
+      setIndex((prev) => (prev + 1) % texts.length);
+    }, interval);
+    return () => clearInterval(timer);
+  }, [interval, texts.length]);
 
   return (
-    <section className="relative w-full z-10 bg-transparent p-0">
-      <div 
-        className="w-full relative overflow-hidden h-[52px] md:h-[64px]" 
-        style={{ 
-          background: "rgba(26, 92, 56, 0.25)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          borderTop: "1px solid rgba(201, 168, 76, 0.15)",
-          borderBottom: "1px solid rgba(201, 168, 76, 0.15)"
-        }}
-      >
-        {/* Grain Overlay */}
-        <div className="absolute inset-0 pointer-events-none grain opacity-30" />
+    <motion.div 
+      layout
+      className={`relative flex items-center justify-center rounded-full px-4 md:px-7 h-[34px] md:h-[48px] overflow-hidden flex-shrink-0 ${
+        isFilled 
+          ? "bg-[var(--gold)] text-[#0A0A0A]" 
+          : "border border-[var(--gold)] text-[var(--gold)] bg-transparent"
+      }`}
+      transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
+    >
+      <AnimatePresence initial={false}>
+        <motion.div
+          key={index}
+          initial={{ y: 30, opacity: 0, position: "absolute" }}
+          animate={{ y: 0, opacity: 1, position: "relative" }}
+          exit={{ y: -30, opacity: 0, position: "absolute" }}
+          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          className={`whitespace-nowrap text-[9px] md:text-[11px] uppercase tracking-[0.1em] md:tracking-[0.15em] font-body ${isFilled ? "font-bold" : "font-medium"}`}
+        >
+          {texts[index]}
+        </motion.div>
+      </AnimatePresence>
+    </motion.div>
+  );
+}
 
-        {/* Decorative Hairlines */}
-        <div className="absolute top-1/2 -translate-y-1/2 left-[33%] w-px h-6 bg-[rgba(201,168,76,0.12)]" />
-        <div className="absolute top-1/2 -translate-y-1/2 left-[66%] w-px h-6 bg-[rgba(201,168,76,0.12)]" />
+export function Marquee() {
+  const boxesData = [
+    { texts: ["500+ Designs", "Kurtis", "Gowns and Tops", "New Arrivals"], filled: true, delay: 3400 },
+    { texts: ["MOQ 100 Pieces", "Bulk Orders", "Custom Made", "Private Label"], filled: false, delay: 4100 },
+    { texts: ["Starting ₹180", "Best Margins", "Wholesale Price", "Trade Only"], filled: true, delay: 4900 },
+    { texts: ["Pan India Delivery", "20+ States", "Fast Dispatch", "On Time"], filled: false, delay: 3700 },
+  ];
 
-        {/* Static Edge Text */}
-        <div className="hidden md:block absolute left-8 top-1/2 -translate-y-1/2 text-[rgba(201,168,76,0.4)] text-[9px] tracking-[0.3em] font-body">
-          TAJATTIRE ✦
-        </div>
-        <div className="hidden md:block absolute right-8 top-1/2 -translate-y-1/2 text-[rgba(201,168,76,0.4)] text-[9px] tracking-[0.3em] font-body">
-          HANDCRAFTED HERITAGE
-        </div>
-
-        {/* Pills */}
-        <AnimatePresence mode="sync">
-          {activePills.map((pill) => (
-            <motion.div
-              key={pill.id}
-              className="absolute top-1/2 pointer-events-none"
-              style={{ left: `${pill.x}%` }}
-              initial={{ opacity: 0, y: 6, scale: 0.85 }}
-              animate={{ opacity: 1, y: 0, scale: 1, transition: { duration: 0.5, ease: "easeOut" } }}
-              exit={{ opacity: 0, y: -6, scale: 0.85, transition: { duration: 0.4, ease: "easeIn" } }}
-            >
-              <div 
-                className="whitespace-nowrap -translate-y-1/2"
-                style={{
-                  background: "rgba(201, 168, 76, 0.08)",
-                  border: "1px solid rgba(201, 168, 76, 0.25)",
-                  borderRadius: "999px",
-                  padding: "4px 14px",
-                  fontFamily: "Inter, sans-serif",
-                  fontSize: "clamp(9px, 1.2vw, 11px)",
-                  letterSpacing: "0.08em",
-                  color: "rgba(201, 168, 76, 0.9)",
-                }}
-              >
-                {pill.label}
-              </div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
+  return (
+    <section className="w-full bg-[#0A0A0A] border-y border-[var(--gold)]/40 py-5 md:py-8 relative z-20 flex justify-center overflow-hidden">
+      <div className="flex gap-3 md:gap-6 items-center w-max max-w-full px-4 overflow-x-auto scrollbar-hide">
+        {boxesData.map((box, i) => (
+          <RotatingBox key={i} texts={box.texts} isFilled={box.filled} interval={box.delay} />
+        ))}
       </div>
     </section>
   );
