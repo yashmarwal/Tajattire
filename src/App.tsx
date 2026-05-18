@@ -38,7 +38,7 @@ export default function App() {
       <Inquiry />
       <Footer />
       <FactoryVisitPopup />
-      <FloatingWhatsApp />
+      {!showPreloader && <FloatingWhatsApp />}
     </main>
   );
 }
