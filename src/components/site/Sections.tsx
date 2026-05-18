@@ -151,27 +151,101 @@ export function Hero() {
   );
 }
 
-/* ─────────── MARQUEE ─────────── */
+/* ─────────── AMBIENT MARQUEE ─────────── */
 export function Marquee() {
-  const top = ["500+ Designs", "MOQ 100 Pieces", "Starting ₹180", "Pan-India Delivery", "Kurtis · Gowns · Tops"];
-  const bot = ["Trusted by Retailers", "20+ States", "Custom Orders Welcome", "Quality Guaranteed", "Handcrafted Heritage"];
-  const Row = ({ items, dir }: { items: string[]; dir: "left" | "right" }) => (
-    <div className="overflow-hidden">
-      <div className={`flex gap-12 whitespace-nowrap ${dir === "left" ? "marquee-left" : "marquee-right"}`} style={{ width: "max-content" }}>
-        {[...items, ...items, ...items, ...items].map((t, i) => (
-          <span key={i} className="flex items-center gap-12 font-display text-cloud text-xl md:text-5xl italic font-light">
-            {t}
-            <span className="text-[var(--gold)] text-2xl">✦</span>
-          </span>
-        ))}
-      </div>
-    </div>
-  );
+  const allTags = [
+    "500+ Designs", "MOQ 100 Pcs", "Starting ₹180", "Pan-India Delivery", 
+    "Kurtis", "Gowns", "Tops", "Custom Orders", "Handcrafted", 
+    "Wholesale", "20+ States", "Quality Checked", "Fast Dispatch", "Heritage Craft"
+  ];
+
+  const [activePills, setActivePills] = useState<{ id: string; label: string; x: number }[]>([]);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setActivePills((current) => {
+        if (current.length >= 7) return current;
+        
+        const newPills = [...current];
+        const numToAdd = Math.random() > 0.5 ? 2 : 1;
+        
+        for (let i = 0; i < numToAdd; i++) {
+          if (newPills.length >= 7) break;
+          
+          const label = allTags[Math.floor(Math.random() * allTags.length)];
+          const id = `${Date.now()}-${Math.random()}`;
+          const x = Math.random() * 83 + 2; // 2% to 85%
+          
+          newPills.push({ id, label, x });
+          
+          setTimeout(() => {
+            setActivePills((prev) => prev.filter(p => p.id !== id));
+          }, 2200);
+        }
+        
+        return newPills;
+      });
+    }, 600);
+    
+    return () => clearInterval(intervalId);
+  }, []);
+
   return (
-    <section className="relative bg-[var(--emerald-deep)] py-10 grain marquee-wrap border-y border-[var(--gold)]/20 overflow-hidden">
-      <div className="space-y-6">
-        <Row items={top} dir="left" />
-        <Row items={bot} dir="right" />
+    <section className="relative w-full z-10 bg-transparent p-0">
+      <div 
+        className="w-full relative overflow-hidden h-[52px] md:h-[64px]" 
+        style={{ 
+          background: "rgba(26, 92, 56, 0.25)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          borderTop: "1px solid rgba(201, 168, 76, 0.15)",
+          borderBottom: "1px solid rgba(201, 168, 76, 0.15)"
+        }}
+      >
+        {/* Grain Overlay */}
+        <div className="absolute inset-0 pointer-events-none grain opacity-30" />
+
+        {/* Decorative Hairlines */}
+        <div className="absolute top-1/2 -translate-y-1/2 left-[33%] w-px h-6 bg-[rgba(201,168,76,0.12)]" />
+        <div className="absolute top-1/2 -translate-y-1/2 left-[66%] w-px h-6 bg-[rgba(201,168,76,0.12)]" />
+
+        {/* Static Edge Text */}
+        <div className="hidden md:block absolute left-8 top-1/2 -translate-y-1/2 text-[rgba(201,168,76,0.4)] text-[9px] tracking-[0.3em] font-body">
+          TAJATTIRE ✦
+        </div>
+        <div className="hidden md:block absolute right-8 top-1/2 -translate-y-1/2 text-[rgba(201,168,76,0.4)] text-[9px] tracking-[0.3em] font-body">
+          HANDCRAFTED HERITAGE
+        </div>
+
+        {/* Pills */}
+        <AnimatePresence mode="sync">
+          {activePills.map((pill) => (
+            <motion.div
+              key={pill.id}
+              className="absolute top-1/2 pointer-events-none"
+              style={{ left: `${pill.x}%` }}
+              initial={{ opacity: 0, y: 6, scale: 0.85 }}
+              animate={{ opacity: 1, y: 0, scale: 1, transition: { duration: 0.5, ease: "easeOut" } }}
+              exit={{ opacity: 0, y: -6, scale: 0.85, transition: { duration: 0.4, ease: "easeIn" } }}
+            >
+              <div 
+                className="whitespace-nowrap -translate-y-1/2"
+                style={{
+                  background: "rgba(201, 168, 76, 0.08)",
+                  border: "1px solid rgba(201, 168, 76, 0.25)",
+                  borderRadius: "999px",
+                  padding: "4px 14px",
+                  fontFamily: "Inter, sans-serif",
+                  fontSize: "clamp(9px, 1.2vw, 11px)",
+                  letterSpacing: "0.08em",
+                  color: "rgba(201, 168, 76, 0.9)",
+                }}
+              >
+                {pill.label}
+              </div>
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
     </section>
   );
