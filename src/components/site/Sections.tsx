@@ -210,7 +210,17 @@ const collections = [
 export function Collections() {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
-  const x = useTransform(scrollYProgress, [0, 1], ["0%", "-66%"]);
+  const x = useTransform(scrollYProgress, [0, 1], ["0vw", "-300vw"]);
+
+  const [currentCard, setCurrentCard] = useState("01");
+  const cardIndexTransform = useTransform(scrollYProgress, [0, 0.33, 0.66, 1], [1, 2, 3, 4]);
+
+  useEffect(() => {
+    return cardIndexTransform.onChange((latest) => {
+      const idx = Math.round(latest);
+      setCurrentCard(`0${idx}`);
+    });
+  }, [cardIndexTransform]);
 
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
@@ -220,65 +230,75 @@ export function Collections() {
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  if (isMobile) {
-    return (
-      <section id="collections" className="relative bg-deep-black flex flex-col pt-24 pb-12 gap-12 overflow-hidden">
-        <div className="px-6 flex items-center justify-between mb-6">
-          <span className="text-xs uppercase tracking-[0.3em] text-[var(--gold)]">04 — Our Collections</span>
-          <span className="text-[10px] uppercase tracking-[0.3em] text-[var(--gold)]">Scroll to explore ↓</span>
-        </div>
-        {collections.map((c, index) => (
-          <motion.div 
-            key={c.tag} 
-            initial={{ opacity: 0, y: 60, scale: 0.97 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            viewport={{ once: true, margin: "-10%" }}
-            transition={{ type: "spring", stiffness: 38, damping: 16, delay: index * 0.15 }}
-            className="relative w-full min-h-[75vh] flex flex-col overflow-hidden border-y border-[var(--gold)]/20" 
-            data-cursor="View"
-          >
-            <img src={c.img} alt={c.title} className="absolute inset-0 w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/40 to-transparent" />
-            <div className="absolute top-6 left-6 text-xs tracking-[0.3em] text-[var(--gold)]">{c.tag}</div>
-            <div className="absolute bottom-0 left-0 right-0 p-8">
-              <div className="text-xs uppercase tracking-[0.3em] text-[var(--gold)] mb-3">{c.count}</div>
-              <h3 className="font-display text-cloud text-[2rem] leading-tight md:text-7xl font-light mb-5">{c.title}</h3>
-              <p className="text-cloud/70 max-w-md mb-6 leading-relaxed">{c.copy}</p>
-              <MagneticButton href="#order" variant="gold" cursorLabel="Enquire">Enquire This Collection →</MagneticButton>
-            </div>
-          </motion.div>
-        ))}
-      </section>
-    );
-  }
+  const progressWidth = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+  const hintOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
 
   return (
-    <section id="collections" ref={ref} className="relative bg-deep-black" style={{ height: "400vh" }}>
+    <section id="collections" ref={ref} className="relative bg-deep-black" style={{ height: "500vh" }}>
       <div className="sticky top-0 h-screen overflow-hidden grain">
+        
         <div className="absolute top-0 left-0 right-0 z-20 px-6 lg:px-12 py-8 flex items-center justify-between">
-          <span className="text-xs uppercase tracking-[0.3em] text-[var(--gold)]">04 — Our Collections</span>
-          <span className="hidden md:block text-xs uppercase tracking-[0.3em] text-cloud/40">Scroll to explore →</span>
+          <span className={`uppercase tracking-[0.3em] text-[var(--gold)] ${isMobile ? 'text-[10px]' : 'text-xs'}`}>
+            04 — Our Collections
+          </span>
+          <span className="text-xs uppercase tracking-[0.3em] text-[var(--gold)] font-medium">
+            {currentCard} / 04
+          </span>
         </div>
 
-        <motion.div style={{ x }} className="flex h-full pt-24 md:pt-32 pb-12 pl-6 lg:pl-12 gap-6">
-          {collections.map((c) => (
-            <div key={c.tag} className="relative w-[85vw] md:w-[60vw] h-full flex-shrink-0 overflow-hidden border border-[var(--gold)]/20" data-cursor="View">
+        <motion.div style={{ x }} className="flex h-full w-[400vw]">
+          {collections.map((c, i) => (
+            <div key={c.tag} className="relative w-[100vw] h-[100vh] flex-shrink-0 overflow-hidden border-r border-[var(--gold)]/20" style={isMobile ? { height: "100svh" } : { height: "100vh" }}>
               <img src={c.img} alt={c.title} className="absolute inset-0 w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/40 to-transparent" />
+              
               <div className="absolute top-6 left-6 text-xs tracking-[0.3em] text-[var(--gold)]">{c.tag}</div>
-              <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12">
+              <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 pb-24 md:pb-32">
                 <div className="text-xs uppercase tracking-[0.3em] text-[var(--gold)] mb-3">{c.count}</div>
-                <h3 className="font-display text-cloud text-[2rem] leading-tight md:text-7xl font-light mb-5">{c.title}</h3>
+                <h3 className={`font-display text-cloud font-light mb-5 leading-tight ${isMobile ? 'text-[clamp(2rem,8vw,5rem)]' : 'text-5xl md:text-7xl'}`}>{c.title}</h3>
                 
+                {isMobile && (
+                  <div className="mb-6 flex flex-row w-full gap-4">
+                    <img src="https://placehold.co/400x500/1A5C38/C9A84C?text=Coming+Soon" alt="Thumb" className="w-1/2 h-32 rounded-[8px] border border-[var(--gold)]/30 object-cover" />
+                    <img src="https://placehold.co/400x500/1A5C38/C9A84C?text=Coming+Soon" alt="Thumb" className="w-1/2 h-32 rounded-[8px] border border-[var(--gold)]/30 object-cover" />
+                  </div>
+                )}
 
                 <p className="text-cloud/70 max-w-md mb-6 leading-relaxed">{c.copy}</p>
-                <MagneticButton href="#order" variant="gold" cursorLabel="Enquire">Enquire This Collection →</MagneticButton>
+                <MagneticButton href="#order" variant="gold" cursorLabel="Enquire" className={isMobile ? "w-full justify-center" : ""}>Enquire This Collection →</MagneticButton>
               </div>
+
+              {i === 0 && (
+                <motion.div style={{ opacity: hintOpacity }} className="absolute bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-3">
+                  <span className="text-[10px] uppercase tracking-[0.2em] text-[var(--gold)]/60">Scroll to explore</span>
+                  <motion.span 
+                    animate={{ x: [0, 8, 0] }} 
+                    transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                    className="text-[var(--gold)]/60 text-xs"
+                  >→</motion.span>
+                </motion.div>
+              )}
             </div>
           ))}
 
-
+          <div className="relative w-[100vw] flex-shrink-0 bg-[var(--emerald-deep)] grain flex flex-col justify-center items-center text-center p-8 border-r border-[var(--gold)]/20" style={isMobile ? { height: "100svh" } : { height: "100vh" }}>
+            <h3 className={`font-display text-cloud font-light mb-6 leading-[1.1] ${isMobile ? 'text-[clamp(2rem,8vw,5rem)]' : 'text-5xl md:text-7xl'}`}>
+              <span className="block">Want something</span>
+              <span className="block italic text-[var(--gold)] font-bold mt-2">custom?</span>
+            </h3>
+            <p className="text-cloud/70 max-w-md mx-auto mb-8 leading-relaxed">
+              From fabric selection to final stitch — if you can imagine it, we can manufacture it. Share your reference and we'll build it from scratch.
+            </p>
+            <div className={`flex flex-col gap-4 ${isMobile ? 'w-full px-6' : 'w-auto'}`}>
+              <MagneticButton href="https://wa.me/919999999999" variant="gold" cursorLabel="Custom" className={isMobile ? "w-full justify-center" : ""}>Discuss Custom Order</MagneticButton>
+            </div>
+          </div>
         </motion.div>
+
+        <div className="absolute bottom-0 left-0 w-full h-[2px] bg-[rgba(201,168,76,0.3)] z-20">
+          <motion.div style={{ width: progressWidth }} className="h-full bg-[#C9A84C]" />
+        </div>
+
       </div>
     </section>
   );
