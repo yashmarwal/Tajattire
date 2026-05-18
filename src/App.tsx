@@ -20,9 +20,13 @@ export default function App() {
   const { scrollYProgress } = useScroll();
   const isMobile = useIsMobile();
 
+  const handlePreloaderDone = useCallback(() => {
+    setReady(true);
+    setTimeout(() => setShowPreloader(false), 500);
+  }, []);
+
   const [phase, setPhase] = useState<Phase>("idle");
-  const pendingHref = useState<string>("")
-  const [href, setHref] = pendingHref;
+  const [href, setHref] = useState<string>("");
 
   const navigate = useCallback((target: string) => {
     if (phase !== "idle") return;
@@ -56,7 +60,7 @@ export default function App() {
           onEnterComplete={handleEnterComplete}
           onExitComplete={handleExitComplete}
         />
-        {showPreloader && <Preloader onDone={() => { setReady(true); setTimeout(() => setShowPreloader(false), 500); }} />}
+        {showPreloader && <Preloader onDone={handlePreloaderDone} />}
         {ready && <SmoothScroll />}
         <CustomCursor />
         <Navbar />
