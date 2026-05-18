@@ -24,17 +24,6 @@ export const Preloader = React.memo(function Preloader({ onDone }: { onDone: () 
     };
   }, [onDone]);
 
-  // Stitch lines (decorative)
-  const stitches = [
-    { left: "50%", top: "30%", dx: -100, delay: 0.1 },
-    { left: "50%", top: "40%", dx: -115, delay: 0.18 },
-    { left: "50%", top: "60%", dx: -105, delay: 0.26 },
-    { left: "50%", top: "70%", dx: -85, delay: 0.34 },
-    { left: "50%", top: "30%", dx: 100, delay: 0.42 },
-    { left: "50%", top: "45%", dx: 120, delay: 0.5 },
-    { left: "50%", top: "55%", dx: 110, delay: 0.58 },
-    { left: "50%", top: "70%", dx: 90, delay: 0.66 },
-  ];
 
   return (
     <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center">
@@ -55,7 +44,7 @@ export const Preloader = React.memo(function Preloader({ onDone }: { onDone: () 
         {/* LAYER 2 — HORIZONTAL THREAD LINE */}
         <motion.div 
           className="absolute left-0 w-full flex items-center justify-start"
-          style={{ top: "40%", height: "4px", marginTop: "-2px" }}
+          style={{ top: "25%", height: "4px", marginTop: "-2px" }}
           animate={stage >= 4 ? { opacity: 0 } : { opacity: 1 }}
           transition={{ duration: 0.3 }}
         >
@@ -66,7 +55,7 @@ export const Preloader = React.memo(function Preloader({ onDone }: { onDone: () 
               strokeWidth="1.5"
               strokeDasharray="8 4"
               initial={{ pathLength: 0, opacity: 0 }}
-              animate={stage >= 1 ? { pathLength: 1, opacity: 1 } : { pathLength: 0, opacity: 0 }}
+              animate={stage >= 2 ? { pathLength: 1, opacity: 1 } : { pathLength: 0, opacity: 0 }}
               transition={{ duration: 1.1, ease: [0.76, 0, 0.24, 1] }}
             />
           </svg>
@@ -74,13 +63,13 @@ export const Preloader = React.memo(function Preloader({ onDone }: { onDone: () 
           <motion.div
             style={{ position: "absolute", top: "-3px", left: 0 }}
             initial={{ x: "-10px", opacity: 0 }}
-            animate={stage >= 1 ? { x: "calc(100vw - 10px)", opacity: 1 } : { x: "-10px", opacity: 0 }}
+            animate={stage >= 2 ? { x: "calc(100vw - 10px)", opacity: 1 } : { x: "-10px", opacity: 0 }}
             transition={{ duration: 1.1, ease: [0.76, 0, 0.24, 1] }}
           >
             <svg width="8" height="10" viewBox="0 0 8 10" fill="#C9A84C">
               <path d="M4 0L8 5L4 10L0 5L4 0Z" />
             </svg>
-            {stage >= 1 && stage < 2 && (
+            {stage >= 2 && stage < 3 && (
               <motion.div
                 className="absolute top-3 left-1 w-1.5 h-1.5 bg-[var(--gold)]"
                 style={{ clipPath: "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)" }}
@@ -93,30 +82,10 @@ export const Preloader = React.memo(function Preloader({ onDone }: { onDone: () 
 
         {/* LAYER 3 & 5 — LOGO + TEXT CONTAINER */}
         <motion.div 
-          className="absolute flex flex-col items-center"
-          style={{ top: "45%", width: "100%" }}
+          className="relative flex flex-col items-center justify-center"
           animate={stage >= 4 ? { opacity: 0, scale: 1.1 } : { opacity: 1, scale: 1 }}
           transition={{ duration: 0.4, ease: "easeIn" }}
         >
-          {/* LAYER 4 — STITCH LINES */}
-          <div className="absolute inset-0">
-            {stitches.map((s, i) => (
-              <motion.div
-                key={i}
-                className="absolute bg-[rgba(201,168,76,0.3)] h-[1px]"
-                style={{ 
-                  width: "24px", 
-                  left: s.left, 
-                  top: s.top, 
-                  marginLeft: `${s.dx}px`,
-                  transformOrigin: "center"
-                }}
-                initial={{ scaleX: 0 }}
-                animate={stage >= 2 ? { scaleX: 1 } : { scaleX: 0 }}
-                transition={{ duration: 0.4, delay: s.delay, ease: "easeOut" }}
-              />
-            ))}
-          </div>
 
           {/* LOGO REVEAL */}
           <div className="relative" style={{ width: "160px", height: "160px" }}>
@@ -127,8 +96,8 @@ export const Preloader = React.memo(function Preloader({ onDone }: { onDone: () 
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                clipPath: stage >= 2 ? "inset(0% 0% 0% 0%)" : "inset(50% 0% 50% 0%)",
-                transition: stage >= 2 ? "clip-path 1.2s cubic-bezier(0.76, 0, 0.24, 1)" : "none"
+                clipPath: stage >= 1 ? "inset(0% 0% 0% 0%)" : "inset(50% 0% 50% 0%)",
+                transition: stage >= 1 ? "clip-path 1.6s cubic-bezier(0.16, 1, 0.3, 1)" : "none"
               }}
             >
               <img 
