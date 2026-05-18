@@ -11,12 +11,31 @@ const links = [
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const [activeSection, setActiveSection] = useState("");
   const [open, setOpen] = useState(false);
   useEffect(() => {
     const on = () => setScrolled(window.scrollY > 80);
     on();
     window.addEventListener("scroll", on);
     return () => window.removeEventListener("scroll", on);
+  }, []);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      { rootMargin: "-50% 0px -50% 0px" }
+    );
+    links.forEach((l) => {
+      const section = document.querySelector(l.href);
+      if (section) observer.observe(section);
+    });
+    return () => observer.disconnect();
   }, []);
 
   return (
@@ -44,6 +63,13 @@ export function Navbar() {
               >
                 {l.label}
                 <span className="absolute left-0 -bottom-0.5 w-0 h-px bg-[var(--gold)] group-hover:w-full transition-all duration-500" />
+                <motion.span 
+                  initial={false}
+                  animate={{ scaleX: activeSection === l.href.substring(1) ? 1 : 0 }}
+                  transition={{ duration: 0.4, type: "spring" }}
+                  style={{ transformOrigin: "left" }}
+                  className="absolute left-0 -bottom-0.5 h-px w-full bg-[#C9A84C]"
+                />
               </a>
             ))}
           </div>

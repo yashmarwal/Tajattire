@@ -24,13 +24,13 @@ export function Hero() {
   const headlineA = "Where Craft".split("");
   const headlineB = "Meets Commerce.".split("");
 
-  const particles = useMemo(() => Array.from({ length: 24 }, (_, i) => ({
-    id: i,
-    left: Math.random() * 100,
-    top: 40 + Math.random() * 60,
-    dx: (Math.random() - 0.5) * 60,
-    delay: Math.random() * 8,
-    size: Math.random() * 2 + 1,
+  const floatingDots = useMemo(() => Array.from({ length: 6 }, (_, i) => ({
+    id: `dot-${i}`,
+    left: 10 + Math.random() * 80,
+    top: 20 + Math.random() * 60,
+    size: Math.random() * 2 + 2,
+    duration: 6 + Math.random() * 6,
+    delay: Math.random() * 5,
   })), []);
 
   return (
@@ -47,17 +47,23 @@ export function Hero() {
         <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/70 via-[#0A0A0A]/50 to-[#0A0A0A]" />
       </motion.div>
 
-      {/* Particles */}
-      <div className="absolute inset-0 pointer-events-none">
-        {particles.map((p) => (
-          <span
-            key={p.id}
-            className="particle absolute rounded-full bg-[var(--gold)]"
-            style={{
-              left: `${p.left}%`, top: `${p.top}%`,
-              width: p.size, height: p.size,
-              ["--dx" as any]: `${p.dx}px`,
-              animationDelay: `${p.delay}s`,
+      {/* Ambient Floating Dots */}
+      <div className="absolute inset-0 pointer-events-none z-0">
+        {floatingDots.map((dot) => (
+          <motion.div
+            key={dot.id}
+            className="absolute rounded-full bg-[#C9A84C]"
+            style={{ left: `${dot.left}%`, top: `${dot.top}%`, width: dot.size, height: dot.size }}
+            animate={{
+              y: [0, -30, 0],
+              x: [0, 10, -5, 0],
+              opacity: [0.3, 0.6, 0.3]
+            }}
+            transition={{
+              duration: dot.duration,
+              delay: dot.delay,
+              repeat: Infinity,
+              ease: "easeInOut"
             }}
           />
         ))}
@@ -224,6 +230,7 @@ export function Marquee() {
 
 /* ─────────── BRAND STATEMENT ─────────── */
 export function Statement() {
+  const words = `"We don't just make clothes. We build the inventory that builds your business."`.split(" ");
   return (
     <section className="relative bg-deep-black grain py-40 overflow-hidden">
       {/* Taj watermark */}
@@ -231,11 +238,38 @@ export function Statement() {
         <path d="M100 10 L60 50 L60 100 L140 100 L140 50 Z M100 10 L100 100 M80 40 L120 40 M70 70 L130 70" stroke="white" strokeWidth="0.5" fill="none" />
       </svg>
       <div className="relative max-w-5xl mx-auto px-6 text-center">
-        <SplitHeading
-          text={`"We don't just make clothes. We build the inventory that builds your business."`}
-          as="blockquote"
-          className="font-display italic text-[var(--gold)] leading-[1.1] tracking-tight text-[clamp(1.5rem,5vw,3.5rem)]"
-        />
+        <motion.blockquote 
+          initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.5 }}
+          className="font-display italic leading-[1.1] tracking-tight text-[clamp(1.5rem,5vw,3.5rem)] flex flex-wrap justify-center gap-[0.2em]"
+        >
+          {words.map((word, i) => {
+            const cleanWord = word.replace(/[^a-zA-Z]/g, '').toLowerCase();
+            const isHighlight = ["clothes", "inventory", "business"].includes(cleanWord);
+            return (
+              <motion.span 
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                variants={{
+                  visible: { 
+                    opacity: 1, 
+                    y: 0,
+                    color: isHighlight ? ["var(--gold)", "#C9A84C", "var(--gold)"] : "var(--gold)",
+                    textShadow: isHighlight ? ["0 0 0px transparent", "0 0 20px rgba(201,168,76,0.8)", "0 0 0px transparent"] : "0 0 0px transparent",
+                    transition: {
+                      opacity: { duration: 0.6, delay: i * 0.05 },
+                      y: { duration: 0.6, ease: "easeOut", delay: i * 0.05 },
+                      color: isHighlight ? { duration: 0.6, delay: 0.8 + (["clothes", "inventory", "business"].indexOf(cleanWord) * 0.4) } : {},
+                      textShadow: isHighlight ? { duration: 0.6, delay: 0.8 + (["clothes", "inventory", "business"].indexOf(cleanWord) * 0.4) } : {}
+                    }
+                  }
+                }}
+                className="text-[var(--gold)]"
+              >
+                {word}
+              </motion.span>
+            );
+          })}
+        </motion.blockquote>
         <div className="hairline mt-16 mx-auto w-32" />
         <p className="mt-6 text-cloud/50 text-xs tracking-[0.3em] uppercase">— TajAttire, crafting wholesale fashion since 2004</p>
       </div>
@@ -278,6 +312,7 @@ export function Collections() {
 
   const progressWidth = useTransform(smoothProgress, [0, 1], ["0%", "100%"]);
   const hintOpacity = useTransform(smoothProgress, [0, 0.1], [1, 0]);
+  const textX = useTransform(smoothProgress, [0, 1], ["0%", "15%"]);
 
   return (
     <section id="collections" ref={ref} className="relative bg-deep-black" style={{ height: "500vh" }}>
@@ -301,7 +336,7 @@ export function Collections() {
               <div className="absolute top-6 left-6 text-xs tracking-[0.3em] text-[var(--gold)]">{c.tag}</div>
               <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 pb-24 md:pb-32">
                 <div className="text-xs uppercase tracking-[0.3em] text-[var(--gold)] mb-3">{c.count}</div>
-                <h3 className={`font-display text-cloud font-light mb-5 leading-tight ${isMobile ? 'text-[clamp(2rem,8vw,5rem)]' : 'text-5xl md:text-7xl'}`}>{c.title}</h3>
+                <motion.h3 style={{ x: textX }} className={`font-display text-cloud font-light mb-5 leading-tight ${isMobile ? 'text-[clamp(2rem,8vw,5rem)]' : 'text-5xl md:text-7xl'}`}>{c.title}</motion.h3>
                 
                 {isMobile && (
                   <div className="mb-6 flex flex-row w-full gap-4">
@@ -522,10 +557,10 @@ export function Craft() {
 
 /* ─────────── WHY (emerald) ─────────── */
 const whys = [
-  { n: "01", title: "MOQ That Respects Your Reality", copy: "100 pieces minimum. Not 500. Not 1,000. We know what it takes to start, and we built our model around your actual business — not an ideal version of it.", big: true },
-  { n: "02", title: "Pricing Built for Profitable Retail", copy: "Wholesale rates from ₹180 per piece. Margins that let you compete, grow, and still sleep at night.", big: true },
-  { n: "03", title: "Craft You Can Stake Your Name On", copy: "Double quality-checked before dispatch. Your customers judge you — we make sure you pass.", big: false },
-  { n: "04", title: "Pan-India. On Time. Every Time.", copy: "20+ states. Reliable dispatch windows. Because your restock cycle is a business commitment, not a suggestion.", big: false },
+  { n: "01", title: "MOQ That Respects Your Reality", copy: "100 pieces minimum. Not 500. Not 1,000. We know what it takes to start, and we built our model around your actual business — not an ideal version of it.", big: true, badge: "100 pcs" },
+  { n: "02", title: "Pricing Built for Profitable Retail", copy: "Wholesale rates from ₹180 per piece. Margins that let you compete, grow, and still sleep at night.", big: true, badge: "₹180" },
+  { n: "03", title: "Craft You Can Stake Your Name On", copy: "Double quality-checked before dispatch. Your customers judge you — we make sure you pass.", big: false, badge: "2x checked" },
+  { n: "04", title: "Pan-India. On Time. Every Time.", copy: "20+ states. Reliable dispatch windows. Because your restock cycle is a business commitment, not a suggestion.", big: false, badge: "20+ states" },
 ];
 
 export function Why() {
@@ -556,6 +591,13 @@ export function Why() {
                 data-cursor="Read"
               >
                 <span className="absolute top-4 right-6 outline-num text-7xl opacity-40">{w.n}</span>
+                <motion.div 
+                  initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true }}
+                  transition={{ type: "spring", stiffness: 300, damping: 15, delay: 0.6 + i * 0.15 }}
+                  className="absolute -top-3 -right-3 border border-[var(--gold)] bg-[#0A2416] text-[var(--gold)] text-[10px] uppercase font-bold py-1.5 px-3 rounded-full"
+                >
+                  {w.badge}
+                </motion.div>
                 <h3 className="font-display text-cloud text-3xl md:text-4xl font-light mb-4">{w.title}</h3>
                 <p className="text-cloud/70 leading-relaxed max-w-2xl">{w.copy}</p>
               </motion.div>
@@ -574,6 +616,13 @@ export function Why() {
                 data-cursor="Read"
               >
                 <span className="absolute top-3 right-5 outline-num text-5xl opacity-40">{w.n}</span>
+                <motion.div 
+                  initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true }}
+                  transition={{ type: "spring", stiffness: 300, damping: 15, delay: 0.9 + i * 0.15 }}
+                  className="absolute -top-3 -right-3 border border-[var(--gold)] bg-[#0A2416] text-[var(--gold)] text-[10px] uppercase font-bold py-1.5 px-3 rounded-full"
+                >
+                  {w.badge}
+                </motion.div>
                 <h3 className="font-display text-cloud text-2xl font-light mb-3">{w.title}</h3>
                 <p className="text-cloud/70 text-sm leading-relaxed">{w.copy}</p>
               </motion.div>
@@ -618,6 +667,15 @@ export function Stats() {
       <div
         className="absolute inset-0 opacity-[0.04]"
         style={{ backgroundImage: "linear-gradient(var(--gold) 1px, transparent 1px), linear-gradient(90deg, var(--gold) 1px, transparent 1px)", backgroundSize: "60px 60px" }}
+      />
+      <motion.div 
+        animate={{ opacity: [0, 1, 0], scale: [0.8, 1.2, 1.4] }}
+        transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+        className="absolute inset-0 z-0 pointer-events-none"
+        style={{ 
+          background: "radial-gradient(circle at center, rgba(201,168,76,0.08) 2px, transparent 2px)", 
+          backgroundSize: "60px 60px" 
+        }} 
       />
       <div className="relative max-w-[1500px] mx-auto px-6 lg:px-12">
         <div className="mb-16">
@@ -672,7 +730,11 @@ export function HowItWorks() {
               className="relative pt-8 z-10"
             >
               <div className="absolute top-14 left-0 w-4 h-4 rounded-full bg-cloud border-2 border-[var(--gold)]" />
-              <div className="outline-num text-6xl md:text-8xl mb-6 pl-8">{s.n}</div>
+              <motion.div 
+                animate={{ textShadow: ["0 0 40px rgba(201,168,76,0.0)", "0 0 40px rgba(201,168,76,0.15)", "0 0 40px rgba(201,168,76,0.0)"] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                className="outline-num text-6xl md:text-8xl mb-6 pl-8"
+              >{s.n}</motion.div>
               <h3 className="font-display text-emerald text-3xl font-light mb-4 pl-8">{s.title}</h3>
               <p className="text-charcoal/70 leading-relaxed pl-8">{s.copy}</p>
             </motion.div>
@@ -710,13 +772,18 @@ export function Testimonials() {
               className={`sticky z-10 bg-[#0A2416] shadow-[0_-15px_30px_rgba(0,0,0,0.4)] border border-[var(--gold)]/20 border-l-2 border-l-[var(--gold)] p-8 ${i === 1 ? "md:mt-12" : ""} ${i === 2 ? "md:mt-6" : ""}`}
               data-cursor="Read"
             >
-              <div className="flex gap-1 mb-5 text-[var(--gold)]">
-                {Array.from({ length: 5 }).map((_, j) => <span key={j}>★</span>)}
-              </div>
-              <p className="font-display italic text-cloud text-xl leading-snug mb-6">"{t.quote}"</p>
-              <div className="hairline mb-4 w-12" />
-              <div className="text-cloud font-medium text-sm">{t.name}</div>
-              <div className="text-cloud/60 text-xs tracking-wider uppercase mt-1">{t.role}</div>
+              <motion.div
+                animate={{ y: [0, -6, 0] }}
+                transition={{ repeat: Infinity, duration: 4, ease: "easeInOut", delay: i * 1.3 }}
+              >
+                <div className="flex gap-1 mb-5 text-[var(--gold)]">
+                  {Array.from({ length: 5 }).map((_, j) => <span key={j}>★</span>)}
+                </div>
+                <p className="font-display italic text-cloud text-xl leading-snug mb-6">"{t.quote}"</p>
+                <div className="hairline mb-4 w-12" />
+                <div className="text-cloud font-medium text-sm">{t.name}</div>
+                <div className="text-cloud/60 text-xs tracking-wider uppercase mt-1">{t.role}</div>
+              </motion.div>
             </motion.div>
           ))}
         </div>
@@ -882,6 +949,12 @@ export function Inquiry() {
 export function Footer() {
   return (
     <footer id="connect" className="relative bg-deep-black grain pt-24 pb-8 overflow-hidden">
+      <motion.div 
+        initial={{ scaleY: 1 }} whileInView={{ scaleY: 0 }} viewport={{ once: true, amount: 0.1 }}
+        transition={{ duration: 1, ease: [0.76, 0, 0.24, 1] }}
+        style={{ transformOrigin: "bottom" }}
+        className="absolute inset-0 z-50 bg-[#1A5C38]"
+      />
       <div className="overflow-hidden border-y border-[var(--gold)]/10 py-3 mb-16">
         <div className="marquee-left whitespace-nowrap flex gap-8 text-[10px] uppercase tracking-[0.4em] text-[var(--gold)]/40" style={{ width: "max-content" }}>
           {Array.from({ length: 20 }).map((_, i) => <span key={i}>TAJATTIRE · HANDCRAFTED HERITAGE ·</span>)}
