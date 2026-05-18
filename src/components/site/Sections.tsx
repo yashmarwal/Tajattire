@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, useMemo } from "react";
 import { motion, useScroll, useTransform, AnimatePresence, useSpring } from "framer-motion";
 import { MagneticButton, SplitHeading, FadeLines, CurtainImage, CountUp, Parallax } from "./Primitives";
+import { usePageTransition } from "@/lib/PageTransitionContext";
 
 const IMG = {
   hero: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=1920&q=80",
@@ -14,6 +15,7 @@ const IMG = {
 
 /* ─────────── HERO ─────────── */
 export function Hero() {
+  const navigate = usePageTransition();
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const imgY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
@@ -121,7 +123,7 @@ export function Hero() {
           transition={{ delay: 4.3, duration: 1 }}
           className="mt-10 flex flex-wrap gap-5"
         >
-          <MagneticButton href="#collections" variant="gold" cursorLabel="Explore">
+          <MagneticButton href="#collections" onClick={() => navigate("#collections")} variant="gold" cursorLabel="Explore">
             Explore Collections <span>→</span>
           </MagneticButton>
           <MagneticButton href="https://wa.me/917976667197" variant="outline" cursorLabel="Order">
@@ -795,6 +797,7 @@ export function Testimonials() {
 
 /* ─────────── CTA BAND ─────────── */
 export function CtaBand() {
+  const navigate = usePageTransition();
   return (
     <section className="relative min-h-[80vh] grain shimmer-sweep overflow-hidden flex items-center">
       <div className="absolute inset-0">
@@ -805,7 +808,7 @@ export function CtaBand() {
         <SplitHeading text="Your next bestseller is already in our catalog." as="h2" className="font-display text-cloud font-light leading-[1.05] text-[clamp(2rem,7vw,4.5rem)]" />
         <p className="mt-8 font-display italic text-[var(--gold)] text-2xl md:text-3xl">The only question is — when do you want to start?</p>
         <div className="mt-12 flex flex-wrap gap-5 justify-center">
-          <MagneticButton href="#order" variant="gold" cursorLabel="Catalog">Download Catalog</MagneticButton>
+          <MagneticButton href="#order" onClick={() => navigate("#order")} variant="gold" cursorLabel="Catalog">Download Catalog</MagneticButton>
           <MagneticButton href="https://wa.me/917976667197" variant="outline" cursorLabel="Chat">WhatsApp Us Now</MagneticButton>
         </div>
       </div>

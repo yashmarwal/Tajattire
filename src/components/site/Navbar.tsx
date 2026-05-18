@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MagneticButton } from "./Primitives";
+import { usePageTransition } from "@/lib/PageTransitionContext";
 
 const links = [
   { label: "Collections", href: "#collections" },
@@ -13,6 +14,12 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("");
   const [open, setOpen] = useState(false);
+  const navigate = usePageTransition();
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    navigate(href);
+  };
   useEffect(() => {
     const on = () => setScrolled(window.scrollY > 80);
     on();
@@ -58,6 +65,7 @@ export function Navbar() {
               <a
                 key={l.label}
                 href={l.href}
+                onClick={(e) => handleNavClick(e, l.href)}
                 data-cursor="Go"
                 className="relative text-xs uppercase tracking-[0.2em] text-cloud/80 hover:text-[var(--gold)] transition-colors group py-2"
               >
@@ -74,7 +82,7 @@ export function Navbar() {
             ))}
           </div>
           <div className="hidden md:block">
-            <MagneticButton href="#order" variant="outline" cursorLabel="Order" className="!px-5 !py-2.5 !text-[11px] rounded-full">
+            <MagneticButton href="#order" onClick={() => navigate("#order")} variant="outline" cursorLabel="Order" className="!px-5 !py-2.5 !text-[11px] rounded-full">
               Start Ordering
             </MagneticButton>
           </div>
@@ -99,7 +107,7 @@ export function Navbar() {
                 <motion.a
                   key={l.label}
                   href={l.href}
-                  onClick={() => setOpen(false)}
+                  onClick={(e) => { e.preventDefault(); setOpen(false); navigate(l.href); }}
                   initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 + i * 0.08 }}
                   className="block font-display text-5xl text-cloud"

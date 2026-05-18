@@ -45,12 +45,17 @@ export function MagneticButton({
     wa: "bg-[#25D366] border-[#25D366] text-white",
   };
 
+  const handleClick = (e: React.MouseEvent) => {
+    if (onClick && href?.startsWith("#")) e.preventDefault();
+    onClick?.();
+  };
+
   const Comp: any = href ? motion.a : motion.button;
   return (
     <Comp
       ref={ref as any}
       href={href}
-      onClick={onClick}
+      onClick={handleClick}
       onMouseMove={handleMove}
       onMouseLeave={handleLeave}
       style={{ x: sx, y: sy }}

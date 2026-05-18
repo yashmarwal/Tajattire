@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { registerLenis, unregisterLenis } from "@/lib/lenis-store";
 
 export function SmoothScroll() {
   useEffect(() => {
@@ -8,6 +9,7 @@ export function SmoothScroll() {
     (async () => {
       const Lenis = (await import("lenis")).default;
       lenis = new Lenis({ lerp: 0.08, smoothWheel: true, wheelMultiplier: 0.9 });
+      registerLenis(lenis);
       function raf(time: number) {
         lenis.raf(time);
         rafId = requestAnimationFrame(raf);
@@ -17,6 +19,7 @@ export function SmoothScroll() {
     return () => {
       cancelAnimationFrame(rafId);
       lenis?.destroy();
+      unregisterLenis();
     };
   }, []);
   return null;
