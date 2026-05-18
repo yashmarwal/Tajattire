@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MagneticButton } from "./Primitives";
 
@@ -9,7 +9,7 @@ const links = [
   { label: "Connect", href: "#connect" },
 ];
 
-export const Navbar = memo(function Navbar() {
+export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("");
   const [open, setOpen] = useState(false);
@@ -111,4 +111,4 @@ export const Navbar = memo(function Navbar() {
       </AnimatePresence>
     </>
   );
-});
+}

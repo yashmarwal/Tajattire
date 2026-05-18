@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export function SmoothScroll() {
   useEffect(() => {
@@ -7,7 +7,7 @@ export function SmoothScroll() {
     let rafId: number;
     (async () => {
       const Lenis = (await import("lenis")).default;
-      lenis = new Lenis({ lerp: 0.06, duration: 1.8, smoothWheel: true, wheelMultiplier: 0.8 });
+      lenis = new Lenis({ lerp: 0.03, duration: 2.8, smoothWheel: true, smoothTouch: true });
       function raf(time: number) {
         lenis.raf(time);
         rafId = requestAnimationFrame(raf);
@@ -22,7 +22,7 @@ export function SmoothScroll() {
   return null;
 }
 
-export const CustomCursor = memo(function CustomCursor() {
+export function CustomCursor() {
   const dotRef = useRef<HTMLDivElement>(null);
   const trailRef = useRef<HTMLDivElement>(null);
   const labelRef = useRef<HTMLDivElement>(null);
@@ -75,4 +75,4 @@ export const CustomCursor = memo(function CustomCursor() {
       <div ref={labelRef} className={`cursor-label ${label ? "show" : ""}`}>{label}</div>
     </>
   );
-});
+}
