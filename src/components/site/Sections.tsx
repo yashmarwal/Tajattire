@@ -1009,7 +1009,7 @@ export function Footer() {
         <div className="hairline mt-16 mb-6" />
         <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-cloud/40">
           <span>© 2025 TajAttire. All rights reserved.</span>
-          <span>GST: 07XXXXX1234X1Z5</span>
+          <span>GST: 08EZDPA6047K1Z9</span>
         </div>
       </div>
     </footer>
