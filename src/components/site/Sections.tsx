@@ -849,7 +849,7 @@ export function Inquiry() {
             </div>
             <div className="pt-4 flex flex-col gap-2">
               <button type="submit" className="w-fit btn-liquid inline-flex items-center justify-center gap-2 px-7 py-3.5 text-sm tracking-[0.15em] uppercase font-medium border bg-[var(--gold)] border-[var(--gold)] text-[var(--deep-black)] hover:bg-[#b0913c]">
-                {status === "loading" ? "Processing..." : isMobile ? "Chat on WhatsApp" : "Send Enquiry"}
+                {status === "loading" ? "Processing..." : isMobile ? "Chat on WhatsApp" : "Send via Email"}
               </button>
               {status === "redirecting" && <p className="text-sm font-medium text-emerald">Redirecting you to WhatsApp...</p>}
               {status === "success" && <p className="text-sm font-medium text-[#1A5C38]">Your enquiry has been sent! We will reach out within 2 hours.</p>}
@@ -1067,7 +1067,7 @@ export function FactoryVisitPopup() {
 
               <div className="mt-2">
                 <button disabled={status === "loading" || status === "redirecting"} type="submit" className="w-full bg-[#C9A84C] hover:bg-[#b0913c] text-black font-semibold h-[44px] rounded-lg transition-colors flex items-center justify-center text-[13px]">
-                  {status === "loading" ? "Processing..." : status === "redirecting" ? "Redirecting..." : isMobile ? "Book via WhatsApp" : "Request Factory Visit"}
+                  {status === "loading" ? "Processing..." : status === "redirecting" ? "Redirecting..." : isMobile ? "Book via WhatsApp" : "Request via Email"}
                 </button>
                 {status === "redirecting" && <p className="text-[11px] text-emerald mt-2 text-center">Redirecting to WhatsApp to confirm your visit!</p>}
                 {status === "error" && (
