@@ -210,7 +210,7 @@ const collections = [
 export function Collections() {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
-  const x = useTransform(scrollYProgress, [0, 1], ["0%", "-75%"]);
+  const x = useTransform(scrollYProgress, [0, 1], ["0%", "calc(-100% + 100vw)"]);
 
   const [currentCard, setCurrentCard] = useState("01");
   const cardIndexTransform = useTransform(scrollYProgress, [0, 0.33, 0.66, 1], [1, 2, 3, 4]);
@@ -246,9 +246,9 @@ export function Collections() {
           </span>
         </div>
 
-        <motion.div style={{ x }} className="flex h-full w-[400vw]">
+        <motion.div style={{ x }} className="flex h-full w-max gap-4 md:gap-6 px-6 lg:px-12 pt-24 md:pt-32 pb-12 items-center">
           {collections.map((c, i) => (
-            <div key={c.tag} className="relative w-[100vw] h-[100vh] flex-shrink-0 overflow-hidden border-r border-[var(--gold)]/20" style={isMobile ? { height: "100svh" } : { height: "100vh" }}>
+            <div key={c.tag} className="relative w-[90vw] md:w-[75vw] h-full flex-shrink-0 overflow-hidden border border-[var(--gold)]/20 rounded-md" data-cursor="View">
               <img src={c.img} alt={c.title} className="absolute inset-0 w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/40 to-transparent" />
               
@@ -281,7 +281,7 @@ export function Collections() {
             </div>
           ))}
 
-          <div className="relative w-[100vw] flex-shrink-0 bg-[var(--emerald-deep)] grain flex flex-col justify-center items-center text-center p-8 border-r border-[var(--gold)]/20" style={isMobile ? { height: "100svh" } : { height: "100vh" }}>
+          <div className="relative w-[90vw] md:w-[75vw] h-full flex-shrink-0 bg-[var(--emerald-deep)] grain flex flex-col justify-center items-center text-center p-8 border border-[var(--gold)]/20 rounded-md">
             <h3 className={`font-display text-cloud font-light mb-6 leading-[1.1] ${isMobile ? 'text-[clamp(2rem,8vw,5rem)]' : 'text-5xl md:text-7xl'}`}>
               <span className="block">Want something</span>
               <span className="block italic text-[var(--gold)] font-bold mt-2">custom?</span>
