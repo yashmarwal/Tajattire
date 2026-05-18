@@ -118,7 +118,7 @@ export function Hero() {
           <MagneticButton href="#collections" variant="gold" cursorLabel="Explore">
             Explore Collections <span>→</span>
           </MagneticButton>
-          <MagneticButton href="https://wa.me/919999999999" variant="outline" cursorLabel="Order">
+          <MagneticButton href="https://wa.me/917976667197" variant="outline" cursorLabel="Order">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.2-1.7-.9-2-1-.3-.1-.5-.2-.7.2-.2.3-.8 1-1 1.2-.2.2-.4.2-.7.1-.3-.2-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6.1-.1.3-.4.5-.6.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.2-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4 0 1.4 1 2.8 1.2 3 .2.2 2 3 4.8 4.2.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.5-.1 1.7-.7 2-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3z"/></svg>
             WhatsApp to Order
           </MagneticButton>
@@ -336,7 +336,7 @@ export function Collections() {
               From fabric selection to final stitch — if you can imagine it, we can manufacture it. Share your reference and we'll build it from scratch.
             </p>
             <div className={`flex flex-col gap-4 ${isMobile ? 'w-full px-6' : 'w-auto'}`}>
-              <MagneticButton href="https://wa.me/919999999999" variant="gold" cursorLabel="Custom" className={isMobile ? "w-full justify-center" : ""}>Discuss Custom Order</MagneticButton>
+              <MagneticButton href="https://wa.me/917976667197" variant="gold" cursorLabel="Custom" className={isMobile ? "w-full justify-center" : ""}>Discuss Custom Order</MagneticButton>
             </div>
           </div>
         </motion.div>
@@ -432,7 +432,7 @@ export function Catalogue() {
 
         <div className="mt-20 flex flex-col items-center">
           <p className="text-sm text-charcoal/70 mb-6">Want to see the full catalogue?</p>
-          <MagneticButton href="https://wa.me/919999999999" variant="wa" cursorLabel="WhatsApp">
+          <MagneticButton href="https://wa.me/917976667197" variant="wa" cursorLabel="WhatsApp">
             Request Full Lookbook on WhatsApp
           </MagneticButton>
         </div>
@@ -471,8 +471,8 @@ export function CustomOrder() {
           </p>
           
           <div className="flex flex-col gap-3 w-full md:w-auto min-w-[260px]">
-            <MagneticButton href="https://wa.me/919999999999" variant="gold" cursorLabel="Chat">Discuss Custom Order</MagneticButton>
-            <MagneticButton href="mailto:orders@tajattire.com" variant="outline" cursorLabel="Email">Send Reference Images</MagneticButton>
+            <MagneticButton href="https://wa.me/917976667197" variant="gold" cursorLabel="Chat">Discuss Custom Order</MagneticButton>
+            <MagneticButton href="mailto:connect.tajattire@gmail.com" variant="outline" cursorLabel="Email">Send Reference Images</MagneticButton>
           </div>
           
           <p className="mt-8 md:mt-10 text-[var(--gold)]/50 text-[10px] md:text-xs tracking-widest uppercase">
@@ -738,7 +738,7 @@ export function CtaBand() {
         <p className="mt-8 font-display italic text-[var(--gold)] text-2xl md:text-3xl">The only question is — when do you want to start?</p>
         <div className="mt-12 flex flex-wrap gap-5 justify-center">
           <MagneticButton href="#order" variant="gold" cursorLabel="Catalog">Download Catalog</MagneticButton>
-          <MagneticButton href="https://wa.me/919999999999" variant="outline" cursorLabel="Chat">WhatsApp Us Now</MagneticButton>
+          <MagneticButton href="https://wa.me/917976667197" variant="outline" cursorLabel="Chat">WhatsApp Us Now</MagneticButton>
         </div>
       </div>
     </section>
@@ -863,7 +863,7 @@ export function Inquiry() {
             </div>
             <div className="pt-6 border-t border-charcoal/10 flex items-center justify-between flex-wrap gap-4">
               <span className="text-sm text-charcoal/70">Prefer to talk directly?</span>
-              <MagneticButton href="https://wa.me/919999999999" variant="wa" cursorLabel="Chat">
+              <MagneticButton href="https://wa.me/917976667197" variant="wa" cursorLabel="Chat">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.2-1.7-.9-2-1-.3-.1-.5-.2-.7.2-.2.3-.8 1-1 1.2-.2.2-.4.2-.7.1-.3-.2-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6.1-.1.3-.4.5-.6.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.2-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4 0 1.4 1 2.8 1.2 3 .2.2 2 3 4.8 4.2.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.5-.1 1.7-.7 2-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3z"/></svg>
                 WhatsApp
               </MagneticButton>
@@ -911,15 +911,15 @@ export function Footer() {
           <div>
             <h4 className="text-[10px] uppercase tracking-[0.3em] text-[var(--gold)] mb-4">Contact</h4>
             <ul className="space-y-2 text-sm">
-              <li>WhatsApp: +91 99999 99999</li>
-              <li>Email: orders@tajattire.com</li>
+              <li>WhatsApp: +91 79766 67197</li>
+              <li>Email: connect.tajattire@gmail.com</li>
               <li>Location: Jaipur, India</li>
             </ul>
             <div className="mt-5 flex gap-4">
               <a href="#" data-cursor="IG" className="text-[var(--gold)] hover:scale-125 transition-transform inline-block">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
               </a>
-              <a href="https://wa.me/919999999999" data-cursor="WA" className="text-[var(--gold)] hover:scale-125 transition-transform inline-block">
+              <a href="https://wa.me/917976667197" data-cursor="WA" className="text-[var(--gold)] hover:scale-125 transition-transform inline-block">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.2-1.7-.9-2-1-.3-.1-.5-.2-.7.2-.2.3-.8 1-1 1.2-.2.2-.4.2-.7.1-.3-.2-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6.1-.1.3-.4.5-.6.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.2-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4 0 1.4 1 2.8 1.2 3 .2.2 2 3 4.8 4.2.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.5-.1 1.7-.7 2-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3z"/></svg>
               </a>
             </div>
