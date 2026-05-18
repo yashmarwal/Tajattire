@@ -29,10 +29,16 @@ export default function App() {
   const [href, setHref] = useState<string>("");
 
   const navigate = useCallback((target: string) => {
+    if (isMobile) {
+      // Mobile: plain smooth scroll, no overlay
+      const el = document.querySelector(target);
+      if (el) el.scrollIntoView({ behavior: "smooth" });
+      return;
+    }
     if (phase !== "idle") return;
     setHref(target);
     setPhase("entering");
-  }, [phase]);
+  }, [phase, isMobile]);
 
   const handleEnterComplete = useCallback(() => {
     const el = document.querySelector(href);
@@ -56,7 +62,6 @@ export default function App() {
         />
         <TransitionOverlay
           phase={phase}
-          isMobile={isMobile}
           onEnterComplete={handleEnterComplete}
           onExitComplete={handleExitComplete}
         />
