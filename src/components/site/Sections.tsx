@@ -749,6 +749,54 @@ export function CtaBand() {
 export function Inquiry() {
   const [interests, setInterests] = useState<string[]>([]);
   const toggle = (v: string) => setInterests((p) => p.includes(v) ? p.filter(x => x !== v) : [...p, v]);
+
+  const [formData, setFormData] = useState({ name: "", business: "", city: "", whatsapp: "", quantity: "" });
+  const [status, setStatus] = useState<"idle"|"loading"|"success"|"error"|"redirecting">("idle");
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
+  }, []);
+
+  const handleChange = (field: keyof typeof formData) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData(prev => ({ ...prev, [field]: e.target.value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus("loading");
+
+    if (isMobile) {
+      const text = `Hello TajAttire Team,\nName: ${formData.name}\nBusiness: ${formData.business}\nCity: ${formData.city}\nWhatsApp: ${formData.whatsapp}\nInterested In: ${interests.length ? interests.join(", ") : "Not specified"}\nQuantity: ${formData.quantity}\nLooking forward to connecting!`;
+      
+      setStatus("redirecting");
+      setTimeout(() => {
+        window.open(`https://wa.me/917976667197?text=${encodeURIComponent(text)}`, "_blank");
+        setStatus("idle");
+      }, 1000);
+    } else {
+      try {
+        const res = await fetch("https://api.web3forms.com/submit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            access_key: "YOUR_WEB3FORMS_KEY_HERE",
+            name: formData.name,
+            business: formData.business,
+            city: formData.city,
+            whatsapp: formData.whatsapp,
+            interest: interests.length ? interests.join(", ") : "Not specified",
+            quantity: formData.quantity,
+          })
+        });
+        if (res.ok) setStatus("success");
+        else setStatus("error");
+      } catch {
+        setStatus("error");
+      }
+    }
+  };
+
   return (
     <section id="order" className="relative bg-cloud grain py-32 overflow-hidden">
       <div className="max-w-[1500px] mx-auto px-6 lg:px-12">
@@ -767,13 +815,23 @@ export function Inquiry() {
             </div>
           </div>
 
-          <form onSubmit={(e) => { e.preventDefault(); alert("Thank you — we'll be in touch within 2 business hours."); }} className="space-y-5">
-            {["Full Name", "Business Name", "City / State", "WhatsApp Number"].map((f) => (
-              <div key={f}>
-                <label className="text-[10px] uppercase tracking-[0.25em] text-charcoal/60 mb-2 block">{f}</label>
-                <input required className="w-full bg-transparent border-b border-charcoal/20 py-3 text-charcoal focus:outline-none focus:border-[var(--gold)] transition-colors" />
-              </div>
-            ))}
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="text-[10px] uppercase tracking-[0.25em] text-charcoal/60 mb-2 block">Full Name</label>
+              <input required value={formData.name} onChange={handleChange("name")} className="w-full bg-transparent border-b border-charcoal/20 py-3 text-charcoal focus:outline-none focus:border-[var(--gold)] transition-colors" />
+            </div>
+            <div>
+              <label className="text-[10px] uppercase tracking-[0.25em] text-charcoal/60 mb-2 block">Business Name</label>
+              <input required value={formData.business} onChange={handleChange("business")} className="w-full bg-transparent border-b border-charcoal/20 py-3 text-charcoal focus:outline-none focus:border-[var(--gold)] transition-colors" />
+            </div>
+            <div>
+              <label className="text-[10px] uppercase tracking-[0.25em] text-charcoal/60 mb-2 block">City / State</label>
+              <input required value={formData.city} onChange={handleChange("city")} className="w-full bg-transparent border-b border-charcoal/20 py-3 text-charcoal focus:outline-none focus:border-[var(--gold)] transition-colors" />
+            </div>
+            <div>
+              <label className="text-[10px] uppercase tracking-[0.25em] text-charcoal/60 mb-2 block">WhatsApp Number</label>
+              <input required type="tel" value={formData.whatsapp} onChange={handleChange("whatsapp")} className="w-full bg-transparent border-b border-charcoal/20 py-3 text-charcoal focus:outline-none focus:border-[var(--gold)] transition-colors" />
+            </div>
             <div>
               <label className="text-[10px] uppercase tracking-[0.25em] text-charcoal/60 mb-3 block">Interested In</label>
               <div className="flex flex-wrap gap-3">
@@ -787,10 +845,21 @@ export function Inquiry() {
             </div>
             <div>
               <label className="text-[10px] uppercase tracking-[0.25em] text-charcoal/60 mb-2 block">Approximate Quantity Needed</label>
-              <input required className="w-full bg-transparent border-b border-charcoal/20 py-3 text-charcoal focus:outline-none focus:border-[var(--gold)] transition-colors" />
+              <input required value={formData.quantity} onChange={handleChange("quantity")} className="w-full bg-transparent border-b border-charcoal/20 py-3 text-charcoal focus:outline-none focus:border-[var(--gold)] transition-colors" />
             </div>
-            <div className="pt-4">
-              <MagneticButton cursorLabel="Send" variant="gold">Send My Enquiry →</MagneticButton>
+            <div className="pt-4 flex flex-col gap-2">
+              <button type="submit" className="w-fit btn-liquid inline-flex items-center justify-center gap-2 px-7 py-3.5 text-sm tracking-[0.15em] uppercase font-medium border bg-[var(--gold)] border-[var(--gold)] text-[var(--deep-black)] hover:bg-[#b0913c]">
+                {status === "loading" ? "Processing..." : isMobile ? "Chat on WhatsApp" : "Send Enquiry"}
+              </button>
+              {status === "redirecting" && <p className="text-sm font-medium text-emerald">Redirecting you to WhatsApp...</p>}
+              {status === "success" && <p className="text-sm font-medium text-[#1A5C38]">Your enquiry has been sent! We will reach out within 2 hours.</p>}
+              {status === "error" && (
+                <div className="text-sm text-red-600 mt-1">
+                  Something went wrong. Please try WhatsApp instead.
+                  <br />
+                  <a href="https://wa.me/917976667197" target="_blank" className="underline mt-1 inline-block text-emerald">wa.me/917976667197</a>
+                </div>
+              )}
             </div>
             <div className="pt-6 border-t border-charcoal/10 flex items-center justify-between flex-wrap gap-4">
               <span className="text-sm text-charcoal/70">Prefer to talk directly?</span>
@@ -864,5 +933,152 @@ export function Footer() {
         </div>
       </div>
     </footer>
+  );
+}
+
+/* ─────────── FACTORY VISIT POPUP ─────────── */
+export function FactoryVisitPopup() {
+  const [visible, setVisible] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [status, setStatus] = useState<"idle"|"loading"|"success"|"error"|"redirecting">("idle");
+  const [formData, setFormData] = useState({
+    name: "", businessType: "Retailer", date: "", people: "1", whatsapp: ""
+  });
+
+  useEffect(() => {
+    if (sessionStorage.getItem("factoryVisitShown")) return;
+    const mobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    setIsMobile(mobile);
+
+    if (mobile) {
+      const t = setTimeout(() => {
+        setVisible(true);
+        sessionStorage.setItem("factoryVisitShown", "true");
+      }, 13000);
+      return () => clearTimeout(t);
+    } else {
+      let lastScrollY = window.scrollY;
+      let maxScrollY = window.scrollY;
+      const handleScroll = () => {
+        const sy = window.scrollY;
+        if (sy > maxScrollY) maxScrollY = sy;
+        if (maxScrollY > 600 && sy < lastScrollY - 20) {
+          setVisible(true);
+          sessionStorage.setItem("factoryVisitShown", "true");
+          window.removeEventListener("scroll", handleScroll);
+        }
+        lastScrollY = sy;
+      };
+      window.addEventListener("scroll", handleScroll, { passive: true });
+      return () => window.removeEventListener("scroll", handleScroll);
+    }
+  }, []);
+
+  const handleChange = (field: keyof typeof formData) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setFormData(prev => ({ ...prev, [field]: e.target.value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus("loading");
+
+    if (isMobile) {
+      const text = `Hello TajAttire Team,\nI would like to visit your factory in Jaipur.\nName: ${formData.name}\nBusiness Type: ${formData.businessType}\nVisit Date: ${formData.date}\nNumber of People: ${formData.people}\nWhatsApp: ${formData.whatsapp}\nPlease confirm my visit. Thank you!`;
+      setStatus("redirecting");
+      setTimeout(() => {
+        window.open(`https://wa.me/917976667197?text=${encodeURIComponent(text)}`, "_blank");
+        setStatus("success");
+      }, 1000);
+    } else {
+      try {
+        const res = await fetch("https://api.web3forms.com/submit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            access_key: "YOUR_WEB3FORMS_KEY_HERE",
+            subject: "Factory Visit Request — TajAttire",
+            name: formData.name,
+            business_type: formData.businessType,
+            visit_date: formData.date,
+            number_of_people: formData.people,
+            whatsapp: formData.whatsapp,
+          })
+        });
+        if (res.ok) setStatus("success");
+        else setStatus("error");
+      } catch {
+        setStatus("error");
+      }
+    }
+  };
+
+  return (
+    <AnimatePresence>
+      {visible && (
+        <motion.div
+          initial={isMobile ? { y: "100%" } : { y: 40, opacity: 0 }}
+          animate={isMobile ? { y: "0%" } : { y: 0, opacity: 1 }}
+          exit={isMobile ? { y: "100%" } : { y: 40, opacity: 0 }}
+          transition={{ type: "spring", damping: 25, stiffness: 200 }}
+          className="fixed z-[9000] bottom-0 left-0 right-0 md:bottom-8 md:right-8 md:left-auto md:w-[380px] bg-[#0A0A0A] border-[1.5px] border-[var(--gold)]/40 rounded-t-[16px] md:rounded-[16px] p-7 shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
+        >
+          <button onClick={() => { setVisible(false); sessionStorage.setItem("factoryVisitShown", "true"); }} className="absolute top-6 right-6 text-[var(--gold)] hover:text-white transition-colors">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+          
+          <div className="mb-6 pr-8">
+            <div className="text-[10px] uppercase tracking-[0.2em] text-[var(--gold)] mb-2 font-medium">Exclusive Offer</div>
+            <h3 className="font-display text-white text-3xl mb-2">Visit Our Factory in Jaipur</h3>
+            <p className="text-white/60 font-body text-[13px] leading-relaxed">See our full catalogue in person, meet the team, and get exclusive walk-in pricing on bulk orders.</p>
+          </div>
+
+          {status === "success" ? (
+            <div className="py-10 text-center">
+              <div className="text-[var(--gold)] mb-4 flex justify-center">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+              </div>
+              <p className="text-[var(--gold)] font-medium">Your factory visit request has been sent! We will confirm within 2 hours.</p>
+              <button onClick={() => setVisible(false)} className="mt-6 w-full bg-white/10 hover:bg-white/20 text-white font-semibold h-[44px] rounded-lg transition-colors text-[13px]">Close Window</button>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+              <input required placeholder="Your Name" value={formData.name} onChange={handleChange("name")} className="w-full bg-white/5 border border-[var(--gold)]/20 rounded-lg text-white px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[var(--gold)]/60 placeholder-white/30" />
+              
+              <select required value={formData.businessType} onChange={handleChange("businessType")} className="w-full bg-[#121212] border border-[var(--gold)]/20 rounded-lg text-white px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[var(--gold)]/60 appearance-none">
+                <option value="Retailer">Retailer</option>
+                <option value="Boutique Owner">Boutique Owner</option>
+                <option value="Wholesaler">Wholesaler</option>
+                <option value="Exporter">Exporter</option>
+                <option value="Other">Other</option>
+              </select>
+
+              <div className="flex gap-3">
+                <input required type="date" min={new Date().toISOString().split("T")[0]} value={formData.date} onChange={handleChange("date")} className="w-[60%] bg-[#121212] border border-[var(--gold)]/20 rounded-lg text-white px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[var(--gold)]/60 [color-scheme:dark]" />
+                <select required value={formData.people} onChange={handleChange("people")} className="w-[40%] bg-[#121212] border border-[var(--gold)]/20 rounded-lg text-white px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[var(--gold)]/60 appearance-none">
+                  <option value="1">1 Person</option>
+                  <option value="2">2 People</option>
+                  <option value="3">3 People</option>
+                  <option value="4">4 People</option>
+                  <option value="5+">5+ People</option>
+                </select>
+              </div>
+
+              <input required type="tel" placeholder="Your WhatsApp Number" value={formData.whatsapp} onChange={handleChange("whatsapp")} className="w-full bg-white/5 border border-[var(--gold)]/20 rounded-lg text-white px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-[var(--gold)]/60 placeholder-white/30" />
+
+              <div className="mt-2">
+                <button disabled={status === "loading" || status === "redirecting"} type="submit" className="w-full bg-[#C9A84C] hover:bg-[#b0913c] text-black font-semibold h-[44px] rounded-lg transition-colors flex items-center justify-center text-[13px]">
+                  {status === "loading" ? "Processing..." : status === "redirecting" ? "Redirecting..." : isMobile ? "Book via WhatsApp" : "Request Factory Visit"}
+                </button>
+                {status === "redirecting" && <p className="text-[11px] text-emerald mt-2 text-center">Redirecting to WhatsApp to confirm your visit!</p>}
+                {status === "error" && (
+                  <p className="text-[11px] text-red-500 mt-2 text-center">Something went wrong. Please <a href="https://wa.me/917976667197" target="_blank" className="underline text-emerald">try WhatsApp instead.</a></p>
+                )}
+                <p className="text-[10px] text-[var(--gold)]/50 text-center mt-2 font-medium tracking-wide">We confirm visits within 2 hours on WhatsApp</p>
+              </div>
+            </form>
+          )}
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

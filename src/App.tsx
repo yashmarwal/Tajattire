@@ -4,7 +4,7 @@ import { Preloader } from "@/components/site/Preloader";
 import { Navbar } from "@/components/site/Navbar";
 import {
   Hero, Marquee, Statement, Collections, Catalogue, CustomOrder, Craft, Why, Stats,
-  HowItWorks, Testimonials, CtaBand, Inquiry, Footer
+  HowItWorks, Testimonials, CtaBand, Inquiry, Footer, FactoryVisitPopup
 } from "@/components/site/Sections";
 
 export default function App() {
@@ -30,6 +30,7 @@ export default function App() {
       <CtaBand />
       <Inquiry />
       <Footer />
+      <FactoryVisitPopup />
     </main>
   );
 }
