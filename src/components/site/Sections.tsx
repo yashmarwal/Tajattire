@@ -167,7 +167,7 @@ function RotatingBox({ texts, isFilled, interval, minW }: { texts: string[]; isF
     <motion.div 
       layout
       style={{ minWidth: minW }}
-      className={`relative flex items-center justify-center rounded-full px-4 md:px-7 h-[34px] md:h-[48px] overflow-hidden flex-shrink-0 ${
+      className={`relative flex items-center justify-center rounded-full px-3 md:px-7 h-[30px] md:h-[48px] overflow-hidden flex-shrink-0 ${
         isFilled 
           ? "bg-[var(--gold)] text-[#0A0A0A]" 
           : "border border-[var(--gold)] text-[var(--gold)] bg-transparent"
@@ -197,11 +197,25 @@ export function Marquee() {
     { texts: ["Pan India Delivery", "20+ States", "Fast Dispatch", "On Time"], filled: false, delay: 3600, minW: 160 },
   ];
 
+  const mobileBoxesData = [
+    { texts: ["500+ Designs", "Kurtis", "Gowns and Tops"], filled: true, delay: 3000, minW: 115 },
+    { texts: ["MOQ 100 Pieces", "Bulk Orders", "Custom Made"], filled: false, delay: 3200, minW: 115 },
+    { texts: ["Starting 180 rupees", "Pan India Delivery", "Fast Dispatch"], filled: true, delay: 3400, minW: 115 },
+  ];
+
   return (
     <section className="w-full bg-[#0A0A0A] border-y border-[var(--gold)]/40 py-[10px] md:py-[12px] relative z-20 flex justify-center overflow-hidden">
-      <div className="flex justify-evenly items-center w-full min-w-[700px] md:min-w-full px-4 overflow-x-auto scrollbar-hide">
+      {/* DESKTOP */}
+      <div className="hidden md:flex justify-evenly items-center w-full min-w-full px-4 overflow-hidden">
         {boxesData.map((box, i) => (
-          <RotatingBox key={i} texts={box.texts} isFilled={box.filled} interval={box.delay} minW={box.minW} />
+          <RotatingBox key={`desktop-${i}`} texts={box.texts} isFilled={box.filled} interval={box.delay} minW={box.minW} />
+        ))}
+      </div>
+      
+      {/* MOBILE */}
+      <div className="flex md:hidden justify-evenly items-center w-full px-1 overflow-x-auto scrollbar-hide">
+        {mobileBoxesData.map((box, i) => (
+          <RotatingBox key={`mobile-${i}`} texts={box.texts} isFilled={box.filled} interval={box.delay} minW={box.minW} />
         ))}
       </div>
     </section>
