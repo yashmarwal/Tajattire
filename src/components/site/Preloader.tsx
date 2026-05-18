@@ -55,7 +55,7 @@ export const Preloader = React.memo(function Preloader({ onDone }: { onDone: () 
         {/* LAYER 2 — HORIZONTAL THREAD LINE */}
         <motion.div 
           className="absolute left-0 w-full flex items-center justify-start"
-          style={{ top: "50%", height: "4px", marginTop: "-2px" }}
+          style={{ top: "40%", height: "4px", marginTop: "-2px" }}
           animate={stage >= 4 ? { opacity: 0 } : { opacity: 1 }}
           transition={{ duration: 0.3 }}
         >
@@ -93,7 +93,8 @@ export const Preloader = React.memo(function Preloader({ onDone }: { onDone: () 
 
         {/* LAYER 3 & 5 — LOGO + TEXT CONTAINER */}
         <motion.div 
-          className="relative flex flex-col items-center justify-center"
+          className="absolute flex flex-col items-center"
+          style={{ top: "45%", width: "100%" }}
           animate={stage >= 4 ? { opacity: 0, scale: 1.1 } : { opacity: 1, scale: 1 }}
           transition={{ duration: 0.4, ease: "easeIn" }}
         >
@@ -135,18 +136,6 @@ export const Preloader = React.memo(function Preloader({ onDone }: { onDone: () 
                 alt="TajAttire"
                 style={{ width: "160px", height: "auto" }}
               />
-              {stage >= 2 && (
-                <motion.div
-                  className="absolute inset-0"
-                  style={{ 
-                    background: "linear-gradient(105deg, transparent 30%, rgba(201,168,76,0.6) 50%, transparent 70%)",
-                    backgroundSize: "200% 100%"
-                  }}
-                  initial={{ backgroundPosition: "-200% 0" }}
-                  animate={{ backgroundPosition: "200% 0" }}
-                  transition={{ delay: 0.6, duration: 0.8 }}
-                />
-              )}
             </motion.div>
           </div>
 
