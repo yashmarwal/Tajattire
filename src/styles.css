@@ -175,14 +175,22 @@
 .btn-liquid::before {
   content: "";
   position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at center, var(--gold) 0%, var(--gold) 60%, transparent 70%);
-  transform: scale(0);
-  transition: transform .6s cubic-bezier(.2,.8,.2,1);
+  top: 50%;
+  left: 50%;
+  width: 150%;
+  padding-bottom: 150%;
+  background: var(--gold);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
   z-index: -1;
 }
-.btn-liquid:hover::before { transform: scale(2.2); }
-.btn-liquid:hover { color: var(--deep-black); border-radius: 12px; }
+
+.btn-liquid.bg-\[var\(--gold\)\]::before { background: var(--emerald-deep); }
+.btn-liquid.bg-\[\#25D366\]::before { background: #128C7E; }
+
+.btn-liquid:hover::before { transform: translate(-50%, -50%) scale(1); }
+.btn-liquid:hover { color: var(--cloud) !important; border-color: transparent !important; }
 
 /* Card hover */
 .card-lift {
@@ -212,10 +220,10 @@
 @keyframes marquee-left { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 @keyframes marquee-right { from { transform: translateX(-50%); } to { transform: translateX(0); } }
 .marquee-left, .marquee-right { transition: animation-duration 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); }
-.marquee-left { animation: marquee-left 45s linear infinite; }
-.marquee-right { animation: marquee-right 45s linear infinite; }
+.marquee-left { animation: marquee-left 90s linear infinite; }
+.marquee-right { animation: marquee-right 90s linear infinite; }
 .marquee-wrap:hover .marquee-left,
-.marquee-wrap:hover .marquee-right { animation-duration: 90s; }
+.marquee-wrap:hover .marquee-right { animation-duration: 180s; }
 
 /* Particles */
 @keyframes drift {

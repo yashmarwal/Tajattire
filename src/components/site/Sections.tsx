@@ -368,9 +368,9 @@ export function Catalogue() {
                 className="group relative bg-white rounded-lg shadow-sm border border-charcoal/5 overflow-hidden flex flex-col cursor-pointer card-lift"
               >
                 <div className="relative aspect-[4/5] overflow-hidden bg-black/5">
-                  <img src={item.img} alt={item.label} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
-                  <div className="absolute inset-0 bg-[var(--gold)] opacity-0 group-hover:opacity-10 transition-opacity duration-500" />
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                  <img src={item.img} alt={item.label} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-[1.04]" />
+                  <div className="absolute inset-0 bg-[var(--gold)] opacity-0 group-hover:opacity-10 transition-opacity duration-1000" />
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-1000">
                     <span className="text-[var(--gold)] text-xs tracking-widest uppercase bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg">Enquire →</span>
                   </div>
                 </div>
@@ -403,7 +403,7 @@ export function CustomOrder() {
           initial={{ opacity: 0, y: 60, scale: 0.97 }}
           whileInView={{ opacity: 1, y: 0, scale: 1 }}
           viewport={{ once: true, margin: "-10%" }}
-          transition={{ type: "spring", stiffness: 38, damping: 16, delay: 3 * 0.15 }}
+          transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1], delay: 3 * 0.15 }}
           className="text-center max-w-2xl flex flex-col items-center w-full mx-auto"
         >
           <h3 className="font-display text-cloud text-[2rem] leading-tight md:text-7xl mb-6 md:mb-8">
@@ -503,7 +503,7 @@ export function Why() {
                 initial={{ opacity: 0, y: 70 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-10%" }}
-                transition={{ type: "spring", stiffness: 38, damping: 16, mass: 1, delay: i * 0.15 }}
+                transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1], delay: i * 0.15 }}
                 className="card-lift relative border border-[var(--gold)]/20 border-l-2 border-l-[var(--gold)] p-10 bg-black/20 backdrop-blur-sm"
                 data-cursor="Read"
               >
@@ -520,7 +520,7 @@ export function Why() {
                 initial={{ opacity: 0, y: 70 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-10%" }}
-                transition={{ type: "spring", stiffness: 38, damping: 16, mass: 1, delay: 0.3 + i * 0.15 }}
+                transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1], delay: 0.3 + i * 0.15 }}
                 className="card-lift relative border border-[var(--gold)]/20 border-l-2 border-l-[var(--gold)] p-8 bg-black/20 backdrop-blur-sm"
                 data-cursor="Read"
               >
@@ -599,7 +599,7 @@ export function HowItWorks() {
               initial={{ opacity: 0, y: 70 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-10%" }}
-              transition={{ type: "spring", stiffness: 38, damping: 16, mass: 1, delay: i * 0.15 }}
+              transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1], delay: i * 0.15 }}
               className="relative pt-8 z-10"
             >
               <div className="absolute top-14 left-0 w-4 h-4 rounded-full bg-cloud border-2 border-[var(--gold)]" />
@@ -636,7 +636,7 @@ export function Testimonials() {
               initial={{ opacity: 0, y: 70 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-10%" }}
-              transition={{ type: "spring", stiffness: 38, damping: 16, mass: 1, delay: i * 0.15 }}
+              transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1], delay: i * 0.15 }}
               whileHover={{ y: [0, -6, 0], transition: { duration: 3, repeat: Infinity, ease: "easeInOut" } }}
               className={`bg-black/30 backdrop-blur-md border border-[var(--gold)]/20 border-l-2 border-l-[var(--gold)] p-8 ${i === 1 ? "md:mt-12" : ""} ${i === 2 ? "md:mt-6" : ""}`}
               data-cursor="Read"

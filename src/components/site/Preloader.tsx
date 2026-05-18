@@ -42,12 +42,12 @@ export const Preloader = React.memo(function Preloader({ onDone }: { onDone: () 
       <motion.div
         style={{ position: "fixed", top: 0, left: 0, right: 0, height: "50%", background: "#0A0A0A", zIndex: 9998 }}
         animate={stage >= 4 ? { y: "-100%" } : { y: "0%" }}
-        transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
+        transition={{ duration: 1.6, ease: [0.76, 0, 0.24, 1] }}
       />
       <motion.div
         style={{ position: "fixed", bottom: 0, left: 0, right: 0, height: "50%", background: "#0A0A0A", zIndex: 9998 }}
         animate={stage >= 4 ? { y: "100%" } : { y: "0%" }}
-        transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
+        transition={{ duration: 1.6, ease: [0.76, 0, 0.24, 1] }}
       />
 
       <div className="absolute inset-0 z-[9999] flex flex-col items-center justify-center pointer-events-none">

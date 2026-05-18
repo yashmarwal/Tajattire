@@ -7,7 +7,7 @@ export function SmoothScroll() {
     let rafId: number;
     (async () => {
       const Lenis = (await import("lenis")).default;
-      lenis = new Lenis({ lerp: 0.06, duration: 1.8, smoothWheel: true, smoothTouch: true });
+      lenis = new Lenis({ lerp: 0.03, duration: 2.8, smoothWheel: true, smoothTouch: true });
       function raf(time: number) {
         lenis.raf(time);
         rafId = requestAnimationFrame(raf);

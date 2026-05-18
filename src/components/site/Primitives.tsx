@@ -75,7 +75,7 @@ export function SplitHeading({ text, className = "", as: As = "h2", delay = 0 }:
               <motion.span
                 initial={{ y: "100%", opacity: 0 }}
                 animate={inView ? { y: 0, opacity: 1 } : {}}
-                transition={{ duration: 0.6, delay: delay + i * 0.04, ease: [0.2, 0.8, 0.2, 1] }}
+                transition={{ duration: 1.2, delay: delay + i * 0.12, ease: [0.16, 1, 0.3, 1] }}
                 className="inline-block"
               >
                 {w}
@@ -98,7 +98,7 @@ export function FadeLines({ lines, className = "", lineClass = "" }: { lines: st
           key={i}
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ type: "spring", stiffness: 40, damping: 18, delay: i * 0.14 }}
+          transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: i * 0.2 }}
           className={lineClass}
         >
           {l}
@@ -118,14 +118,14 @@ export function CurtainImage({ src, alt, className = "" }: { src: string; alt: s
         alt={alt}
         initial={{ scale: 1.2 }}
         animate={inView ? { scale: 1 } : {}}
-        transition={{ duration: 1.6, ease: [0.2, 0.8, 0.2, 1] }}
+        transition={{ duration: 2.2, ease: [0.16, 1, 0.3, 1] }}
         className="w-full h-full object-cover"
         loading="lazy"
       />
       <motion.div
         initial={{ x: "0%" }}
         animate={inView ? { x: "100%" } : {}}
-        transition={{ duration: 1.4, ease: [0.76, 0, 0.24, 1], delay: 0.2 }}
+        transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
         className="absolute inset-0 bg-[var(--emerald-deep)]"
       />
     </div>
@@ -140,10 +140,10 @@ export function CountUp({ end, prefix = "", suffix = "", className = "" }: { end
   useEffect(() => {
     if (!inView) return;
     const start = performance.now();
-    const dur = 2200;
+    const dur = 4500;
     const tick = (t: number) => {
       const p = Math.min(1, (t - start) / dur);
-      const eased = p === 1 ? 1 : 1 - Math.pow(2, -10 * p);
+      const eased = p === 1 ? 1 : 1 - Math.pow(1 - p, 6);
       setVal(Math.round(end * eased));
       if (p < 1) requestAnimationFrame(tick);
       else setIsDone(true);
@@ -156,7 +156,7 @@ export function CountUp({ end, prefix = "", suffix = "", className = "" }: { end
       className={className}
       initial={{ textShadow: "0px 0px 0px transparent" }}
       animate={isDone ? { textShadow: ["0px 0px 20px var(--gold)", "0px 0px 0px transparent"] } : {}}
-      transition={{ duration: 0.6, ease: "easeOut" }}
+      transition={{ duration: 1.2, ease: "easeOut" }}
     >
       {prefix}{val.toLocaleString()}{suffix}
     </motion.span>
