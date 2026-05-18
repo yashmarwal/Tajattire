@@ -541,11 +541,12 @@ export function Why() {
           <span className="text-xs uppercase tracking-[0.3em] text-[var(--gold)]">06 — Why TajAttire</span>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
-          <div className="md:col-span-2 grid gap-6">
+        {/* DESKTOP LAYOUT */}
+        <div className="hidden md:grid grid-cols-3 gap-6">
+          <div className="col-span-2 grid gap-6">
             {whys.filter(w => w.big).map((w, i) => (
               <motion.div
-                key={w.n}
+                key={`desktop-${w.n}`}
                 initial={{ opacity: 0, y: 70 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-10%" }}
@@ -563,7 +564,7 @@ export function Why() {
           <div className="grid gap-6">
             {whys.filter(w => !w.big).map((w, i) => (
               <motion.div
-                key={w.n}
+                key={`desktop-${w.n}`}
                 initial={{ opacity: 0, y: 70 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-10%" }}
@@ -578,6 +579,26 @@ export function Why() {
               </motion.div>
             ))}
           </div>
+        </div>
+
+        {/* MOBILE LAYOUT */}
+        <div className="grid md:hidden gap-6">
+          {whys.map((w, i) => (
+            <motion.div
+              key={`mobile-${w.n}`}
+              initial={{ opacity: 0, y: 70 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-10%" }}
+              transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1], delay: i * 0.1 }}
+              style={{ top: `calc(6rem + ${i * 1.5}rem)` }}
+              className={`sticky z-10 card-lift border border-[var(--gold)]/20 border-l-2 border-l-[var(--gold)] ${w.big ? 'p-8' : 'p-6'} bg-[#0A2416] shadow-[0_-15px_30px_rgba(0,0,0,0.4)]`}
+              data-cursor="Read"
+            >
+              <span className={`absolute right-5 outline-num opacity-40 ${w.big ? 'top-4 text-6xl' : 'top-3 text-5xl'}`}>{w.n}</span>
+              <h3 className={`font-display text-cloud font-light mb-3 ${w.big ? 'text-2xl' : 'text-xl'}`}>{w.title}</h3>
+              <p className="text-cloud/70 text-sm leading-relaxed">{w.copy}</p>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>
