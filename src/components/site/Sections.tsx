@@ -153,7 +153,7 @@ export function Hero() {
 
 /* ─────────── BOLD ROTATING MARQUEE ─────────── */
 
-function RotatingBox({ texts, isFilled, interval }: { texts: string[]; isFilled: boolean; interval: number }) {
+function RotatingBox({ texts, isFilled, interval, minW }: { texts: string[]; isFilled: boolean; interval: number; minW: number }) {
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
@@ -166,6 +166,7 @@ function RotatingBox({ texts, isFilled, interval }: { texts: string[]; isFilled:
   return (
     <motion.div 
       layout
+      style={{ minWidth: minW }}
       className={`relative flex items-center justify-center rounded-full px-4 md:px-7 h-[34px] md:h-[48px] overflow-hidden flex-shrink-0 ${
         isFilled 
           ? "bg-[var(--gold)] text-[#0A0A0A]" 
@@ -176,9 +177,9 @@ function RotatingBox({ texts, isFilled, interval }: { texts: string[]; isFilled:
       <AnimatePresence initial={false}>
         <motion.div
           key={index}
-          initial={{ opacity: 0, position: "absolute" }}
-          animate={{ opacity: 1, position: "relative", transition: { duration: 0.6, ease: "easeIn" } }}
-          exit={{ opacity: 0, position: "absolute", transition: { duration: 0.6, ease: "easeOut" } }}
+          initial={{ y: 20, opacity: 0, position: "absolute" }}
+          animate={{ y: 0, opacity: 1, position: "relative", transition: { duration: 0.6, ease: "easeOut" } }}
+          exit={{ y: -20, opacity: 0, position: "absolute", transition: { duration: 0.6, ease: "easeIn" } }}
           className={`whitespace-nowrap text-[9px] md:text-[11px] uppercase tracking-[0.1em] md:tracking-[0.15em] font-body ${isFilled ? "font-bold" : "font-medium"}`}
         >
           {texts[index]}
@@ -190,17 +191,17 @@ function RotatingBox({ texts, isFilled, interval }: { texts: string[]; isFilled:
 
 export function Marquee() {
   const boxesData = [
-    { texts: ["500+ Designs", "Kurtis", "Gowns and Tops", "New Arrivals"], filled: true, delay: 3000 },
-    { texts: ["MOQ 100 Pieces", "Bulk Orders", "Custom Made", "Private Label"], filled: false, delay: 3200 },
-    { texts: ["Starting ₹180", "Best Margins", "Wholesale Price", "Trade Only"], filled: true, delay: 3400 },
-    { texts: ["Pan India Delivery", "20+ States", "Fast Dispatch", "On Time"], filled: false, delay: 3600 },
+    { texts: ["500+ Designs", "Kurtis", "Gowns and Tops", "New Arrivals"], filled: true, delay: 3000, minW: 180 },
+    { texts: ["MOQ 100 Pieces", "Bulk Orders", "Custom Made", "Private Label"], filled: false, delay: 3200, minW: 160 },
+    { texts: ["Starting ₹180", "Best Margins", "Wholesale Price", "Trade Only"], filled: true, delay: 3400, minW: 180 },
+    { texts: ["Pan India Delivery", "20+ States", "Fast Dispatch", "On Time"], filled: false, delay: 3600, minW: 160 },
   ];
 
   return (
     <section className="w-full bg-[#0A0A0A] border-y border-[var(--gold)]/40 py-[10px] md:py-[12px] relative z-20 flex justify-center overflow-hidden">
-      <div className="flex gap-5 md:gap-10 items-center w-max max-w-full px-4 overflow-x-auto scrollbar-hide">
+      <div className="flex justify-evenly items-center w-full min-w-[700px] md:min-w-full px-4 overflow-x-auto scrollbar-hide">
         {boxesData.map((box, i) => (
-          <RotatingBox key={i} texts={box.texts} isFilled={box.filled} interval={box.delay} />
+          <RotatingBox key={i} texts={box.texts} isFilled={box.filled} interval={box.delay} minW={box.minW} />
         ))}
       </div>
     </section>
