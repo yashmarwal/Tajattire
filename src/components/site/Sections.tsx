@@ -4,7 +4,7 @@ import { MagneticButton, SplitHeading, FadeLines, CurtainImage, CountUp, Paralla
 import { usePageTransition } from "@/lib/PageTransitionContext";
 
 const IMG = {
-  hero: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=1920&q=80",
+  hero: "/hero.jpg",
   kurti: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=1200&q=80",
   gown: "https://images.unsplash.com/photo-1583391733981-8498408cf57f?w=1200&q=80",
   tops: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=1200&q=80",
@@ -863,7 +863,7 @@ export function Inquiry() {
   return (
     <section id="order" className="relative bg-[#F8F6F1] flex flex-col md:flex-row min-h-screen">
       <div className="md:w-1/2 relative min-h-[500px] md:min-h-screen bg-[#1A5C38] flex items-center justify-center">
-        <img src="https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=1920&q=80" alt="Indian Fashion Editorial" className="absolute inset-0 w-full h-full object-cover" />
+        <img src="/hero.jpg" alt="Indian Fashion Editorial" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-[#1A5C38]/60" />
         <div className="relative text-center px-8 flex flex-col items-center">
           <p className="font-display italic text-white text-4xl md:text-5xl leading-tight max-w-lg">
