@@ -154,7 +154,7 @@ export default function App() {
         <FactoryVisitPopup />
         {!showPreloader && <FloatingWhatsApp />}
         <StickyCtaBar />
-        <AiHelpAgent />
+        {!showPreloader && <AiHelpAgent />}
       </main>
     </PageTransitionContext.Provider>
   );
