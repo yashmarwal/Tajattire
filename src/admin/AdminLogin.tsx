@@ -11,22 +11,18 @@ export function AdminLogin() {
     e.preventDefault();
     setLoading(true);
     setError("");
-
-    // Detect if running with placeholder/missing Supabase config
-    const url = import.meta.env.VITE_SUPABASE_URL as string;
-    if (!url || url.includes("placeholder")) {
-      setError("Supabase not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your Vercel environment variables, then redeploy.");
-      setLoading(false);
-      return;
-    }
-
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      if (error.message?.includes("Failed to fetch") || error.message?.includes("NetworkError")) {
-        setError("Cannot reach Supabase. Check that VITE_SUPABASE_URL is correctly set in Vercel → Project Settings → Environment Variables.");
-      } else {
-        setError(error.message);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        if (error.message?.includes("Failed to fetch") || error.message?.includes("NetworkError")) {
+          setError("Network error — check your internet connection or Vercel env vars, then redeploy.");
+        } else {
+          setError(error.message);
+        }
+        setLoading(false);
       }
+    } catch {
+      setError("Unexpected error. Please try again.");
       setLoading(false);
     }
   };
