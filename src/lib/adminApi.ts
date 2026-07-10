@@ -12,8 +12,24 @@ export async function uploadImage(
 ): Promise<string> {
   const ext = file.name.split(".").pop() ?? "jpg";
   const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+
   const { data, error } = await supabase.storage.from(bucket).upload(path, file, { upsert: true });
-  if (error) throw error;
+
+  if (error) {
+    // Supabase gives a generic "Failed to fetch" when CORS or network blocks the request
+    const msg = error.message ?? "";
+    if (msg.includes("Failed to fetch") || msg.includes("NetworkError")) {
+      throw new Error("Network error — check your internet connection and try again.");
+    }
+    if (msg.includes("row-level security") || msg.includes("violates") || msg.includes("policy")) {
+      throw new Error(
+        "Storage permission denied. Please go to Supabase → Storage → Buckets → '" +
+        bucket + "' → Policies and allow anon INSERT/SELECT/UPDATE access."
+      );
+    }
+    throw new Error(`Upload failed: ${msg}`);
+  }
+
   const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(data.path);
   return publicUrl;
 }

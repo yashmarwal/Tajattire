@@ -106,7 +106,7 @@ export function StickyCtaBar() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.28, ease: "easeOut" }}
-                    className="relative flex items-center gap-2 px-6 py-3 bg-[var(--gold)] text-[var(--deep-black)] rounded-full text-[11px] font-semibold uppercase tracking-[0.15em] whitespace-nowrap shadow-[0_4px_24px_rgba(201,168,76,0.5)]"
+                    className="relative flex items-center gap-2 px-5 py-3 bg-[var(--gold)] text-[var(--deep-black)] rounded-full text-[10px] font-semibold uppercase tracking-[0.12em] whitespace-nowrap shadow-[0_4px_24px_rgba(201,168,76,0.5)] max-w-[calc(100vw-160px)] overflow-hidden"
                   >
                     {msg.label} →
                   </motion.a>
