@@ -74,15 +74,15 @@ export function StickyCtaBar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 16 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="md:hidden fixed z-40"
+            className="md:hidden fixed z-40 flex items-center justify-center"
             style={{
               bottom: "80px",
-              left: "50%",
-              transform: "translateX(-50%)",
+              left: "75px",
+              right: "75px",
             }}
           >
             {/* Glow behind pill */}
-            <div className="absolute inset-0 rounded-full bg-[var(--gold)] blur-[14px] opacity-25 pointer-events-none scale-110" />
+            <div className="absolute inset-0 rounded-full bg-[var(--gold)] blur-[14px] opacity-20 pointer-events-none" />
 
             <AnimatePresence mode="wait">
               {(() => {
@@ -102,11 +102,11 @@ export function StickyCtaBar() {
                     }
                     target={msg.isExternal ? "_blank" : undefined}
                     rel={msg.isExternal ? "noreferrer" : undefined}
-                    initial={{ opacity: 0, y: 10 }}
+                    initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
+                    exit={{ opacity: 0, y: -8 }}
                     transition={{ duration: 0.28, ease: "easeOut" }}
-                    className="relative flex items-center gap-2 px-5 py-3 bg-[var(--gold)] text-[var(--deep-black)] rounded-full text-[10px] font-semibold uppercase tracking-[0.12em] whitespace-nowrap shadow-[0_4px_24px_rgba(201,168,76,0.5)] max-w-[calc(100vw-160px)] overflow-hidden"
+                    className="relative w-full flex items-center justify-center py-3 px-3 bg-[var(--gold)] text-[var(--deep-black)] rounded-full text-[9px] font-bold uppercase tracking-[0.14em] shadow-[0_4px_24px_rgba(201,168,76,0.5)] text-center leading-none"
                   >
                     {msg.label} →
                   </motion.a>
