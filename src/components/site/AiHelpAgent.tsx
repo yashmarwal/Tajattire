@@ -174,10 +174,10 @@ export function AiHelpAgent() {
         <AnimatePresence mode="wait">
           {iconPhase === 0 ? (
             <motion.svg
-              key="leaf"
-              initial={{ opacity: 0, rotate: -30 }}
-              animate={{ opacity: 1, rotate: 0 }}
-              exit={{ opacity: 0, rotate: 30 }}
+              key="hanger"
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 6 }}
               transition={{ duration: 0.3 }}
               width="22"
               height="22"
@@ -185,20 +185,24 @@ export function AiHelpAgent() {
               fill="none"
               stroke="var(--gold)"
               strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             >
-              <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c2.8 0 8-1.5 10-8C18 3.5 14 2 12 2z" />
-              <path d="M2 12s4 4 10 2" />
+              {/* Clothes hanger */}
+              <path d="M12 3a2 2 0 0 1 0 4" />
+              <path d="M12 7L3.5 17h17L12 7z" />
+              <line x1="12" y1="3" x2="12" y2="7" />
             </motion.svg>
           ) : (
             <motion.span
-              key="ask"
+              key="rupee"
               initial={{ opacity: 0, scale: 0.7 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.7 }}
               transition={{ duration: 0.3 }}
-              className="text-[var(--gold)] text-[10px] font-bold tracking-widest uppercase"
+              className="text-[var(--gold)] text-[13px] font-bold"
             >
-              ASK
+              ₹
             </motion.span>
           )}
         </AnimatePresence>

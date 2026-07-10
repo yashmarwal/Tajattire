@@ -76,7 +76,7 @@ export function StickyCtaBar() {
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
             className="md:hidden fixed z-40"
             style={{
-              bottom: "calc(env(safe-area-inset-bottom) + 80px)",
+              bottom: "80px",
               left: "50%",
               transform: "translateX(-50%)",
             }}
