@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MagneticButton } from "./Primitives";
 import { usePageTransition } from "@/lib/PageTransitionContext";
+import { useImg } from "@/hooks/useImg";
 
 const links = [
   { label: "Collections", href: "#collections" },
@@ -15,6 +16,7 @@ export function Navbar() {
   const [activeSection, setActiveSection] = useState("");
   const [open, setOpen] = useState(false);
   const navigate = usePageTransition();
+  const IMG = useImg();
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
@@ -57,7 +59,7 @@ export function Navbar() {
       >
         <div className="max-w-[1500px] mx-auto px-6 lg:px-12 h-20 flex items-center justify-between">
           <a href="#top" data-cursor="Home" className="flex items-center gap-3">
-            <img src="/logo.png" alt="TajAttire Logo" style={{ height: '36px', width: 'auto', mixBlendMode: 'lighten' }} />
+            <img src={IMG.logo} alt="TajAttire Logo" style={{ height: '36px', width: 'auto', mixBlendMode: 'lighten' }} />
             <span className="font-display text-2xl tracking-wider text-cloud font-bold">TajAttire</span>
           </a>
           <div className="hidden md:flex items-center gap-10">
@@ -114,6 +116,18 @@ export function Navbar() {
                 >{l.label}</motion.a>
               ))}
             </div>
+            {/* Mobile bottom CTA */}
+            <motion.a
+              href="#order"
+              onClick={(e) => { e.preventDefault(); setOpen(false); navigate("#order"); }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="mt-16 border border-[var(--gold)] text-[var(--gold)] px-8 py-4 text-xs uppercase tracking-[0.2em] font-body font-medium hover:bg-[var(--gold)] hover:text-[var(--deep-black)] transition-all duration-300"
+            >
+              Request Catalogue →
+            </motion.a>
+
           </motion.div>
         )}
       </AnimatePresence>

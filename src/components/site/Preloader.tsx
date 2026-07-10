@@ -1,26 +1,22 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
 export const Preloader = React.memo(function Preloader({ onDone }: { onDone: () => void }) {
   const [stage, setStage] = useState(0);
-  const firedRef = useRef(false);
 
   useEffect(() => {
-    if (firedRef.current) return;
-    firedRef.current = true;
-    
     const t1 = setTimeout(() => setStage(1), 300);
     const t2 = setTimeout(() => setStage(2), 1400);
     const t3 = setTimeout(() => setStage(3), 2600);
     const t4 = setTimeout(() => setStage(4), 3200);
     const t5 = setTimeout(() => onDone(), 4000);
-    
-    return () => { 
-      clearTimeout(t1); 
-      clearTimeout(t2); 
-      clearTimeout(t3); 
-      clearTimeout(t4); 
-      clearTimeout(t5); 
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      clearTimeout(t4);
+      clearTimeout(t5);
     };
   }, [onDone]);
 

@@ -2,20 +2,14 @@ import { useEffect, useState, useRef, useMemo } from "react";
 import { motion, useScroll, useTransform, AnimatePresence, useSpring } from "framer-motion";
 import { MagneticButton, SplitHeading, FadeLines, CurtainImage, CountUp, Parallax } from "./Primitives";
 import { usePageTransition } from "@/lib/PageTransitionContext";
+import { useCatalogueItems, useTestimonials, useFaqItems, useStats, useInstagramImages, useSustainabilityCards, useCollections } from "@/hooks/useSiteData";
+import { useImg } from "@/hooks/useImg";
 
-const IMG = {
-  hero: "/hero.jpg",
-  kurti: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=1200&q=80",
-  gown: "https://images.unsplash.com/photo-1583391733981-8498408cf57f?w=1200&q=80",
-  tops: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=1200&q=80",
-  craft: "https://images.unsplash.com/photo-1610189025214-7b6c6c44f6f0?w=1200&q=80",
-  cta: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1920&q=80",
-  form: "https://images.unsplash.com/photo-1617059062265-1ca7b50d6e92?w=1200&q=80",
-};
 
 /* ─────────── HERO ─────────── */
 export function Hero() {
   const navigate = usePageTransition();
+  const IMG = useImg();
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const imgY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
@@ -281,14 +275,24 @@ export function Statement() {
 
 /* ─────────── COLLECTIONS (horizontal scroll) ─────────── */
 
-
-const collections = [
-  { tag: "01", title: "Kurti Collection", count: "180+ Designs", copy: "Cotton. Rayon. Printed. Embroidered. The range your customers reach for before they reach for anything else.", img: IMG.kurti },
-  { tag: "02", title: "Gown Collection", count: "80+ Designs", copy: "Floor-length. Occasion-ready. Wholesale-priced. Because your buyers deserve evening wear that moves — and margins that don't hurt.", img: IMG.gown },
-  { tag: "03", title: "Tops Collection", count: "120+ Designs", copy: "Contemporary cuts. Versatile silhouettes. The everyday essential that keeps your customers coming back — and your shelf turning over.", img: IMG.tops },
+const DEFAULT_COLLECTIONS = [
+  { tag: "01", title: "Kurti Collection", count: "180+ Designs", copy: "Cotton. Rayon. Printed. Embroidered. The range your customers reach for before they reach for anything else.", img: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=1200&q=80" },
+  { tag: "02", title: "Gown Collection",  count: "80+ Designs",  copy: "Floor-length. Occasion-ready. Wholesale-priced. Because your buyers deserve evening wear that moves — and margins that don't hurt.", img: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=80" },
+  { tag: "03", title: "Tops Collection",  count: "120+ Designs", copy: "Contemporary cuts. Versatile silhouettes. The everyday essential that keeps your customers coming back — and your shelf turning over.", img: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=1200&q=80" },
 ];
 
 export function Collections() {
+  const { data: dbCollections } = useCollections();
+  const collections = (dbCollections && dbCollections.length > 0)
+    ? dbCollections.map((c, i) => ({
+        tag: `0${i + 1}`,
+        title: c.title,
+        count: c.subtitle,
+        copy: DEFAULT_COLLECTIONS[i]?.copy ?? "",
+        img: (c.image_url || DEFAULT_COLLECTIONS[i]?.img) ?? "",
+      }))
+    : DEFAULT_COLLECTIONS;
+
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
   const smoothProgress = useSpring(scrollYProgress, { damping: 50, stiffness: 400, mass: 0.1 });
@@ -315,6 +319,7 @@ export function Collections() {
   const progressWidth = useTransform(smoothProgress, [0, 1], ["0%", "100%"]);
   const hintOpacity = useTransform(smoothProgress, [0, 0.1], [1, 0]);
   const textX = useTransform(smoothProgress, [0, 1], ["0%", "15%"]);
+
 
   return (
     <section id="collections" ref={ref} className="relative bg-deep-black" style={{ height: "500vh" }}>
@@ -390,11 +395,88 @@ export function Collections() {
 export function Catalogue() {
   const [activeTab, setActiveTab] = useState("Kurtis");
   const tabs = ["Kurtis", "Gowns", "Tops"];
-  
-  const generateItems = (category: string) => {
+
+  // Quick-enquiry modal state
+  const [modalItem, setModalItem] = useState<{ label: string; img: string } | null>(null);
+  const [qForm, setQForm] = useState({ name: "", whatsapp: "", quantity: "" });
+  const [qStatus, setQStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+
+  const openModal = (label: string, img: string) => {
+    setModalItem({ label, img });
+    setQForm({ name: "", whatsapp: "", quantity: "" });
+    setQStatus("idle");
+  };
+  const closeModal = () => setModalItem(null);
+
+  const submitQuickEnquiry = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setQStatus("loading");
+    try {
+      // Non-blocking Supabase save
+      import("@/lib/supabase").then(({ supabase }) => {
+        supabase.from("enquiry_submissions").insert({
+          name: qForm.name,
+          email: "",
+          phone: qForm.whatsapp,
+          city: "",
+          message: `Quick enquiry for: ${modalItem?.label} | Qty: ${qForm.quantity}`,
+          product: modalItem?.label ?? null,
+        }).then(() => {}).catch(() => {});
+      });
+
+      const fd = new FormData();
+      fd.append("access_key", "eac902e8-cb07-44ff-b8d0-6fb0785f6ba0");
+      fd.append("subject", `Quick Enquiry — ${modalItem?.label} | TajAttire`);
+      fd.append("from_name", "TajAttire Quick Enquiry");
+      fd.append("name", qForm.name);
+      fd.append("email", "connect.tajattire@gmail.com");
+      fd.append("message",
+        `━━━ QUICK PRODUCT ENQUIRY ━━━\n\n` +
+        `🛍  Product:   ${modalItem?.label}\n` +
+        `👤 Name:      ${qForm.name}\n` +
+        `📱 WhatsApp:  ${qForm.whatsapp}\n` +
+        `📦 Quantity:  ${qForm.quantity || "Not specified"}\n\n` +
+        `━━━ Sent via TajAttire Website ━━━`
+      );
+      const res = await fetch("https://api.web3forms.com/submit", { method: "POST", body: fd });
+      const json = await res.json().catch(() => ({}));
+      if (res.ok && (json as Record<string, unknown>).success !== false) setQStatus("success");
+      else setQStatus("error");
+    } catch { setQStatus("error"); }
+  };
+
+  const CATALOGUE_IMGS: Record<string, string[]> = {
+    Kurtis: [
+      "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=600&q=80",
+      "https://images.unsplash.com/photo-1610189025214-7b6c6c44f6f0?w=600&q=80",
+      "https://images.unsplash.com/photo-1617059062265-1ca7b50d6e92?w=600&q=80",
+      "https://images.unsplash.com/photo-1585487000160-6ebcfceb0d03?w=600&q=80",
+      "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=600&q=80",
+      "https://images.unsplash.com/photo-1583391733981-8498408cf57f?w=600&q=80",
+    ],
+    Gowns: [
+      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80",
+      "https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?w=600&q=80",
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&q=80",
+      "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=600&q=80",
+      "https://images.unsplash.com/photo-1591369822096-ffd140ec948f?w=600&q=80",
+      "https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=600&q=80",
+    ],
+    Tops: [
+      "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=600&q=80",
+      "https://images.unsplash.com/photo-1485462537746-965f33f7f6a7?w=600&q=80",
+      "https://images.unsplash.com/photo-1551803091-e20673f15770?w=600&q=80",
+      "https://images.unsplash.com/photo-1551232864-3f0890e1776f?w=600&q=80",
+      "https://images.unsplash.com/photo-1552902865-b72c031ac5ea?w=600&q=80",
+      "https://images.unsplash.com/photo-1563178406-4cdc2923acbc?w=600&q=80",
+    ],
+  };
+
+  const generateDefaultItems = (category: string) => {
+    const imgs = CATALOGUE_IMGS[category] ?? CATALOGUE_IMGS["Kurtis"];
     return Array.from({ length: 6 }).map((_, i) => ({
       id: `${category}-${i}`,
-      img: "https://placehold.co/600x750/F0EBE1/C9A84C?text=TajAttire",
+      img: imgs[i],
       label: `${category.toUpperCase().slice(0, -1)} — ${
         category === "Kurtis" ? (i % 2 === 0 ? "COTTON PRINTED" : "RAYON EMBROIDERED") :
         category === "Gowns" ? (i % 2 === 0 ? "FLOOR LENGTH" : "ANARKALI STYLE") :
@@ -404,79 +486,175 @@ export function Catalogue() {
     }));
   };
 
-  const items = useMemo(() => generateItems(activeTab), [activeTab]);
+  const { data: dbItems } = useCatalogueItems(activeTab);
+  const items = (dbItems && dbItems.length > 0)
+    ? dbItems.map(it => ({ id: it.id, img: it.image_url, label: it.label || it.name, price: it.price }))
+    : generateDefaultItems(activeTab);
+
+  const inputCls = "w-full bg-transparent border-b border-[var(--gold)]/30 py-2 text-[13px] text-charcoal placeholder:text-charcoal/30 focus:outline-none focus:border-[#C9A84C] transition-colors";
 
   return (
-    <section className="relative bg-cloud grain py-32 overflow-hidden">
-      <div className="max-w-[1500px] mx-auto px-6 lg:px-12">
-        <div className="mb-16 text-center flex flex-col items-center">
-          <span className="text-[10px] uppercase tracking-[0.3em] text-[var(--gold)] mb-6">— Our Catalogue</span>
-          <SplitHeading text="Every Design. Ready to Ship." as="h2" className="font-display text-charcoal text-[2rem] leading-tight md:text-7xl font-light mb-6" />
-          <p className="text-charcoal/60 max-w-xl font-body leading-relaxed">
-            Browse a snapshot of our current catalogue. 500+ designs available — request the full lookbook via WhatsApp.
-          </p>
-        </div>
-
-        <div className="flex justify-center gap-3 mb-16">
-          {tabs.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-6 py-2.5 rounded-full text-xs uppercase tracking-[0.15em] transition-colors border ${
-                activeTab === tab 
-                  ? "bg-[var(--gold)] border-[var(--gold)] text-deep-black" 
-                  : "border-charcoal text-charcoal hover:bg-charcoal/5"
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-
-        <AnimatePresence mode="wait">
+    <>
+      {/* ── Quick-Enquiry Modal ── */}
+      <AnimatePresence>
+        {modalItem && (
           <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.4 }}
-            className="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-10"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9000] flex items-end md:items-center justify-center p-4 md:p-0"
+            onClick={closeModal}
           >
-            {items.map((item, i) => (
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="group relative bg-white rounded-lg shadow-sm border border-charcoal/5 overflow-hidden flex flex-col cursor-pointer card-lift"
-              >
-                <div className="relative aspect-[4/5] overflow-hidden bg-black/5">
-                  <img src={item.img} alt={item.label} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-[1.04]" />
-                  <div className="absolute inset-0 bg-[var(--gold)] opacity-0 group-hover:opacity-10 transition-opacity duration-1000" />
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-1000">
-                    <span className="text-[var(--gold)] text-xs tracking-widest uppercase bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg">Enquire →</span>
-                  </div>
-                </div>
-                <div className="p-5 md:p-6 flex flex-col flex-grow bg-white relative z-10">
-                  <div className="h-px w-full bg-[var(--gold)]/30 mb-4" />
-                  <h4 className="text-[10px] md:text-xs font-semibold tracking-wider text-charcoal mb-2">{item.label}</h4>
-                  <p className="text-[10px] md:text-xs text-charcoal/50">{item.price}</p>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </AnimatePresence>
+            {/* Backdrop */}
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
 
-        <div className="mt-20 flex flex-col items-center">
-          <p className="text-sm text-charcoal/70 mb-6">Want to see the full catalogue?</p>
-          <MagneticButton href="https://wa.me/917976667197" variant="wa" cursorLabel="WhatsApp">
-            Request Full Lookbook on WhatsApp
-          </MagneticButton>
+            {/* Panel */}
+            <motion.div
+              initial={{ opacity: 0, y: 60, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 40, scale: 0.97 }}
+              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+              onClick={e => e.stopPropagation()}
+              className="relative w-full max-w-md bg-[#F8F6F1] rounded-t-2xl md:rounded-2xl overflow-hidden shadow-2xl"
+            >
+              {/* Gold top bar */}
+              <div className="h-1 w-full bg-gradient-to-r from-transparent via-[#C9A84C] to-transparent" />
+
+              {/* Product image strip */}
+              <div className="relative h-28 overflow-hidden">
+                <img src={modalItem.img} alt={modalItem.label} className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#F8F6F1] via-[#F8F6F1]/40 to-transparent" />
+                <button onClick={closeModal} className="absolute top-3 right-3 w-7 h-7 rounded-full bg-black/40 text-white flex items-center justify-center text-xs hover:bg-black/70 transition-colors">✕</button>
+              </div>
+
+              <div className="px-6 pb-6">
+                <div className="text-[9px] uppercase tracking-[0.3em] text-[#C9A84C] mb-1">— Quick Enquiry</div>
+                <h3 className="font-display text-charcoal text-xl mb-4 leading-tight">{modalItem.label}</h3>
+
+                {qStatus === "success" ? (
+                  <div className="text-center py-6">
+                    <div className="w-12 h-12 rounded-full border-2 border-[#C9A84C] flex items-center justify-center mx-auto mb-3 text-[#C9A84C]">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+                    </div>
+                    <p className="text-charcoal font-medium mb-1">Enquiry Sent!</p>
+                    <p className="text-charcoal/60 text-xs">We'll WhatsApp you within 2 hours.</p>
+                    <button onClick={closeModal} className="mt-4 text-xs text-[#C9A84C] underline">Close</button>
+                  </div>
+                ) : (
+                  <form onSubmit={submitQuickEnquiry} className="flex flex-col gap-4">
+                    <div>
+                      <label className="block text-[10px] uppercase tracking-widest text-charcoal/50 mb-1">Your Name</label>
+                      <input required value={qForm.name} onChange={e => setQForm(f => ({ ...f, name: e.target.value }))} placeholder="Full name" className={inputCls} />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] uppercase tracking-widest text-charcoal/50 mb-1">WhatsApp Number</label>
+                      <input required type="tel" value={qForm.whatsapp} onChange={e => setQForm(f => ({ ...f, whatsapp: e.target.value }))} placeholder="+91 99999 99999" className={inputCls} />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] uppercase tracking-widest text-charcoal/50 mb-1">Quantity Needed</label>
+                      <input value={qForm.quantity} onChange={e => setQForm(f => ({ ...f, quantity: e.target.value }))} placeholder="e.g. 100 pieces" className={inputCls} />
+                    </div>
+                    {qStatus === "error" && <p className="text-red-500 text-xs">Something went wrong. Please try WhatsApp.</p>}
+                    <button
+                      type="submit"
+                      disabled={qStatus === "loading"}
+                      className="w-full bg-[#1A5C38] text-white py-3.5 text-[11px] font-bold tracking-[0.2em] uppercase hover:bg-[#C9A84C] hover:text-[#0A0A0A] transition-all duration-300 disabled:opacity-60 mt-1"
+                    >
+                      {qStatus === "loading" ? "Sending…" : "Send Enquiry →"}
+                    </button>
+                    <a
+                      href={`https://wa.me/917976667197?text=${encodeURIComponent(`Hi! I'm interested in: ${modalItem.label}. Qty: ${qForm.quantity || "TBD"}. My name is ${qForm.name}.`)}`}
+                      target="_blank" rel="noreferrer"
+                      className="text-center text-[11px] text-[#C9A84C] underline underline-offset-2"
+                    >
+                      Or enquire via WhatsApp →
+                    </a>
+                  </form>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Catalogue Grid ── */}
+      <section className="relative bg-cloud grain py-32 overflow-hidden">
+        <div className="max-w-[1500px] mx-auto px-6 lg:px-12">
+          <div className="mb-16 text-center flex flex-col items-center">
+            <span className="text-[10px] uppercase tracking-[0.3em] text-[var(--gold)] mb-6">— Our Catalogue</span>
+            <SplitHeading text="Every Design. Ready to Ship." as="h2" className="font-display text-charcoal text-[2rem] leading-tight md:text-7xl font-light mb-6" />
+            <p className="text-charcoal/60 max-w-xl font-body leading-relaxed">
+              Browse a snapshot of our current catalogue. 500+ designs available — request the full lookbook via WhatsApp.
+            </p>
+          </div>
+
+          <div className="flex justify-center gap-3 mb-16">
+            {tabs.map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`px-6 py-2.5 rounded-full text-xs uppercase tracking-[0.15em] transition-colors border ${
+                  activeTab === tab
+                    ? "bg-[var(--gold)] border-[var(--gold)] text-deep-black"
+                    : "border-charcoal text-charcoal hover:bg-charcoal/5"
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.4 }}
+              className="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-10"
+            >
+              {items.map((item, i) => (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: i * 0.1 }}
+                  onClick={() => openModal(item.label, item.img)}
+                  className="group relative bg-white rounded-lg shadow-sm border border-charcoal/5 overflow-hidden flex flex-col cursor-pointer card-lift"
+                >
+                  <div className="relative aspect-[4/5] overflow-hidden bg-black/5">
+                    <img src={item.img} alt={item.label} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-[1.04]" />
+                    <div className="absolute inset-0 bg-[var(--gold)] opacity-0 group-hover:opacity-10 transition-opacity duration-1000" />
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <button
+                        type="button"
+                        onClick={e => { e.stopPropagation(); openModal(item.label, item.img); }}
+                        className="text-[var(--gold)] text-xs tracking-widest uppercase bg-white/95 backdrop-blur-sm px-5 py-2.5 rounded-full shadow-lg hover:bg-[#C9A84C] hover:text-white transition-colors duration-200 font-semibold"
+                      >
+                        Enquire →
+                      </button>
+                    </div>
+                  </div>
+                  <div className="p-5 md:p-6 flex flex-col flex-grow bg-white relative z-10">
+                    <div className="h-px w-full bg-[var(--gold)]/30 mb-4" />
+                    <h4 className="text-[10px] md:text-xs font-semibold tracking-wider text-charcoal mb-2">{item.label}</h4>
+                    <p className="text-[10px] md:text-xs text-charcoal/50">{item.price}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          </AnimatePresence>
+
+          <div className="mt-20 flex flex-col items-center">
+            <p className="text-sm text-charcoal/70 mb-6">Want to see the full catalogue?</p>
+            <MagneticButton href="https://wa.me/917976667197" variant="wa" cursorLabel="WhatsApp">
+              Request Full Lookbook on WhatsApp
+            </MagneticButton>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }
+
 
 export function CustomOrder() {
   return (
@@ -523,6 +701,7 @@ export function CustomOrder() {
 
 /* ─────────── CRAFT (light) ─────────── */
 export function Craft() {
+  const IMG = useImg();
   return (
     <section id="craft" className="relative bg-cloud grain py-32 overflow-hidden">
       <div className="max-w-[1500px] mx-auto px-6 lg:px-12 grid md:grid-cols-2 gap-16 items-center">
@@ -658,12 +837,15 @@ export function Why() {
 
 /* ─────────── STATS ─────────── */
 export function Stats() {
-  const items = [
-    { v: 500, suffix: "+", label: "Designs Ready to Ship" },
-    { v: 180, prefix: "₹", label: "Starting Wholesale Price" },
-    { v: 100, label: "Minimum Order Quantity" },
-    { v: 20, suffix: "+", label: "States Delivered Across India" },
-  ];
+  const { data: dbStats } = useStats();
+  const items = (dbStats && dbStats.length > 0)
+    ? dbStats.map(s => ({ v: s.value, prefix: s.prefix || undefined, suffix: s.suffix || undefined, label: s.label }))
+    : [
+        { v: 500, suffix: "+", label: "Designs Ready to Ship" },
+        { v: 180, prefix: "₹", label: "Starting Wholesale Price" },
+        { v: 100, label: "Minimum Order Quantity" },
+        { v: 20, suffix: "+", label: "States Delivered Across India" },
+      ];
   return (
     <section className="relative bg-cloud grain py-32 overflow-hidden">
       <div
@@ -749,46 +931,128 @@ export function HowItWorks() {
 }
 
 /* ─────────── TESTIMONIALS ─────────── */
-const testimonials = [
+const DEFAULT_TESTIMONIALS = [
   { quote: "TajAttire has been our go-to wholesale partner for over a decade. Consistent quality, designs that always sell, and a team that actually picks up the phone.", name: "Priya Sharma", role: "Boutique Owner · Jaipur" },
   { quote: "The 100-piece MOQ was the reason we started. Today we order 5x that every season. The margins are the best we've seen in this category.", name: "Rajan Mehta", role: "Multi-brand Fashion Retailer · Surat" },
   { quote: "From kurtis to gowns — every collection delivers. Our customers don't just buy these pieces. They ask for them by name.", name: "Neha Kapoor", role: "Fashion Store Owner · Lucknow" },
+  { quote: "We've tried four other suppliers. Nobody matches TajAttire on consistency. Reorder rates from our boutique jumped 40% after switching.", name: "Arjun Singhania", role: "Multi-outlet Boutique Chain · Ahmedabad" },
 ];
 
 export function Testimonials() {
+  const { data: dbTestimonials } = useTestimonials();
+  const testimonials = (dbTestimonials && dbTestimonials.length > 0)
+    ? dbTestimonials.map(t => ({ quote: t.quote, name: t.name, role: t.role }))
+    : DEFAULT_TESTIMONIALS;
+
+  const [current, setCurrent] = useState(0);
+  const [direction, setDirection] = useState(1);
+  const touchStartRef = useRef<number>(0);
+
+  const goNext = () => {
+    setDirection(1);
+    setCurrent(p => (p + 1) % testimonials.length);
+  };
+
+  const goPrev = () => {
+    setDirection(-1);
+    setCurrent(p => (p - 1 + testimonials.length) % testimonials.length);
+  };
+
+  // Auto-advance — resets on manual navigation (current in deps)
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setDirection(1);
+      setCurrent(p => (p + 1) % testimonials.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [current]);
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartRef.current = e.touches[0].clientX;
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    const diff = touchStartRef.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) { diff > 0 ? goNext() : goPrev(); }
+  };
+
+  const slideVariants = {
+    enter: (dir: number) => ({ x: dir > 0 ? 80 : -80, opacity: 0 }),
+    center: { x: 0, opacity: 1 },
+    exit: (dir: number) => ({ x: (dir > 0 ? -80 : 80), opacity: 0 }),
+  };
+
   return (
     <section className="relative bg-[var(--emerald-deep)] grain py-32 overflow-x-clip">
       <div className="max-w-[1500px] mx-auto px-6 lg:px-12">
-        <div className="mb-20 max-w-3xl">
+        <div className="mb-16 max-w-3xl">
           <span className="text-xs uppercase tracking-[0.3em] text-[var(--gold)]">09 — Testimonials</span>
           <SplitHeading text="1,000+ Retailers. One Thing in Common." as="h2" className="mt-4 font-display text-cloud font-light leading-[1.05] text-[clamp(1.8rem,6vw,4.5rem)]" />
         </div>
-        <div className="grid md:grid-cols-3 gap-8">
-          {testimonials.map((t, i) => (
+
+        <div className="relative max-w-3xl">
+          {/* Large decorative quote mark */}
+          <div
+            className="absolute -top-8 -left-4 font-display leading-none text-[var(--gold)] pointer-events-none select-none"
+            style={{ fontSize: "200px", opacity: 0.06 }}
+          >&ldquo;</div>
+
+          <AnimatePresence mode="wait" custom={direction}>
             <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 70 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-10%" }}
-              transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1], delay: i * 0.15 }}
-              style={{ top: `calc(6rem + ${i * 1.5}rem)` }}
-              className={`sticky z-10 bg-[#0A2416] shadow-[0_-15px_30px_rgba(0,0,0,0.4)] border border-[var(--gold)]/20 border-l-2 border-l-[var(--gold)] p-8 ${i === 1 ? "md:mt-12" : ""} ${i === 2 ? "md:mt-6" : ""}`}
+              key={current}
+              custom={direction}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+              onTouchStart={onTouchStart}
+              onTouchEnd={onTouchEnd}
+              className="bg-[#0A2416] border border-[var(--gold)]/20 border-l-2 border-l-[var(--gold)] p-10 md:p-14"
               data-cursor="Read"
             >
-              <motion.div
-                animate={{ y: [0, -6, 0] }}
-                transition={{ repeat: Infinity, duration: 4, ease: "easeInOut", delay: i * 1.3 }}
-              >
-                <div className="flex gap-1 mb-5 text-[var(--gold)]">
-                  {Array.from({ length: 5 }).map((_, j) => <span key={j}>★</span>)}
-                </div>
-                <p className="font-display italic text-cloud text-xl leading-snug mb-6">"{t.quote}"</p>
-                <div className="hairline mb-4 w-12" />
-                <div className="text-cloud font-medium text-sm">{t.name}</div>
-                <div className="text-cloud/60 text-xs tracking-wider uppercase mt-1">{t.role}</div>
-              </motion.div>
+              <div className="flex gap-1 mb-8 text-[var(--gold)]">
+                {Array.from({ length: 5 }).map((_, j) => <span key={j}>★</span>)}
+              </div>
+              <blockquote className="font-display italic text-cloud leading-snug mb-8" style={{ fontSize: "clamp(1.2rem,2.5vw,1.6rem)" }}>
+                &ldquo;{testimonials[current].quote}&rdquo;
+              </blockquote>
+              <div className="hairline mb-6 w-16" />
+              <div className="text-cloud font-medium text-sm">{testimonials[current].name}</div>
+              <div className="text-cloud/60 text-xs tracking-wider uppercase mt-1">{testimonials[current].role}</div>
             </motion.div>
-          ))}
+          </AnimatePresence>
+
+          {/* Controls: arrows + dots */}
+          <div className="flex items-center gap-6 mt-8">
+            <button
+              onClick={goPrev}
+              aria-label="Previous testimonial"
+              className="w-10 h-10 rounded-full border border-[var(--gold)]/40 flex items-center justify-center text-[var(--gold)] hover:border-[var(--gold)] hover:bg-[var(--gold)]/10 transition-all duration-300"
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M9 2L4 7l5 5"/></svg>
+            </button>
+            <div className="flex gap-2 items-center">
+              {testimonials.map((_, i) => (
+                <button
+                  key={i}
+                  aria-label={`Go to testimonial ${i + 1}`}
+                  onClick={() => { setDirection(i > current ? 1 : -1); setCurrent(i); }}
+                  className={`rounded-full transition-all duration-400 ${
+                    i === current
+                      ? "w-6 h-1.5 bg-[var(--gold)]"
+                      : "w-1.5 h-1.5 bg-[var(--gold)]/30 hover:bg-[var(--gold)]/60"
+                  }`}
+                />
+              ))}
+            </div>
+            <button
+              onClick={goNext}
+              aria-label="Next testimonial"
+              className="w-10 h-10 rounded-full border border-[var(--gold)]/40 flex items-center justify-center text-[var(--gold)] hover:border-[var(--gold)] hover:bg-[var(--gold)]/10 transition-all duration-300"
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 2l5 5-5 5"/></svg>
+            </button>
+          </div>
         </div>
       </div>
     </section>
@@ -798,6 +1062,7 @@ export function Testimonials() {
 /* ─────────── CTA BAND ─────────── */
 export function CtaBand() {
   const navigate = usePageTransition();
+  const IMG = useImg();
   return (
     <section className="relative min-h-[80vh] grain shimmer-sweep overflow-hidden flex items-center">
       <div className="absolute inset-0">
@@ -818,52 +1083,96 @@ export function CtaBand() {
 
 /* ─────────── INQUIRY FORM ─────────── */
 export function Inquiry() {
+  const IMG = useImg();
   const [interests, setInterests] = useState<string[]>([]);
   const toggle = (v: string) => setInterests((p) => p.includes(v) ? p.filter(x => x !== v) : [...p, v]);
 
   const [formData, setFormData] = useState({ name: "", business: "", city: "", whatsapp: "", quantity: "" });
   const [status, setStatus] = useState<"idle"|"loading"|"success"|"error">("idle");
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (field: keyof typeof formData) => (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({ ...prev, [field]: e.target.value }));
   };
+
+  const handlePhoto = (file: File) => {
+    if (!file.type.startsWith("image/")) return;
+    if (file.size > 8 * 1024 * 1024) { alert("Photo must be under 8 MB"); return; }
+    setPhoto(file);
+    const reader = new FileReader();
+    reader.onload = e => setPhotoPreview(e.target?.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  const removePhoto = () => { setPhoto(null); setPhotoPreview(null); if (fileInputRef.current) fileInputRef.current.value = ""; };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus("loading");
 
     try {
-      const res = await fetch("https://api.web3forms.com/submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          access_key: "eac902e8-cb07-44ff-b8d0-6fb0785f6ba0",
-          subject: "New Bulk Order Enquiry — TajAttire",
+      // ① Non-blocking: save to Supabase DB (fire-and-forget, never blocks the form)
+      import("@/lib/supabase").then(({ supabase }) => {
+        supabase.from("enquiry_submissions").insert({
           name: formData.name,
-          business: formData.business,
+          email: "",
+          phone: formData.whatsapp,
           city: formData.city,
-          whatsapp: formData.whatsapp,
-          interest: interests.length ? interests.join(", ") : "Not specified",
-          quantity: formData.quantity,
-        })
+          message: `Business: ${formData.business} | Qty: ${formData.quantity} | Interest: ${interests.join(", ")}`,
+          product: interests.join(", ") || null,
+        }).then(() => {}).catch(() => {});
       });
-      if (res.ok) setStatus("success");
-      else setStatus("error");
-    } catch {
+
+      // ② Build multipart form for Web3Forms (attach photo directly — no Supabase upload needed)
+      const fd = new FormData();
+      fd.append("access_key", "eac902e8-cb07-44ff-b8d0-6fb0785f6ba0");
+      fd.append("subject", `New Bulk Enquiry — TajAttire | ${formData.name} | ${formData.city}`);
+      fd.append("from_name", "TajAttire Website");
+      fd.append("name", formData.name);
+      fd.append("email", "connect.tajattire@gmail.com");
+      fd.append("message",
+        `━━━ NEW BULK ORDER ENQUIRY ━━━\n\n` +
+        `👤 Name:         ${formData.name}\n` +
+        `🏪 Business:     ${formData.business}\n` +
+        `📍 City / State: ${formData.city}\n` +
+        `📱 WhatsApp:     ${formData.whatsapp}\n` +
+        `🛍  Interest:     ${interests.length ? interests.join(", ") : "Not specified"}\n` +
+        `📦 Quantity:     ${formData.quantity}\n` +
+        (photo ? `🖼  Reference photo attached (${photo.name}, ${(photo.size / 1024).toFixed(0)} KB)\n` : "") +
+        `\n━━━ Sent via TajAttire Website ━━━`
+      );
+      // Attach photo directly to email if user provided one
+      if (photo) fd.append("attachment", photo, photo.name);
+
+      const res = await fetch("https://api.web3forms.com/submit", { method: "POST", body: fd });
+      const json = await res.json().catch(() => ({}));
+
+      if (res.ok && (json as Record<string, unknown>).success !== false) {
+        setStatus("success");
+      } else {
+        console.warn("Web3Forms response:", json);
+        setStatus("error");
+      }
+    } catch (err) {
+      console.error("Enquiry submit error:", err);
       setStatus("error");
     }
   };
+
 
   const resetForm = () => {
     setFormData({ name: "", business: "", city: "", whatsapp: "", quantity: "" });
     setInterests([]);
     setStatus("idle");
+    removePhoto();
   };
 
   return (
     <section id="order" className="relative bg-[#F8F6F1] flex flex-col md:flex-row min-h-screen">
       <div className="md:w-1/2 relative min-h-[500px] md:min-h-screen bg-[#1A5C38] flex items-center justify-center">
-        <img src="/hero.jpg" alt="Indian Fashion Editorial" className="absolute inset-0 w-full h-full object-cover" />
+        <img src={IMG.form} alt="Indian Fashion Editorial" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-[#1A5C38]/60" />
         <div className="relative text-center px-8 flex flex-col items-center">
           <p className="font-display italic text-white text-4xl md:text-5xl leading-tight max-w-lg">
@@ -931,9 +1240,39 @@ export function Inquiry() {
                 <input required value={formData.quantity} onChange={handleChange("quantity")} placeholder="e.g. 100 pieces" className="w-full bg-transparent border-b-[1.5px] border-[var(--gold)]/30 py-2.5 text-[14px] text-charcoal placeholder:text-charcoal/30 focus:outline-none focus:border-[#C9A84C] transition-colors" />
               </div>
 
+              {/* ── Photo / Reference Upload ── */}
+              <div className="group">
+                <label className="text-[11px] uppercase tracking-[0.1em] text-charcoal/70 block mb-2">
+                  Reference Photo <span className="normal-case text-charcoal/40">(optional — design, catalogue, screenshot)</span>
+                </label>
+                {photoPreview ? (
+                  <div className="relative inline-block">
+                    <img src={photoPreview} alt="Preview" className="h-28 w-auto rounded object-cover border border-[var(--gold)]/30" />
+                    <button
+                      type="button"
+                      onClick={removePhoto}
+                      className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-charcoal text-white text-xs flex items-center justify-center hover:bg-red-600 transition-colors"
+                    >✕</button>
+                    <p className="text-[11px] text-charcoal/50 mt-1">{photo?.name}</p>
+                  </div>
+                ) : (
+                  <div
+                    onClick={() => fileInputRef.current?.click()}
+                    onDragOver={e => e.preventDefault()}
+                    onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handlePhoto(f); }}
+                    className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-[var(--gold)]/25 rounded py-6 cursor-pointer hover:border-[var(--gold)]/50 transition-colors"
+                  >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" strokeWidth="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    <span className="text-[12px] text-charcoal/50">Drop image or <span className="text-[#C9A84C] underline">click to browse</span></span>
+                    <span className="text-[10px] text-charcoal/30">PNG · JPG · WEBP · Max 8 MB</span>
+                  </div>
+                )}
+                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handlePhoto(f); }} />
+              </div>
+
               <div className="pt-4">
-                <button disabled={status === "loading"} type="submit" className="w-full bg-[#1A5C38] text-white h-[52px] font-semibold text-[12px] tracking-widest hover:bg-[#C9A84C] hover:text-[#0A0A0A] transition-all duration-300">
-                  {status === "loading" ? "PROCESSING..." : "SEND ENQUIRY →"}
+                <button disabled={status === "loading"} type="submit" className="w-full bg-[#1A5C38] text-white h-[52px] font-semibold text-[12px] tracking-widest hover:bg-[#C9A84C] hover:text-[#0A0A0A] transition-all duration-300 disabled:opacity-60">
+                  {status === "loading" ? "SENDING..." : "SEND ENQUIRY →"}
                 </button>
                 {status === "error" && (
                   <div className="mt-4 border border-red-500 p-3 text-[12px] text-red-600">
@@ -951,6 +1290,7 @@ export function Inquiry() {
 
 /* ─────────── FOOTER ─────────── */
 export function Footer() {
+  const IMG = useImg();
   return (
     <footer id="connect" className="relative bg-deep-black grain pt-24 pb-8 overflow-hidden">
       <motion.div 
@@ -967,7 +1307,7 @@ export function Footer() {
 
       <div className="max-w-[1500px] mx-auto px-6 lg:px-12">
         <div className="text-center mb-16">
-          <img src="/logo.png" alt="TajAttire Logo" style={{ height: '48px', width: 'auto', mixBlendMode: 'lighten' }} className="mx-auto mb-4" />
+          <img src={IMG.logo} alt="TajAttire Logo" style={{ height: '48px', width: 'auto', mixBlendMode: 'lighten' }} className="mx-auto mb-4" />
           <h3 className="font-display text-cloud text-5xl tracking-wider">TajAttire</h3>
           <p className="font-display italic text-[var(--gold)] mt-2">Handcrafted Heritage</p>
         </div>
@@ -1191,5 +1531,390 @@ export function FloatingWhatsApp() {
         }
       `}</style>
     </a>
+  );
+}
+
+/* ─────────── SUSTAINABILITY ─────────── */
+export function SustainabilitySection() {
+  const { data: dbCards } = useSustainabilityCards();
+  const stats = (dbCards && dbCards.length > 0)
+    ? dbCards.map(c => ({ n: c.number, value: c.value, label: c.label, detail: c.detail }))
+    : [
+        { n: "01", value: "100%", label: "Natural Fibre Sourcing", detail: "Every fabric — cotton, rayon, linen — comes from natural, traceable sources. No synthetics by default." },
+        { n: "02", value: "Zero", label: "Single-Use Plastic Policy", detail: "We pack in biodegradable polybags and recycled cartons. Our commitment: no virgin plastic in any shipment." },
+        { n: "03", value: "500+", label: "Artisan Livelihoods Supported", detail: "Every order you place supports skilled workers and their families in Jaipur. Craft is our responsibility." },
+      ];
+
+  return (
+    <section className="relative bg-[var(--emerald-deep)] grain py-32 overflow-hidden">
+      <div className="max-w-[1500px] mx-auto px-6 lg:px-12">
+        <div className="grid md:grid-cols-2 gap-16 items-start">
+          {/* Text side */}
+          <div>
+            <span className="text-[10px] uppercase tracking-[0.3em] text-[var(--gold)] block mb-6">— Sustainability</span>
+            <SplitHeading text="Made Responsibly." as="h2" className="font-display text-cloud font-light leading-[1.05] text-[clamp(2rem,5vw,4rem)]" />
+            <SplitHeading text="Worn Proudly." delay={0.2} as="h2" className="font-display text-cloud italic font-light leading-[1.05] text-[clamp(2rem,5vw,4rem)]" />
+            <div className="mt-8 space-y-5">
+              <FadeLines
+                lines={[
+                  "We believe fashion wholesale doesn't have to cost the earth. TajAttire has always sourced natural fabrics, worked directly with weavers, and built for longevity — not trend chasing.",
+                  "Our production runs are planned to minimise waste, and our artisans are paid fairly. When you stock TajAttire, you're backing a supply chain that respects people and planet.",
+                ]}
+                lineClass="text-cloud/80 leading-relaxed"
+              />
+            </div>
+          </div>
+
+          {/* Stat cards side */}
+          <div className="grid gap-6">
+            {stats.map((s, i) => (
+              <motion.div
+                key={s.n}
+                initial={{ opacity: 0, x: 40 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: "-10%" }}
+                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: i * 0.15 }}
+                className="relative border border-[var(--gold)]/20 border-l-2 border-l-[var(--gold)] p-8 bg-[#0A2416]"
+              >
+                <span className="absolute top-4 right-6 outline-num text-6xl opacity-30">{s.n}</span>
+                <div className="font-display text-[var(--gold)] font-light mb-2" style={{ fontSize: "clamp(2rem,5vw,3rem)" }}>{s.value}</div>
+                <div className="text-cloud text-xs uppercase tracking-[0.2em] font-body mb-3">{s.label}</div>
+                <p className="text-cloud/60 text-sm leading-relaxed font-body">{s.detail}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─────────── MANUFACTURING TEASER ─────────── */
+export function ManufacturingTeaser() {
+  const navigate = usePageTransition();
+  const IMG = useImg();
+  const WORKSPACE_IMGS = [
+    { src: IMG.workspace1, label: "Production Floor — Jaipur" },
+    { src: IMG.workspace2, label: "Quality Check Station" },
+    { src: IMG.workspace3, label: "Finishing & Packaging" },
+  ];
+  return (
+    <section className="relative bg-[var(--deep-black)] grain py-32 overflow-hidden">
+      <div className="max-w-[1500px] mx-auto px-6 lg:px-12">
+        <div className="grid md:grid-cols-2 gap-16 items-center">
+          {/* Text side */}
+          <div>
+            <span className="text-[10px] uppercase tracking-[0.3em] text-[var(--gold)] block mb-6">— Inside Our Workspace</span>
+            <SplitHeading text="See How We" as="h2" className="font-display text-cloud font-light leading-[1.05] text-[clamp(2rem,5vw,4rem)]" />
+            <SplitHeading text="Make Everything." delay={0.2} as="h2" className="font-display text-cloud italic font-light leading-[1.05] text-[clamp(2rem,5vw,4rem)]" />
+            <div className="mt-8 mb-10">
+              <FadeLines
+                lines={[
+                  "From raw fabric rolls to finished, tagged, and packed garments — every step happens under one roof in our Jaipur facility.",
+                  "We invest in skilled hands, not just machines. That's why every TajAttire piece carries the precision of a production line and the care of a craftsman.",
+                ]}
+                lineClass="text-cloud/70 leading-relaxed"
+              />
+            </div>
+            <div className="flex flex-wrap gap-8 mb-10 text-xs tracking-[0.2em] uppercase text-cloud/50">
+              <span>
+                <b className="font-display text-[var(--gold)] block mb-1" style={{ fontSize: "1.8rem" }}>25+</b>
+                Skilled Artisans
+              </span>
+              <span>
+                <b className="font-display text-[var(--gold)] block mb-1" style={{ fontSize: "1.8rem" }}>20</b>
+                Yrs Exporting
+              </span>
+              <span>
+                <b className="font-display text-[var(--gold)] block mb-1" style={{ fontSize: "1.8rem" }}>500+</b>
+                Active Designs
+              </span>
+            </div>
+            <MagneticButton
+              href="#order"
+              onClick={() => navigate("#order")}
+              variant="outline"
+              cursorLabel="Visit"
+            >
+              Request Factory Visit →
+            </MagneticButton>
+          </div>
+
+          {/* Stacked images side */}
+          <div className="relative h-[420px] md:h-[520px] mt-8 md:mt-0">
+            {WORKSPACE_IMGS.map((img, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 50, rotate: i % 2 === 0 ? -4 : 4 }}
+                whileInView={{
+                  opacity: 1,
+                  y: 0,
+                  rotate: i === 0 ? -2 : i === 1 ? 1.5 : -1,
+                }}
+                viewport={{ once: true, margin: "-10%" }}
+                transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: i * 0.18 }}
+                className="absolute overflow-hidden border border-[var(--gold)]/20 shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
+                style={{
+                  width: "72%",
+                  aspectRatio: "16/10",
+                  top: `${i * 28}%`,
+                  left: i % 2 === 0 ? "0" : "28%",
+                  zIndex: 3 - i,
+                }}
+              >
+                <img
+                  src={img.src}
+                  alt={img.label}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                {i === 0 && (
+                  <div className="absolute bottom-3 left-3 text-[9px] uppercase tracking-[0.2em] text-[var(--gold)] font-body">
+                    {img.label}
+                  </div>
+                )}
+              </motion.div>
+            ))}
+            {/* Floating badge */}
+            <motion.div
+              initial={{ scale: 0, opacity: 0 }}
+              whileInView={{ scale: 1, opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ type: "spring", stiffness: 300, damping: 15, delay: 0.6 }}
+              className="absolute bottom-2 right-0 z-20 border border-[var(--gold)] bg-[var(--deep-black)] text-[var(--gold)] text-[10px] uppercase font-bold py-2 px-4 rounded-full"
+            >
+              ✦ Workspace Photos
+            </motion.div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─────────── INSTAGRAM GRID ─────────── */
+const DEFAULT_IG_IMAGES = [
+  { src: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=600&q=80", alt: "Kurti Collection" },
+  { src: "https://images.unsplash.com/photo-1610189025214-7b6c6c44f6f0?w=600&q=80", alt: "Artisan Craft" },
+  { src: "https://images.unsplash.com/photo-1583391733981-8498408cf57f?w=600&q=80", alt: "Gown Collection" },
+  { src: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=600&q=80", alt: "Fashion Editorial" },
+  { src: "https://images.unsplash.com/photo-1617059062265-1ca7b50d6e92?w=600&q=80", alt: "TajAttire Style" },
+  { src: "https://images.unsplash.com/photo-1585487000160-6ebcfceb0d03?w=600&q=80", alt: "Wholesale Fashion" },
+];
+
+export function InstagramGrid() {
+  const { data: dbImages } = useInstagramImages();
+  const IG_IMAGES = (dbImages && dbImages.length > 0)
+    ? dbImages.map(img => ({ src: img.image_url, alt: img.alt }))
+    : DEFAULT_IG_IMAGES;
+
+  return (
+    <section className="relative bg-[var(--cloud)] grain py-32 overflow-hidden">
+      <div className="max-w-[1500px] mx-auto px-6 lg:px-12">
+        <div className="text-center mb-16">
+          <span className="text-[10px] uppercase tracking-[0.3em] text-[var(--gold)] block mb-6">— Follow the Journey</span>
+          <SplitHeading text="@TajAttire on" as="h2" className="font-display text-emerald font-light leading-[1.05] text-[clamp(2rem,4vw,3.5rem)]" />
+          <SplitHeading text="Instagram" delay={0.15} as="h2" className="font-display text-emerald italic font-light leading-[1.05] text-[clamp(2rem,4vw,3.5rem)]" />
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3 mb-12">
+          {IG_IMAGES.map((img, i) => (
+            <motion.a
+              key={i}
+              href="https://www.instagram.com/tajattire"
+              target="_blank"
+              rel="noreferrer"
+              initial={{ opacity: 0, scale: 0.96 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: 0.6, delay: i * 0.07, ease: [0.16, 1, 0.3, 1] }}
+              className="group relative aspect-square overflow-hidden"
+              data-cursor="View"
+            >
+              <img
+                src={img.src}
+                alt={img.alt}
+                className="w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-105"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-[var(--emerald-deep)]/0 group-hover:bg-[var(--emerald-deep)]/40 transition-colors duration-500 flex items-center justify-center">
+                <svg
+                  className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                  width="32"
+                  height="32"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                >
+                  <rect x="3" y="3" width="18" height="18" rx="5" />
+                  <circle cx="12" cy="12" r="4" />
+                  <circle cx="17.5" cy="6.5" r="1" fill="currentColor" />
+                </svg>
+              </div>
+            </motion.a>
+          ))}
+        </div>
+
+        <div className="text-center">
+          <MagneticButton
+            href="https://www.instagram.com/tajattire"
+            variant="outline-dark"
+            cursorLabel="Follow"
+          >
+            Follow @TajAttire
+          </MagneticButton>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─────────── FAQ ACCORDION ─────────── */
+const DEFAULT_FAQ = [
+  {
+    q: "What is the minimum order quantity?",
+    a: "Our MOQ is 100 pieces per style for catalogue designs. For custom/private label orders, the minimum is 200 pieces per design. No exceptions on minimums.",
+  },
+  {
+    q: "What product categories do you offer?",
+    a: "We specialise in kurtis (cotton, rayon, printed, embroidered — 180+ designs), gowns (floor-length, anarkali — 80+ designs), and contemporary tops (120+ designs). Custom designs are also welcome.",
+  },
+  {
+    q: "Can I place a custom or private label order?",
+    a: "Yes. Share your design brief and reference images via WhatsApp or email. We quote within 24 hours and can manufacture from 200 pieces with your branding, labels, and packaging.",
+  },
+  {
+    q: "What are your wholesale prices?",
+    a: "Wholesale prices start from ₹180 per piece for kurtis. Gowns and tops vary based on fabric and design complexity. We'll send you a full price list on request.",
+  },
+  {
+    q: "What are your payment terms?",
+    a: "We work on 50% advance at order confirmation and 50% before dispatch. Accepted modes: NEFT/RTGS/IMPS and UPI. We'll share our bank details once your order is confirmed.",
+  },
+  {
+    q: "How long does production and delivery take?",
+    a: "Standard catalogue orders: 7–15 days. Custom orders: 20–30 days depending on quantity and complexity. Delivery via Delhivery, Bluedart, or DTDC across 20+ states.",
+  },
+  {
+    q: "Are samples available before bulk ordering?",
+    a: "Yes. Sample pieces are available at a nominal charge, which is fully adjusted against your first bulk order. WhatsApp us to request a specific design.",
+  },
+  {
+    q: "Do you do private label / white label manufacturing?",
+    a: "Yes — full private label services including custom woven labels, hang tags, polybag printing, and branded carton boxes. MOQ is 200 pieces per style.",
+  },
+  {
+    q: "What fabrics do you work with?",
+    a: "Cotton, rayon, georgette, crepe, linen, and blended fabrics. We can also source custom fabrics to your specification for larger orders.",
+  },
+  {
+    q: "How do I check quality before placing a large order?",
+    a: "Every dispatch is double quality-checked at our end. For new clients, we strongly recommend ordering a sample set first. Any defective pieces are replaced in the next order.",
+  },
+  {
+    q: "Can I visit your factory in Jaipur?",
+    a: "Absolutely. We welcome retailers, boutique owners, and wholesalers to visit our Jaipur production facility. Book a slot via WhatsApp or fill the factory visit form on our site.",
+  },
+  {
+    q: "How do I place my first order?",
+    a: "Fill the enquiry form at the bottom of this page, or send us a WhatsApp with your requirements. Our team responds within 2 business hours with pricing and next steps.",
+  },
+];
+
+export function FAQ() {
+  const { data: dbFaq } = useFaqItems();
+  const faqItems = (dbFaq && dbFaq.length > 0)
+    ? dbFaq.map(f => ({ q: f.question, a: f.answer }))
+    : DEFAULT_FAQ;
+
+  const [open, setOpen] = useState<number | null>(null);
+  const toggle = (i: number) => setOpen((p) => (p === i ? null : i));
+
+  return (
+    <section className="relative bg-[var(--cloud)] grain py-32 overflow-hidden">
+      <div className="max-w-[1500px] mx-auto px-6 lg:px-12">
+        {/* Heading */}
+        <div className="text-center mb-16 flex flex-col items-center">
+          <span className="text-[10px] uppercase tracking-[0.3em] text-[var(--gold)] mb-6">— Frequently Asked</span>
+          <SplitHeading
+            text="Questions Buyers"
+            as="h2"
+            className="font-display text-emerald font-light leading-[1.05] text-[clamp(2rem,5vw,4rem)]"
+          />
+          <SplitHeading
+            text="Always Ask Us."
+            delay={0.2}
+            as="h2"
+            className="font-display text-emerald italic font-light leading-[1.05] text-[clamp(2rem,5vw,4rem)]"
+          />
+          <p className="mt-6 text-charcoal/60 max-w-xl font-body leading-relaxed">
+            Everything you need to know before placing your first wholesale order.
+          </p>
+        </div>
+
+        {/* Accordion */}
+        <div className="max-w-4xl mx-auto">
+          {faqItems.map((item, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: 0.55, delay: i * 0.04, ease: [0.16, 1, 0.3, 1] }}
+              className="border-b border-charcoal/10 last:border-b-0"
+            >
+              <button
+                id={`faq-btn-${i}`}
+                aria-expanded={open === i}
+                onClick={() => toggle(i)}
+                className="w-full flex items-center justify-between py-6 text-left group"
+              >
+                <span className="font-display text-charcoal font-light group-hover:text-[var(--emerald-deep)] transition-colors pr-8 leading-snug text-lg md:text-xl">
+                  {item.q}
+                </span>
+                <motion.span
+                  animate={{ rotate: open === i ? 45 : 0 }}
+                  transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                  className="flex-shrink-0 w-7 h-7 rounded-full border border-[var(--gold)]/40 flex items-center justify-center text-[var(--gold)] group-hover:border-[var(--gold)] group-hover:bg-[var(--gold)]/10 transition-all duration-300"
+                >
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M6 2v8M2 6h8" />
+                  </svg>
+                </motion.span>
+              </button>
+
+              <AnimatePresence>
+                {open === i && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                    className="overflow-hidden"
+                  >
+                    <p className="pb-7 text-charcoal/70 leading-relaxed font-body border-l-2 border-[var(--gold)] pl-6">
+                      {item.a}
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Still have questions CTA */}
+        <div className="mt-16 text-center">
+          <p className="text-charcoal/50 text-sm mb-6 font-body">Still have questions?</p>
+          <MagneticButton href="https://wa.me/917976667197" variant="wa" cursorLabel="Chat">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M17.5 14.4c-.3-.2-1.7-.9-2-1-.3-.1-.5-.2-.7.2-.2.3-.8 1-1 1.2-.2.2-.4.2-.7.1-.3-.2-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6.1-.1.3-.4.5-.6.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.2-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4 0 1.4 1 2.8 1.2 3 .2.2 2 3 4.8 4.2.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.5-.1 1.7-.7 2-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3z" />
+            </svg>
+            Ask Us on WhatsApp
+          </MagneticButton>
+        </div>
+      </div>
+    </section>
   );
 }

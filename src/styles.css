@@ -89,12 +89,6 @@
     font-family: var(--font-body);
     -webkit-font-smoothing: antialiased;
   }
-  body {
-    cursor: none;
-  }
-  @media (max-width: 768px) {
-    body { cursor: auto; }
-  }
   h1, h2, h3, h4 { 
     font-family: var(--font-display); 
     overflow-wrap: break-word;
@@ -237,41 +231,6 @@
 @keyframes fabric-pulse { 0%,100% { opacity: 0.04; } 50% { opacity: 0.06; } }
 .fabric-pulse { animation: fabric-pulse 4s ease-in-out infinite; }
 
-/* Cursor */
-.cursor-dot {
-  position: fixed;
-  top: 0; left: 0;
-  width: 8px; height: 8px;
-  border-radius: 999px;
-  background: var(--gold);
-  pointer-events: none;
-  z-index: 9999;
-  transform: translate(-50%, -50%);
-  transition: width 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), height 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.35s ease;
-  mix-blend-mode: difference;
-}
-.cursor-dot.expand {
-  width: 28px; height: 28px;
-  background: transparent;
-  border: 1px solid var(--gold);
-}
-.cursor-label {
-  position: fixed;
-  top: 0; left: 0;
-  pointer-events: none;
-  z-index: 9999;
-  transform: translate(-50%, -50%);
-  color: var(--gold);
-  font-size: 11px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  opacity: 0;
-  transition: opacity .3s ease;
-}
-.cursor-label.show { opacity: 1; }
-@media (max-width: 768px) {
-  .cursor-dot, .cursor-label { display: none; }
-}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

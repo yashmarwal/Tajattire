@@ -1,5 +1,5 @@
-import { useState, useCallback } from "react";
-import { SmoothScroll, CustomCursor } from "@/components/site/SmoothScroll";
+import { useState, useCallback, useEffect } from "react";
+import { SmoothScroll } from "@/components/site/SmoothScroll";
 import { motion, useScroll } from "framer-motion";
 import { Preloader } from "@/components/site/Preloader";
 import { Navbar } from "@/components/site/Navbar";
@@ -9,10 +9,16 @@ import { lenisScrollTo } from "@/lib/lenis-store";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Hero, Marquee, Statement, Collections, Catalogue, CustomOrder, Craft, Why, Stats,
-  HowItWorks, Testimonials, CtaBand, Inquiry, Footer, FactoryVisitPopup, FloatingWhatsApp
+  HowItWorks, Testimonials, CtaBand, Inquiry, Footer, FactoryVisitPopup, FloatingWhatsApp,
+  SustainabilitySection, ManufacturingTeaser, InstagramGrid, FAQ,
 } from "@/components/site/Sections";
+import { StickyCtaBar } from "@/components/site/StickyCtaBar";
+import { AiHelpAgent } from "@/components/site/AiHelpAgent";
 
 type Phase = "idle" | "entering" | "exiting";
+
+// Section order for back/forward tracking
+const SECTIONS = ["#top", "#collections", "#catalogue", "#craft", "#order", "#connect"];
 
 export default function App() {
   const [ready, setReady] = useState(false);
@@ -23,14 +29,21 @@ export default function App() {
   const handlePreloaderDone = useCallback(() => {
     setReady(true);
     setTimeout(() => setShowPreloader(false), 500);
+    // Push the initial history state so back from #top goes to previous real page
+    window.history.replaceState({ section: "#top" }, "", window.location.pathname);
   }, []);
 
   const [phase, setPhase] = useState<Phase>("idle");
   const [href, setHref] = useState<string>("");
 
   const navigate = useCallback((target: string) => {
+    // Push a history state so browser back/forward works between sections
+    const currentSection = (window.history.state as Record<string, string> | null)?.section ?? "#top";
+    if (currentSection !== target) {
+      window.history.pushState({ section: target }, "", window.location.pathname + (target === "#top" ? "" : target));
+    }
+
     if (isMobile) {
-      // Mobile: plain smooth scroll, no overlay
       const el = document.querySelector(target);
       if (el) el.scrollIntoView({ behavior: "smooth" });
       return;
@@ -39,6 +52,58 @@ export default function App() {
     setHref(target);
     setPhase("entering");
   }, [phase, isMobile]);
+
+  // Handle browser back/forward — scroll to the section stored in history state
+  useEffect(() => {
+    const onPopState = (e: PopStateEvent) => {
+      const state = e.state as Record<string, string> | null;
+      const target = state?.section ?? "#top";
+
+      // Skip if the AI chat intercepted it (AiHelpAgent pushes {chatOpen:true})
+      if ((e.state as Record<string, unknown>)?.chatOpen) return;
+
+      const el = document.querySelector(target);
+      if (el) {
+        if (isMobile) {
+          el.scrollIntoView({ behavior: "smooth" });
+        } else {
+          lenisScrollTo(target);
+        }
+      }
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, [isMobile]);
+
+  // Also track scroll position to keep history state in sync with where user scrolled manually
+  useEffect(() => {
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        ticking = false;
+        let current = "#top";
+        for (const id of SECTIONS) {
+          const el = document.querySelector(id);
+          if (el) {
+            const rect = el.getBoundingClientRect();
+            if (rect.top <= window.innerHeight * 0.5) current = id;
+          }
+        }
+        const stateSection = (window.history.state as Record<string, string> | null)?.section;
+        if (stateSection !== current) {
+          window.history.replaceState(
+            { section: current },
+            "",
+            window.location.pathname + (current === "#top" ? "" : current)
+          );
+        }
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const handleEnterComplete = useCallback(() => {
     const el = document.querySelector(href);
@@ -67,7 +132,6 @@ export default function App() {
         />
         {showPreloader && <Preloader onDone={handlePreloaderDone} />}
         {ready && <SmoothScroll />}
-        <CustomCursor />
         <Navbar />
         <Hero />
         <Marquee />
@@ -78,13 +142,19 @@ export default function App() {
         <Craft />
         <Why />
         <Stats />
+        <SustainabilitySection />
         <HowItWorks />
+        <ManufacturingTeaser />
         <Testimonials />
+        <InstagramGrid />
         <CtaBand />
+        <FAQ />
         <Inquiry />
         <Footer />
         <FactoryVisitPopup />
         {!showPreloader && <FloatingWhatsApp />}
+        <StickyCtaBar />
+        <AiHelpAgent />
       </main>
     </PageTransitionContext.Provider>
   );
