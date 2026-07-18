@@ -357,7 +357,7 @@ export function Collections() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-15%" }}
           transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-          className="relative max-w-4xl mx-auto bg-[var(--emerald-deep)] grain border border-[var(--gold)]/25 rounded-2xl px-8 py-14 md:px-16 md:py-20 text-center overflow-hidden"
+          className="relative max-w-4xl mx-auto bg-[var(--emerald-deep)] grain border border-[var(--gold)]/25 rounded-2xl px-8 py-14 md:px-16 md:py-20 text-center overflow-hidden shimmer-sweep"
         >
           {/* Rotating gold rings */}
           <motion.div
@@ -379,15 +379,27 @@ export function Collections() {
             From fabric selection to final stitch — if you can imagine it, we can manufacture it. Share your reference and we'll build your private-label collection from scratch.
           </p>
 
-          {/* Floating stat chips */}
+          {/* Stat chips — fixed in place, gold highlight cycles through them one by one */}
           <div className="relative flex flex-wrap justify-center gap-4 mb-10">
-            {COLLECTION_STATS.map((s) => (
-              <div
+            {COLLECTION_STATS.map((s, i) => (
+              <motion.div
                 key={s.label}
-                className="px-4 py-2.5 rounded-full border border-[var(--gold)]/30 bg-white/5 text-cloud/90 text-xs uppercase tracking-wider"
+                animate={{
+                  borderColor: ["rgba(201,168,76,0.3)", "rgba(201,168,76,1)", "rgba(201,168,76,0.3)"],
+                  backgroundColor: ["rgba(255,255,255,0.05)", "rgba(201,168,76,0.18)", "rgba(255,255,255,0.05)"],
+                  boxShadow: ["0 0 0px rgba(201,168,76,0)", "0 0 20px rgba(201,168,76,0.45)", "0 0 0px rgba(201,168,76,0)"],
+                }}
+                transition={{
+                  duration: 0.8,
+                  repeat: Infinity,
+                  repeatDelay: COLLECTION_STATS.length - 0.8,
+                  delay: i,
+                  ease: "easeInOut",
+                }}
+                className="px-4 py-2.5 rounded-full border text-cloud/90 text-xs uppercase tracking-wider"
               >
                 <b className="text-[var(--gold)] mr-1.5">{s.n}</b>{s.label}
-              </div>
+              </motion.div>
             ))}
           </div>
 
@@ -1300,6 +1312,8 @@ export function Testimonials() {
 export function CtaBand() {
   const navigate = usePageTransition();
   const IMG = useImg();
+  const { data: settings } = useSettings();
+  const catalogPdf = settings?.catalogue_pdf_all || "";
   return (
     <section className="relative min-h-[80vh] grain shimmer-sweep overflow-hidden flex items-center">
       <div className="absolute inset-0">
@@ -1310,7 +1324,11 @@ export function CtaBand() {
         <SplitHeading text="Your next bestseller is already in our catalog." as="h2" className="font-display text-cloud font-light leading-[1.05] text-[clamp(2rem,7vw,4.5rem)]" />
         <p className="mt-8 font-display italic text-[var(--gold)] text-2xl md:text-3xl">The only question is — when do you want to start?</p>
         <div className="mt-12 flex flex-wrap gap-5 justify-center">
-          <MagneticButton href="#order" onClick={() => navigate("#order")} variant="gold" cursorLabel="Catalog">Download Catalog</MagneticButton>
+          {catalogPdf ? (
+            <MagneticButton href={catalogPdf} target="_blank" rel="noreferrer" download variant="gold" cursorLabel="Download">Download Catalog</MagneticButton>
+          ) : (
+            <MagneticButton href="#order" onClick={() => navigate("#order")} variant="gold" cursorLabel="Catalog">Request Catalog</MagneticButton>
+          )}
           <MagneticButton href="https://wa.me/917976667197" variant="outline" cursorLabel="Chat">WhatsApp Us Now</MagneticButton>
         </div>
       </div>

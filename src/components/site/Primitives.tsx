@@ -1,5 +1,5 @@
-import { useRef, MouseEvent, useState, useEffect } from "react";
-import { motion, useInView, useMotionValue, useSpring, useTransform, useScroll } from "framer-motion";
+import { useRef, useState, useEffect } from "react";
+import { motion, useInView, useTransform, useScroll } from "framer-motion";
 
 export function MagneticButton({
   children,
@@ -8,6 +8,9 @@ export function MagneticButton({
   onClick,
   cursorLabel = "View",
   variant = "gold",
+  target,
+  rel,
+  download,
 }: {
   children: React.ReactNode;
   className?: string;
@@ -15,28 +18,10 @@ export function MagneticButton({
   onClick?: () => void;
   cursorLabel?: string;
   variant?: "gold" | "outline" | "outline-dark" | "wa";
+  target?: string;
+  rel?: string;
+  download?: boolean;
 }) {
-  const ref = useRef<HTMLAnchorElement | HTMLButtonElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const sx = useSpring(x, { stiffness: 150, damping: 15 });
-  const sy = useSpring(y, { stiffness: 150, damping: 15 });
-
-  const handleMove = (e: MouseEvent) => {
-    const el = ref.current; if (!el) return;
-    const r = el.getBoundingClientRect();
-    const cx = r.left + r.width / 2;
-    const cy = r.top + r.height / 2;
-    const dx = e.clientX - cx;
-    const dy = e.clientY - cy;
-    const dist = Math.hypot(dx, dy);
-    if (dist < 80) {
-      x.set(dx * 0.3);
-      y.set(dy * 0.3);
-    } else { x.set(0); y.set(0); }
-  };
-  const handleLeave = () => { x.set(0); y.set(0); };
-
   const base = "btn-liquid inline-flex items-center gap-2 px-7 py-3.5 text-sm tracking-[0.15em] uppercase font-medium border";
   const variants = {
     gold: "bg-[var(--gold)] border-[var(--gold)] text-[var(--deep-black)]",
@@ -50,15 +35,16 @@ export function MagneticButton({
     onClick?.();
   };
 
-  const Comp: any = href ? motion.a : motion.button;
+  // No cursor-follow "magnetic" drag — the button stays put; btn-liquid's
+  // internal fill sweep (CSS, on :hover) is the only hover feedback.
+  const Comp: any = href ? "a" : "button";
   return (
     <Comp
-      ref={ref as any}
       href={href}
+      target={target}
+      rel={rel}
+      download={download}
       onClick={handleClick}
-      onMouseMove={handleMove}
-      onMouseLeave={handleLeave}
-      style={{ x: sx, y: sy }}
       data-cursor={cursorLabel}
       className={`${base} ${variants[variant]} ${className}`}
     >
