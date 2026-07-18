@@ -550,6 +550,7 @@ export function Catalogue() {
               exit={{ opacity: 0, y: 40, scale: 0.97 }}
               transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
               onClick={e => e.stopPropagation()}
+              data-lenis-prevent
               className="relative w-full max-w-md max-h-[92vh] overflow-y-auto bg-[#F8F6F1] rounded-t-2xl md:rounded-2xl shadow-2xl"
             >
               {/* Gold top bar */}
@@ -815,7 +816,7 @@ export function Catalogue() {
             </div>
 
             {/* Scrollable grid */}
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto" data-lenis-prevent>
               <div className="max-w-[1500px] mx-auto px-6 lg:px-12 py-10">
                 {viewAllItems.length === 0 ? (
                   <p className="text-center text-charcoal/50 py-20">No products in this category yet.</p>
@@ -1968,7 +1969,7 @@ export function ManufacturingTeaser() {
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto" data-lenis-prevent>
               <div className="max-w-[1500px] mx-auto px-6 lg:px-12 py-10">
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
                   {allMedia.map(m => (
