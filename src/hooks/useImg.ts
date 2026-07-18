@@ -16,6 +16,7 @@ export function useImg() {
   const { data: settings } = useSettings();
   return {
     hero:       settings?.hero_image       || IMG_DEFAULTS.hero,
+    heroVideo:  settings?.hero_video       || "",
     craft:      settings?.craft_image      || IMG_DEFAULTS.craft,
     cta:        settings?.cta_image        || IMG_DEFAULTS.cta,
     form:       settings?.form_image       || IMG_DEFAULTS.form,

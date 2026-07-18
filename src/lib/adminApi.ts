@@ -5,12 +5,9 @@ import type {
   EnquirySubmission, FactoryVisitRequest,
 } from "./siteData";
 
-/* ─────────── IMAGE UPLOAD ─────────── */
-export async function uploadImage(
-  file: File,
-  bucket: "product-images" | "site-images" = "product-images"
-): Promise<string> {
-  const ext = file.name.split(".").pop() ?? "jpg";
+/* ─────────── FILE UPLOAD (images, video, gif, pdf) ─────────── */
+async function uploadToBucket(file: File, bucket: string): Promise<string> {
+  const ext = file.name.split(".").pop() ?? "bin";
   const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
 
   const { data, error } = await supabase.storage.from(bucket).upload(path, file, { upsert: true });
@@ -27,11 +24,29 @@ export async function uploadImage(
         bucket + "' → Policies and allow anon INSERT/SELECT/UPDATE access."
       );
     }
+    if (msg.toLowerCase().includes("mime type")) {
+      throw new Error(
+        "This bucket doesn't allow that file type yet. Paste a hosted file URL instead, " +
+        "or go to Supabase → Storage → Buckets → '" + bucket + "' → allow this MIME type."
+      );
+    }
     throw new Error(`Upload failed: ${msg}`);
   }
 
   const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(data.path);
   return publicUrl;
+}
+
+export async function uploadImage(
+  file: File,
+  bucket: "product-images" | "site-images" = "product-images"
+): Promise<string> {
+  return uploadToBucket(file, bucket);
+}
+
+/** Uploads any file (PDF, video, etc.) to the given bucket. */
+export async function uploadFile(file: File, bucket: string = "site-images"): Promise<string> {
+  return uploadToBucket(file, bucket);
 }
 
 /* ─────────── CATALOGUE ─────────── */

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useBackToClose } from "@/hooks/useBackToClose";
 
 /* ── Knowledge base: keyword → answer ── */
 const KB = [
@@ -56,7 +57,7 @@ const KB = [
   {
     keys: ["contact", "phone", "whatsapp", "email", "reach", "speak", "talk", "call"],
     answer:
-      "Reach us on WhatsApp: +91 79766 67197 or email: connect.tajattire@gmail.com. We respond within 2 business hours, Mon–Sat.",
+      "Reach us on WhatsApp: +91 79766 67197 or email: info@tajattire.in. We respond within 2 business hours, Mon–Sat.",
   },
   {
     keys: ["location", "address", "jaipur", "visit", "factory", "showroom", "where"],
@@ -97,7 +98,7 @@ const CHIPS = [
 const GREETING =
   "Hello — I'm here to help with anything about TajAttire. Pick a question below or type your own.";
 const FALLBACK =
-  "I don't have a specific answer for that, but our team would love to help! WhatsApp us at +91 79766 67197 or email connect.tajattire@gmail.com — we respond within 2 business hours.";
+  "I don't have a specific answer for that, but our team would love to help! WhatsApp us at +91 79766 67197 or email info@tajattire.in — we respond within 2 business hours.";
 
 function getAnswer(input: string): string {
   const lower = input.toLowerCase();
@@ -132,19 +133,8 @@ export function AiHelpAgent() {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
 
-  /* Android back-button support */
-  useEffect(() => {
-    if (open) {
-      window.history.pushState({ chatOpen: true }, "");
-    }
-    const handler = (e: PopStateEvent) => {
-      if (open && (e.state as Record<string, unknown>)?.chatOpen) {
-        setOpen(false);
-      }
-    };
-    window.addEventListener("popstate", handler);
-    return () => window.removeEventListener("popstate", handler);
-  }, [open]);
+  /* Android/browser back-button support — closes the chat instead of leaving the site */
+  useBackToClose(open, () => setOpen(false));
 
   const send = (text: string) => {
     if (!text.trim()) return;

@@ -24,8 +24,10 @@ export function ImageUpload({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = useCallback(async (file: File) => {
-    if (!file.type.startsWith("image/")) { setError("Please select an image file"); return; }
-    if (file.size > 8 * 1024 * 1024) { setError("Image must be smaller than 8 MB"); return; }
+    if (!file.type.startsWith("image/")) { setError("Please select an image or GIF file"); return; }
+    const isGif = file.type === "image/gif";
+    const maxSize = isGif ? 20 * 1024 * 1024 : 8 * 1024 * 1024;
+    if (file.size > maxSize) { setError(`${isGif ? "GIF" : "Image"} must be smaller than ${isGif ? 20 : 8} MB`); return; }
     setError("");
     setUploading(true);
     try {
@@ -83,9 +85,9 @@ export function ImageUpload({
           <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
             <div className="text-[#C9A84C] text-3xl mb-2">↑</div>
             <p className="text-[rgba(248,246,241,0.5)] text-xs mb-1">
-              Drop image here or <span className="text-[#C9A84C]">click to browse</span>
+              Drop image or GIF here or <span className="text-[#C9A84C]">click to browse</span>
             </p>
-            <p className="text-[rgba(248,246,241,0.25)] text-[10px]">PNG · JPG · WEBP · Max 8MB</p>
+            <p className="text-[rgba(248,246,241,0.25)] text-[10px]">PNG · JPG · GIF · WEBP · Max 8MB (20MB for GIF)</p>
           </div>
         )}
 

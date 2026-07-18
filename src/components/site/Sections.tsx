@@ -1,9 +1,10 @@
 import { useEffect, useState, useRef, useMemo } from "react";
-import { motion, useScroll, useTransform, AnimatePresence, useSpring } from "framer-motion";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { MagneticButton, SplitHeading, FadeLines, CurtainImage, CountUp, Parallax } from "./Primitives";
 import { usePageTransition } from "@/lib/PageTransitionContext";
-import { useCatalogueItems, useTestimonials, useFaqItems, useStats, useInstagramImages, useSustainabilityCards, useCollections } from "@/hooks/useSiteData";
+import { useCatalogueItems, useTestimonials, useFaqItems, useStats, useInstagramImages, useSustainabilityCards, useSettings } from "@/hooks/useSiteData";
 import { useImg } from "@/hooks/useImg";
+import { useBackToClose } from "@/hooks/useBackToClose";
 
 
 /* ─────────── HERO ─────────── */
@@ -32,14 +33,22 @@ export function Hero() {
   return (
     <section ref={ref} id="top" className="relative min-h-[100vh] w-full overflow-hidden overflow-x-hidden bg-deep-black grain">
       <motion.div style={{ y: imgY }} className="absolute inset-0">
-        <motion.img 
-          src={IMG.hero} 
-          alt="" 
-          initial={{ scale: 1.08 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 6, ease: "easeOut" }}
-          className="w-full h-[130%] object-cover opacity-50 origin-center" 
-        />
+        {IMG.heroVideo ? (
+          <video
+            src={IMG.heroVideo}
+            autoPlay muted loop playsInline
+            className="w-full h-[130%] object-cover opacity-50 origin-center"
+          />
+        ) : (
+          <motion.img
+            src={IMG.hero}
+            alt=""
+            initial={{ scale: 1.08 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 6, ease: "easeOut" }}
+            className="w-full h-[130%] object-cover opacity-50 origin-center"
+          />
+        )}
         <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/70 via-[#0A0A0A]/50 to-[#0A0A0A]" />
       </motion.div>
 
@@ -273,120 +282,101 @@ export function Statement() {
   );
 }
 
-/* ─────────── COLLECTIONS (horizontal scroll) ─────────── */
+/* ─────────── COLLECTIONS → CUSTOM SHOWCASE ─────────── */
 
-const DEFAULT_COLLECTIONS = [
-  { tag: "01", title: "Kurti Collection", count: "180+ Designs", copy: "Cotton. Rayon. Printed. Embroidered. The range your customers reach for before they reach for anything else.", img: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=1200&q=80" },
-  { tag: "02", title: "Gown Collection",  count: "80+ Designs",  copy: "Floor-length. Occasion-ready. Wholesale-priced. Because your buyers deserve evening wear that moves — and margins that don't hurt.", img: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=80" },
-  { tag: "03", title: "Tops Collection",  count: "120+ Designs", copy: "Contemporary cuts. Versatile silhouettes. The everyday essential that keeps your customers coming back — and your shelf turning over.", img: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=1200&q=80" },
+const COLLECTION_STATS = [
+  { label: "Kurtis", n: "180+" },
+  { label: "Gowns", n: "80+" },
+  { label: "Tops", n: "120+" },
+  { label: "Private Label", n: "Custom" },
 ];
 
+const MARQUEE_WORDS = ["KURTIS", "GOWNS", "TOPS", "PRIVATE LABEL", "CUSTOM PRINTS", "BULK EMBROIDERY", "FABRIC SELECTION"];
+
 export function Collections() {
-  const { data: dbCollections } = useCollections();
-  const collections = (dbCollections && dbCollections.length > 0)
-    ? dbCollections.map((c, i) => ({
-        tag: `0${i + 1}`,
-        title: c.title,
-        count: c.subtitle,
-        copy: DEFAULT_COLLECTIONS[i]?.copy ?? "",
-        img: (c.image_url || DEFAULT_COLLECTIONS[i]?.img) ?? "",
-      }))
-    : DEFAULT_COLLECTIONS;
-
   const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
-  const smoothProgress = useSpring(scrollYProgress, { damping: 50, stiffness: 400, mass: 0.1 });
-  const x = useTransform(smoothProgress, [0, 1], ["calc(0% + 0vw)", "calc(-100% + 100vw)"]);
-
-  const [currentCard, setCurrentCard] = useState("01");
-  const cardIndexTransform = useTransform(smoothProgress, [0, 0.33, 0.66, 1], [1, 2, 3, 4]);
-
-  useEffect(() => {
-    return cardIndexTransform.onChange((latest) => {
-      const idx = Math.round(latest);
-      setCurrentCard(`0${idx}`);
-    });
-  }, [cardIndexTransform]);
-
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, []);
-
-  const progressWidth = useTransform(smoothProgress, [0, 1], ["0%", "100%"]);
-  const hintOpacity = useTransform(smoothProgress, [0, 0.1], [1, 0]);
-  const textX = useTransform(smoothProgress, [0, 1], ["0%", "15%"]);
-
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const orbY1 = useTransform(scrollYProgress, [0, 1], [-60, 60]);
+  const orbY2 = useTransform(scrollYProgress, [0, 1], [60, -60]);
 
   return (
-    <section id="collections" ref={ref} className="relative bg-deep-black" style={{ height: "500vh" }}>
-      <div className="sticky top-0 h-screen overflow-hidden grain">
-        
-        <div className="absolute top-0 left-0 right-0 z-20 px-6 lg:px-12 py-8 flex items-center justify-between">
-          <span className={`uppercase tracking-[0.3em] text-[var(--gold)] ${isMobile ? 'text-[10px]' : 'text-xs'}`}>
-            04 — Our Collections
-          </span>
-          <span className="text-xs uppercase tracking-[0.3em] text-[var(--gold)] font-medium">
-            {currentCard} / 04
-          </span>
+    <section id="collections" ref={ref} className="relative bg-deep-black grain py-28 md:py-40 overflow-hidden">
+      {/* Ambient floating glow */}
+      <motion.div style={{ y: orbY1 }} className="pointer-events-none absolute -top-24 -left-24 w-[420px] h-[420px] rounded-full bg-[var(--gold)]/10 blur-[100px]" />
+      <motion.div style={{ y: orbY2 }} className="pointer-events-none absolute -bottom-32 -right-16 w-[420px] h-[420px] rounded-full bg-[var(--emerald-deep)]/40 blur-[110px]" />
+
+      <div className="relative max-w-[1500px] mx-auto px-6 lg:px-12">
+        <div className="flex items-center justify-between mb-14">
+          <span className="text-xs uppercase tracking-[0.3em] text-[var(--gold)]">04 — Custom Collections</span>
+          <span className="hidden md:block text-xs uppercase tracking-[0.3em] text-[var(--gold)]/50">Est. 2004 · Jaipur</span>
         </div>
 
-        <motion.div style={{ x, willChange: "transform" }} className="flex h-full w-max gap-4 md:gap-6 px-6 lg:px-12 pt-24 md:pt-32 pb-12 items-center">
-          {collections.map((c, i) => (
-            <div key={c.tag} className="relative w-[90vw] md:w-[75vw] h-full flex-shrink-0 overflow-hidden border border-[var(--gold)]/20 rounded-md" data-cursor="View">
-              <img src={c.img} alt={c.title} className="absolute inset-0 w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/40 to-transparent" />
-              
-              <div className="absolute top-6 left-6 text-xs tracking-[0.3em] text-[var(--gold)]">{c.tag}</div>
-              <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 pb-24 md:pb-32">
-                <div className="text-xs uppercase tracking-[0.3em] text-[var(--gold)] mb-3">{c.count}</div>
-                <motion.h3 style={{ x: textX }} className={`font-display text-cloud font-light mb-5 leading-tight ${isMobile ? 'text-[clamp(2rem,8vw,5rem)]' : 'text-5xl md:text-7xl'}`}>{c.title}</motion.h3>
-                
-                {isMobile && (
-                  <div className="mb-6 flex flex-row w-full gap-4">
-                    <img src="https://placehold.co/400x500/1A5C38/C9A84C?text=Coming+Soon" alt="Thumb" className="w-1/2 h-32 rounded-[8px] border border-[var(--gold)]/30 object-cover" />
-                    <img src="https://placehold.co/400x500/1A5C38/C9A84C?text=Coming+Soon" alt="Thumb" className="w-1/2 h-32 rounded-[8px] border border-[var(--gold)]/30 object-cover" />
-                  </div>
-                )}
+        <div className="text-center mb-14">
+          <SplitHeading text="Your Vision." as="h2" className="font-display text-cloud font-light text-[clamp(2.2rem,8vw,5.5rem)] leading-[1.05]" />
+          <SplitHeading text="Our Craftsmanship." delay={0.15} as="h2" className="font-display italic text-[var(--gold)] font-bold text-[clamp(2.2rem,8vw,5.5rem)] leading-[1.05]" />
+        </div>
 
-                <p className="text-cloud/70 max-w-md mb-6 leading-relaxed">{c.copy}</p>
-                <MagneticButton href="#order" variant="gold" cursorLabel="Enquire" className={isMobile ? "w-full justify-center" : ""}>Enquire This Collection →</MagneticButton>
+        {/* Infinite marquee strip */}
+        <div className="marquee-wrap relative mb-16 overflow-hidden border-y border-[var(--gold)]/15 py-5">
+          <div className="marquee-left flex w-max gap-10 whitespace-nowrap">
+            {[0, 1].map(r => (
+              <div key={r} className="flex gap-10 flex-shrink-0">
+                {MARQUEE_WORDS.map(w => (
+                  <span key={w} className="text-[clamp(1.3rem,4vw,2.4rem)] font-display italic text-cloud/15">{w}</span>
+                ))}
               </div>
+            ))}
+          </div>
+        </div>
 
-              {i === 0 && (
-                <motion.div style={{ opacity: hintOpacity }} className="absolute bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-3">
-                  <span className="text-[10px] uppercase tracking-[0.2em] text-[var(--gold)]/60">Scroll to explore</span>
-                  <motion.span 
-                    animate={{ x: [0, 8, 0] }} 
-                    transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-                    className="text-[var(--gold)]/60 text-xs"
-                  >→</motion.span>
-                </motion.div>
-              )}
-            </div>
-          ))}
+        {/* Central custom-collection showcase card */}
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-15%" }}
+          transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+          className="relative max-w-4xl mx-auto bg-[var(--emerald-deep)] grain border border-[var(--gold)]/25 rounded-2xl px-8 py-14 md:px-16 md:py-20 text-center overflow-hidden shimmer-sweep"
+        >
+          {/* Rotating gold rings */}
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ repeat: Infinity, duration: 40, ease: "linear" }}
+            className="pointer-events-none absolute -top-24 -right-24 w-64 h-64 rounded-full border border-dashed border-[var(--gold)]/20"
+          />
+          <motion.div
+            animate={{ rotate: -360 }}
+            transition={{ repeat: Infinity, duration: 55, ease: "linear" }}
+            className="pointer-events-none absolute -bottom-28 -left-28 w-72 h-72 rounded-full border border-dashed border-[var(--gold)]/10"
+          />
 
-          <div className="relative w-[90vw] md:w-[75vw] h-full flex-shrink-0 bg-[var(--emerald-deep)] grain flex flex-col justify-center items-center text-center p-8 border border-[var(--gold)]/20 rounded-md">
-            <h3 className={`font-display text-cloud font-light mb-6 leading-[1.1] ${isMobile ? 'text-[clamp(2rem,8vw,5rem)]' : 'text-5xl md:text-7xl'}`}>
-              <span className="block">Want something</span>
-              <span className="block italic text-[var(--gold)] font-bold mt-2">custom?</span>
-            </h3>
-            <p className="text-cloud/70 max-w-md mx-auto mb-8 leading-relaxed">
-              From fabric selection to final stitch — if you can imagine it, we can manufacture it. Share your reference and we'll build it from scratch.
-            </p>
-            <div className={`flex flex-col gap-4 ${isMobile ? 'w-full px-6' : 'w-auto'}`}>
-              <MagneticButton href="https://wa.me/917976667197" variant="gold" cursorLabel="Custom" className={isMobile ? "w-full justify-center" : ""}>Discuss Custom Order</MagneticButton>
-            </div>
+          <span className="relative inline-block text-[10px] uppercase tracking-[0.3em] text-[var(--gold)] mb-5">Build Something Yours</span>
+          <h3 className="relative font-display text-cloud font-light text-[clamp(1.8rem,5vw,3.5rem)] leading-tight mb-6">
+            Want a collection <span className="italic text-[var(--gold)] font-bold">nobody else has?</span>
+          </h3>
+          <p className="relative text-cloud/70 max-w-xl mx-auto mb-10 leading-relaxed">
+            From fabric selection to final stitch — if you can imagine it, we can manufacture it. Share your reference and we'll build your private-label collection from scratch.
+          </p>
+
+          {/* Floating stat chips */}
+          <div className="relative flex flex-wrap justify-center gap-4 mb-10">
+            {COLLECTION_STATS.map((s, i) => (
+              <motion.div
+                key={s.label}
+                animate={{ y: [0, -10, 0] }}
+                transition={{ repeat: Infinity, duration: 3.5 + i * 0.4, ease: "easeInOut", delay: i * 0.3 }}
+                className="px-4 py-2.5 rounded-full border border-[var(--gold)]/30 bg-white/5 text-cloud/90 text-xs uppercase tracking-wider"
+              >
+                <b className="text-[var(--gold)] mr-1.5">{s.n}</b>{s.label}
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="relative">
+            <MagneticButton href="#order" variant="gold" cursorLabel="Start">
+              Start Your Custom Collection →
+            </MagneticButton>
           </div>
         </motion.div>
-
-        <div className="absolute bottom-0 left-0 w-full h-[2px] bg-[rgba(201,168,76,0.3)] z-20">
-          <motion.div style={{ width: progressWidth }} className="h-full bg-[#C9A84C]" />
-        </div>
-
       </div>
     </section>
   );
@@ -394,7 +384,11 @@ export function Collections() {
 
 export function Catalogue() {
   const [activeTab, setActiveTab] = useState("Kurtis");
-  const tabs = ["Kurtis", "Gowns", "Tops"];
+  const tabs = ["Kurtis", "Gowns", "Tops"] as const;
+
+  // "View All" full-catalogue overlay
+  const [viewAllOpen, setViewAllOpen] = useState(false);
+  const [viewAllTab, setViewAllTab] = useState<"All" | "Kurtis" | "Gowns" | "Tops">("All");
 
   // Quick-enquiry modal state
   const [modalItem, setModalItem] = useState<{ label: string; img: string } | null>(null);
@@ -407,6 +401,10 @@ export function Catalogue() {
     setQStatus("idle");
   };
   const closeModal = () => setModalItem(null);
+
+  // Back button (Android/browser) closes these overlays instead of leaving the site
+  useBackToClose(!!modalItem, closeModal);
+  useBackToClose(viewAllOpen, () => setViewAllOpen(false));
 
   const submitQuickEnquiry = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -429,7 +427,7 @@ export function Catalogue() {
       fd.append("subject", `Quick Enquiry — ${modalItem?.label} | TajAttire`);
       fd.append("from_name", "TajAttire Quick Enquiry");
       fd.append("name", qForm.name);
-      fd.append("email", "connect.tajattire@gmail.com");
+      fd.append("email", "info@tajattire.in");
       fd.append("message",
         `━━━ QUICK PRODUCT ENQUIRY ━━━\n\n` +
         `🛍  Product:   ${modalItem?.label}\n` +
@@ -491,6 +489,27 @@ export function Catalogue() {
     ? dbItems.map(it => ({ id: it.id, img: it.image_url, label: it.label || it.name, price: it.price }))
     : generateDefaultItems(activeTab);
 
+  // Full catalogue (all categories, all active products — including everything added in the admin panel)
+  const { data: allDbItems } = useCatalogueItems();
+  const allItems = (allDbItems && allDbItems.length > 0)
+    ? allDbItems.map(it => ({ id: it.id, img: it.image_url, label: it.label || it.name, price: it.price, category: it.category }))
+    : tabs.flatMap(t => generateDefaultItems(t).map(it => ({ ...it, category: t })));
+  const viewAllItems = viewAllTab === "All" ? allItems : allItems.filter(it => it.category === viewAllTab);
+
+  // Downloadable catalogue PDFs (admin-uploaded, per category with an "all categories" fallback)
+  const { data: siteSettings } = useSettings();
+  const catalogueDownloadUrl = (category: string) => {
+    const key = `catalogue_pdf_${category.toLowerCase()}`;
+    return siteSettings?.[key] || siteSettings?.catalogue_pdf_all || "";
+  };
+
+  useEffect(() => {
+    if (!viewAllOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = prev; };
+  }, [viewAllOpen]);
+
   const inputCls = "w-full bg-transparent border-b border-[var(--gold)]/30 py-2 text-[13px] text-charcoal placeholder:text-charcoal/30 focus:outline-none focus:border-[#C9A84C] transition-colors";
 
   return (
@@ -513,16 +532,16 @@ export function Catalogue() {
               exit={{ opacity: 0, y: 40, scale: 0.97 }}
               transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
               onClick={e => e.stopPropagation()}
-              className="relative w-full max-w-md bg-[#F8F6F1] rounded-t-2xl md:rounded-2xl overflow-hidden shadow-2xl"
+              className="relative w-full max-w-md max-h-[92vh] overflow-y-auto bg-[#F8F6F1] rounded-t-2xl md:rounded-2xl shadow-2xl"
             >
               {/* Gold top bar */}
-              <div className="h-1 w-full bg-gradient-to-r from-transparent via-[#C9A84C] to-transparent" />
+              <div className="h-1 w-full bg-gradient-to-r from-transparent via-[#C9A84C] to-transparent sticky top-0 z-10" />
 
-              {/* Product image strip */}
-              <div className="relative h-28 overflow-hidden">
-                <img src={modalItem.img} alt={modalItem.label} className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#F8F6F1] via-[#F8F6F1]/40 to-transparent" />
-                <button onClick={closeModal} className="absolute top-3 right-3 w-7 h-7 rounded-full bg-black/40 text-white flex items-center justify-center text-xs hover:bg-black/70 transition-colors">✕</button>
+              {/* Product image */}
+              <div className="relative h-56 sm:h-64 overflow-hidden bg-charcoal/5">
+                <img src={modalItem.img} alt={modalItem.label} className="w-full h-full object-cover object-center" />
+                <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#F8F6F1] to-transparent pointer-events-none" />
+                <button onClick={closeModal} className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm text-white flex items-center justify-center text-xs hover:bg-black/70 transition-colors">✕</button>
               </div>
 
               <div className="px-6 pb-6">
@@ -643,14 +662,122 @@ export function Catalogue() {
             </motion.div>
           </AnimatePresence>
 
-          <div className="mt-20 flex flex-col items-center">
-            <p className="text-sm text-charcoal/70 mb-6">Want to see the full catalogue?</p>
+          <div className="mt-20 flex flex-col items-center gap-5">
+            <div className="flex flex-wrap justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => { setViewAllTab("All"); setViewAllOpen(true); }}
+                className="px-8 py-3.5 rounded-full text-xs uppercase tracking-[0.2em] font-semibold border-2 border-charcoal text-charcoal hover:bg-charcoal hover:text-white transition-colors duration-300"
+              >
+                View All Products
+              </button>
+              {catalogueDownloadUrl(activeTab) && (
+                <a
+                  href={catalogueDownloadUrl(activeTab)}
+                  target="_blank"
+                  rel="noreferrer"
+                  download
+                  className="px-8 py-3.5 rounded-full text-xs uppercase tracking-[0.2em] font-semibold bg-[var(--gold)] text-deep-black hover:bg-[#D4B55A] transition-colors duration-300 inline-flex items-center gap-2"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg>
+                  Download {activeTab} Catalogue
+                </a>
+              )}
+            </div>
+            <p className="text-sm text-charcoal/70">Want to see the full catalogue?</p>
             <MagneticButton href="https://wa.me/917976667197" variant="wa" cursorLabel="WhatsApp">
               Request Full Lookbook on WhatsApp
             </MagneticButton>
           </div>
         </div>
       </section>
+
+      {/* ── View All Products Overlay ── */}
+      <AnimatePresence>
+        {viewAllOpen && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9500] flex flex-col bg-cloud"
+          >
+            {/* Header */}
+            <div className="flex-shrink-0 border-b border-charcoal/10 bg-cloud/95 backdrop-blur-sm">
+              <div className="max-w-[1500px] mx-auto px-6 lg:px-12 py-5 flex items-center justify-between gap-4">
+                <div>
+                  <span className="text-[10px] uppercase tracking-[0.3em] text-[var(--gold)]">— Full Catalogue</span>
+                  <h3 className="font-display text-charcoal text-xl md:text-2xl leading-tight">All Products</h3>
+                </div>
+                <button
+                  onClick={() => setViewAllOpen(false)}
+                  className="w-9 h-9 rounded-full border border-charcoal/20 text-charcoal flex items-center justify-center hover:bg-charcoal hover:text-white transition-colors flex-shrink-0"
+                  aria-label="Close"
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="max-w-[1500px] mx-auto px-6 lg:px-12 pb-5 flex flex-wrap items-center gap-2.5">
+                {(["All", ...tabs] as const).map(t => (
+                  <button
+                    key={t}
+                    onClick={() => setViewAllTab(t)}
+                    className={`px-5 py-2 rounded-full text-[11px] uppercase tracking-[0.15em] transition-colors border ${
+                      viewAllTab === t
+                        ? "bg-[var(--gold)] border-[var(--gold)] text-deep-black"
+                        : "border-charcoal/30 text-charcoal hover:bg-charcoal/5"
+                    }`}
+                  >
+                    {t} {t !== "All" ? `(${allItems.filter(it => it.category === t).length})` : `(${allItems.length})`}
+                  </button>
+                ))}
+                {catalogueDownloadUrl(viewAllTab) && (
+                  <a
+                    href={catalogueDownloadUrl(viewAllTab)}
+                    target="_blank"
+                    rel="noreferrer"
+                    download
+                    className="ml-auto px-5 py-2 rounded-full text-[11px] uppercase tracking-[0.15em] font-semibold border border-charcoal text-charcoal hover:bg-charcoal hover:text-white transition-colors inline-flex items-center gap-1.5"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg>
+                    Download PDF
+                  </a>
+                )}
+              </div>
+            </div>
+
+            {/* Scrollable grid */}
+            <div className="flex-1 overflow-y-auto">
+              <div className="max-w-[1500px] mx-auto px-6 lg:px-12 py-10">
+                {viewAllItems.length === 0 ? (
+                  <p className="text-center text-charcoal/50 py-20">No products in this category yet.</p>
+                ) : (
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
+                    {viewAllItems.map(item => (
+                      <div
+                        key={item.id}
+                        onClick={() => { openModal(item.label, item.img); }}
+                        className="group relative bg-white rounded-lg shadow-sm border border-charcoal/5 overflow-hidden flex flex-col cursor-pointer card-lift"
+                      >
+                        <div className="relative aspect-[4/5] overflow-hidden bg-black/5">
+                          <img src={item.img} alt={item.label} loading="lazy" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-[1.04]" />
+                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <span className="text-[var(--gold)] text-[11px] tracking-widest uppercase bg-white/95 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg font-semibold">
+                              Enquire →
+                            </span>
+                          </div>
+                        </div>
+                        <div className="p-4 flex flex-col flex-grow bg-white relative z-10">
+                          <div className="h-px w-full bg-[var(--gold)]/30 mb-3" />
+                          <h4 className="text-[10px] md:text-xs font-semibold tracking-wider text-charcoal mb-1.5">{item.label}</h4>
+                          <p className="text-[10px] md:text-xs text-charcoal/50">{item.price}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
@@ -687,7 +814,7 @@ export function CustomOrder() {
           
           <div className="flex flex-col gap-3 w-full md:w-auto min-w-[260px]">
             <MagneticButton href="https://wa.me/917976667197" variant="gold" cursorLabel="Chat">Discuss Custom Order</MagneticButton>
-            <MagneticButton href="mailto:connect.tajattire@gmail.com" variant="outline" cursorLabel="Email">Send Reference Images</MagneticButton>
+            <MagneticButton href="mailto:info@tajattire.in" variant="outline" cursorLabel="Email">Send Reference Images</MagneticButton>
           </div>
           
           <p className="mt-8 md:mt-10 text-[var(--gold)]/50 text-[10px] md:text-xs tracking-widest uppercase">
@@ -1131,7 +1258,7 @@ export function Inquiry() {
       fd.append("subject", `New Bulk Enquiry — TajAttire | ${formData.name} | ${formData.city}`);
       fd.append("from_name", "TajAttire Website");
       fd.append("name", formData.name);
-      fd.append("email", "connect.tajattire@gmail.com");
+      fd.append("email", "info@tajattire.in");
       fd.append("message",
         `━━━ NEW BULK ORDER ENQUIRY ━━━\n\n` +
         `👤 Name:         ${formData.name}\n` +
@@ -1276,7 +1403,7 @@ export function Inquiry() {
                 </button>
                 {status === "error" && (
                   <div className="mt-4 border border-red-500 p-3 text-[12px] text-red-600">
-                    Something went wrong. Please email us directly at connect.tajattire@gmail.com
+                    Something went wrong. Please email us directly at info@tajattire.in
                   </div>
                 )}
               </div>
@@ -1332,7 +1459,7 @@ export function Footer() {
             <h4 className="text-[10px] uppercase tracking-[0.3em] text-[var(--gold)] mb-4">Contact</h4>
             <ul className="space-y-2 text-sm">
               <li>WhatsApp: +91 79766 67197</li>
-              <li>Email: connect.tajattire@gmail.com</li>
+              <li>Email: info@tajattire.in</li>
               <li>Location: Jaipur, India</li>
             </ul>
             <div className="mt-5 flex gap-4">
@@ -1363,6 +1490,9 @@ export function FactoryVisitPopup() {
   const [formData, setFormData] = useState({
     name: "", businessType: "Retailer", date: "", people: "1", whatsapp: ""
   });
+
+  // Back button (Android/browser) dismisses this popup instead of leaving the site
+  useBackToClose(visible, () => setVisible(false));
 
   useEffect(() => {
     let lastScrollY = window.scrollY;
@@ -1496,7 +1626,7 @@ export function FactoryVisitPopup() {
                   </button>
                   {status === "error" && (
                     <div className="mt-3 border border-red-500 p-2 text-[11px] text-red-500 text-center">
-                      Something went wrong. Please email us directly at orders@tajattire.com
+                      Something went wrong. Please email us directly at info@tajattire.in
                     </div>
                   )}
                   <div className="text-center text-[#C9A84C]/40 text-[10px] mt-3 tracking-widest">

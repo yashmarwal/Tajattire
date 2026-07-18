@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MagneticButton } from "./Primitives";
 import { usePageTransition } from "@/lib/PageTransitionContext";
 import { useImg } from "@/hooks/useImg";
+import { useBackToClose } from "@/hooks/useBackToClose";
 
 const links = [
   { label: "Collections", href: "#collections" },
@@ -17,6 +18,9 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
   const navigate = usePageTransition();
   const IMG = useImg();
+
+  // Back button (Android/browser) closes the mobile menu instead of leaving the site
+  useBackToClose(open, () => setOpen(false));
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();

@@ -57,11 +57,11 @@ export default function App() {
   useEffect(() => {
     const onPopState = (e: PopStateEvent) => {
       const state = e.state as Record<string, string> | null;
+      // Overlay/modal entries (pushed by useBackToClose) don't carry section
+      // info — an overlay closing shouldn't move scroll position.
+      if ((e.state as Record<string, unknown>)?.overlay) return;
+
       const target = state?.section ?? "#top";
-
-      // Skip if the AI chat intercepted it (AiHelpAgent pushes {chatOpen:true})
-      if ((e.state as Record<string, unknown>)?.chatOpen) return;
-
       const el = document.querySelector(target);
       if (el) {
         if (isMobile) {

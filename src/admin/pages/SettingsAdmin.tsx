@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { getSettings, updateSetting } from "@/lib/adminApi";
 import { ImageUpload } from "@/admin/components/ImageUpload";
+import { MediaUpload } from "@/admin/components/MediaUpload";
 
 const inputCls = "w-full bg-[#0A0A0A] border border-[rgba(201,168,76,0.2)] text-[#F8F6F1] px-3.5 py-2.5 text-sm placeholder:text-[rgba(248,246,241,0.2)] focus:outline-none focus:border-[#C9A84C] transition-colors";
 const textareaCls = `${inputCls} resize-none`;
@@ -68,6 +69,49 @@ function SettingImage({
   );
 }
 
+/** Wraps MediaUpload (image/video/pdf + URL fallback) with instant-save to Supabase site_settings */
+function SettingMedia({
+  label,
+  hint,
+  settingKey,
+  accept,
+  aspectRatio,
+  maxSizeMb,
+  value,
+  onChange,
+}: {
+  label: string;
+  hint?: string;
+  settingKey: string;
+  accept?: string;
+  aspectRatio?: string;
+  maxSizeMb?: number;
+  value: string;
+  onChange: (key: string, url: string) => void;
+}) {
+  const handleChange = async (url: string) => {
+    onChange(settingKey, url);
+    try {
+      await updateSetting(settingKey, url);
+      toast.success(url ? `${label} updated!` : `${label} removed`);
+    } catch {
+      toast.error("Failed to save");
+    }
+  };
+
+  return (
+    <MediaUpload
+      value={value || undefined}
+      onChange={handleChange}
+      label={label}
+      helpText={hint}
+      accept={accept}
+      aspectRatio={aspectRatio}
+      maxSizeMb={maxSizeMb}
+    />
+  );
+}
+
 export function SettingsAdmin() {
   const qc = useQueryClient();
   const { data: settings = {} } = useQuery({ queryKey: ["settings"], queryFn: getSettings });
@@ -77,11 +121,12 @@ export function SettingsAdmin() {
     brand_tagline: "", whatsapp_number: "", contact_email: "",
   });
 
-  // Image URLs — saved individually on upload, no "Save" button needed
+  // Image/video/file URLs — saved individually on upload, no "Save" button needed
   const [imgs, setImgs] = useState<Record<string, string>>({
     hero_image: "", craft_image: "", cta_image: "",
     form_image: "", workspace_img_1: "", workspace_img_2: "", workspace_img_3: "",
-    logo_image: "",
+    logo_image: "", hero_video: "",
+    catalogue_pdf_all: "", catalogue_pdf_kurtis: "", catalogue_pdf_gowns: "", catalogue_pdf_tops: "",
   });
 
   useEffect(() => {
@@ -104,6 +149,11 @@ export function SettingsAdmin() {
         workspace_img_2: settings.workspace_img_2 ?? "",
         workspace_img_3: settings.workspace_img_3 ?? "",
         logo_image:      settings.logo_image      ?? "",
+        hero_video:      settings.hero_video       ?? "",
+        catalogue_pdf_all:    settings.catalogue_pdf_all    ?? "",
+        catalogue_pdf_kurtis: settings.catalogue_pdf_kurtis ?? "",
+        catalogue_pdf_gowns:  settings.catalogue_pdf_gowns  ?? "",
+        catalogue_pdf_tops:   settings.catalogue_pdf_tops   ?? "",
       }));
     }
   }, [settings]);
@@ -154,7 +204,7 @@ export function SettingsAdmin() {
           <input type="text" value={form.whatsapp_number} onChange={e => set("whatsapp_number", e.target.value)} className={inputCls} placeholder="917976667197" />
         </Field>
         <Field label="Contact Email">
-          <input type="email" value={form.contact_email} onChange={e => set("contact_email", e.target.value)} className={inputCls} placeholder="connect@tajattire.com" />
+          <input type="email" value={form.contact_email} onChange={e => set("contact_email", e.target.value)} className={inputCls} placeholder="info@tajattire.in" />
         </Field>
       </SectionCard>
 
@@ -182,6 +232,52 @@ export function SettingsAdmin() {
           hint="Full-screen image behind the headline. Recommended: 1920×1080 JPG."
           settingKey="hero_image"
           value={imgs.hero_image}
+          onChange={handleImgChange}
+        />
+        <SettingMedia
+          label="Hero Background Video (optional)"
+          hint="If set, this plays instead of the image above (muted, looping). MP4 recommended, under 15MB for fast loading."
+          settingKey="hero_video"
+          accept="video/*"
+          aspectRatio="16/9"
+          maxSizeMb={60}
+          value={imgs.hero_video}
+          onChange={handleImgChange}
+        />
+      </SectionCard>
+
+      <SectionCard title="Downloadable Catalogues (PDF)">
+        <SettingMedia
+          label="Full Catalogue PDF (all categories)"
+          hint="Shown as the general 'Download Catalogue' option. Used as a fallback for any category without its own PDF."
+          settingKey="catalogue_pdf_all"
+          accept="application/pdf"
+          maxSizeMb={30}
+          value={imgs.catalogue_pdf_all}
+          onChange={handleImgChange}
+        />
+        <SettingMedia
+          label="Kurtis Catalogue PDF"
+          settingKey="catalogue_pdf_kurtis"
+          accept="application/pdf"
+          maxSizeMb={30}
+          value={imgs.catalogue_pdf_kurtis}
+          onChange={handleImgChange}
+        />
+        <SettingMedia
+          label="Gowns Catalogue PDF"
+          settingKey="catalogue_pdf_gowns"
+          accept="application/pdf"
+          maxSizeMb={30}
+          value={imgs.catalogue_pdf_gowns}
+          onChange={handleImgChange}
+        />
+        <SettingMedia
+          label="Tops Catalogue PDF"
+          settingKey="catalogue_pdf_tops"
+          accept="application/pdf"
+          maxSizeMb={30}
+          value={imgs.catalogue_pdf_tops}
           onChange={handleImgChange}
         />
       </SectionCard>
