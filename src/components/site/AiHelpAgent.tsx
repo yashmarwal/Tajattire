@@ -207,7 +207,7 @@ export function AiHelpAgent() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 24, scale: 0.96 }}
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed z-[7998] bg-[#0A0A0A] border border-[var(--gold)]/20 overflow-hidden shadow-[0_24px_64px_rgba(0,0,0,0.7)]
+            className="fixed z-[8600] bg-[#0A0A0A] border border-[var(--gold)]/20 overflow-hidden shadow-[0_24px_64px_rgba(0,0,0,0.7)]
                        bottom-0 left-0 right-0 rounded-t-[20px] flex flex-col
                        md:bottom-[96px] md:left-[28px] md:right-auto md:w-[340px] md:rounded-[16px]"
             style={{ maxHeight: "72vh", minHeight: "360px" }}

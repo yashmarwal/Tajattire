@@ -9,7 +9,7 @@ import { lenisScrollTo } from "@/lib/lenis-store";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Hero, Marquee, Statement, Collections, Catalogue, CustomOrder, Craft, Why, Stats,
-  HowItWorks, Testimonials, CtaBand, Inquiry, Footer, FactoryVisitPopup, FloatingWhatsApp,
+  HowItWorks, Testimonials, CtaBand, Inquiry, Footer, FactoryVisitPopup, FloatingWhatsApp, FloatingCall,
   SustainabilitySection, ManufacturingTeaser, InstagramGrid, FAQ,
 } from "@/components/site/Sections";
 import { StickyCtaBar } from "@/components/site/StickyCtaBar";
@@ -153,6 +153,7 @@ export default function App() {
         <Footer />
         <FactoryVisitPopup />
         {!showPreloader && <FloatingWhatsApp />}
+        {!showPreloader && <FloatingCall />}
         <StickyCtaBar />
         {!showPreloader && <AiHelpAgent />}
       </main>

@@ -391,16 +391,33 @@ export function Catalogue() {
   const [viewAllTab, setViewAllTab] = useState<"All" | "Kurtis" | "Gowns" | "Tops">("All");
 
   // Quick-enquiry modal state
-  const [modalItem, setModalItem] = useState<{ label: string; img: string } | null>(null);
+  const [modalItem, setModalItem] = useState<{ label: string; img: string; price: string } | null>(null);
+  const [showEnquiryForm, setShowEnquiryForm] = useState(false);
   const [qForm, setQForm] = useState({ name: "", whatsapp: "", quantity: "" });
   const [qStatus, setQStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
 
-  const openModal = (label: string, img: string) => {
-    setModalItem({ label, img });
+  const openModal = (label: string, img: string, price: string) => {
+    setModalItem({ label, img, price });
+    setShowEnquiryForm(false);
     setQForm({ name: "", whatsapp: "", quantity: "" });
     setQStatus("idle");
   };
   const closeModal = () => setModalItem(null);
+
+  // Structured, product-specific message reused across WhatsApp and Email
+  const buildEnquiryMessage = (label: string, price: string) =>
+    `Hi TajAttire! I'm interested in a wholesale enquiry for:\n\nProduct: ${label}\nPrice: ${price}\n\nCould you please share availability, MOQ, and pricing details? Thank you!`;
+
+  // Fire-and-forget lead log so admin can see which channel a visitor used, per product
+  const logChannelClick = (channel: string, label: string) => {
+    import("@/lib/supabase").then(({ supabase }) => {
+      supabase.from("enquiry_submissions").insert({
+        name: "", email: "", phone: "", city: "",
+        message: `Clicked ${channel} enquiry for: ${label}`,
+        product: label,
+      }).then(() => {}).catch(() => {});
+    });
+  };
 
   // Back button (Android/browser) closes these overlays instead of leaving the site
   useBackToClose(!!modalItem, closeModal);
@@ -546,7 +563,8 @@ export function Catalogue() {
 
               <div className="px-6 pb-6">
                 <div className="text-[9px] uppercase tracking-[0.3em] text-[#C9A84C] mb-1">— Quick Enquiry</div>
-                <h3 className="font-display text-charcoal text-xl mb-4 leading-tight">{modalItem.label}</h3>
+                <h3 className="font-display text-charcoal text-xl mb-1 leading-tight">{modalItem.label}</h3>
+                <p className="text-charcoal/50 text-xs mb-5">{modalItem.price}</p>
 
                 {qStatus === "success" ? (
                   <div className="text-center py-6">
@@ -556,6 +574,59 @@ export function Catalogue() {
                     <p className="text-charcoal font-medium mb-1">Enquiry Sent!</p>
                     <p className="text-charcoal/60 text-xs">We'll WhatsApp you within 2 hours.</p>
                     <button onClick={closeModal} className="mt-4 text-xs text-[#C9A84C] underline">Close</button>
+                  </div>
+                ) : !showEnquiryForm ? (
+                  <div className="flex flex-col gap-3">
+                    <a
+                      href="tel:+917976667197"
+                      onClick={() => logChannelClick("Call", modalItem.label)}
+                      className="flex items-center gap-4 w-full bg-[#1A5C38] text-white py-3.5 px-5 rounded-xl hover:bg-[#164a2d] transition-colors"
+                    >
+                      <span className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                      </span>
+                      <span className="text-left">
+                        <span className="block text-sm font-semibold">Call Us Now</span>
+                        <span className="block text-[11px] text-white/60">+91 79766 67197 · Instant</span>
+                      </span>
+                    </a>
+
+                    <a
+                      href={`https://wa.me/917976667197?text=${encodeURIComponent(buildEnquiryMessage(modalItem.label, modalItem.price))}`}
+                      target="_blank" rel="noreferrer"
+                      onClick={() => logChannelClick("WhatsApp", modalItem.label)}
+                      className="flex items-center gap-4 w-full bg-[#25D366] text-white py-3.5 px-5 rounded-xl hover:bg-[#1fbd5a] transition-colors"
+                    >
+                      <span className="w-9 h-9 rounded-full bg-white/15 flex items-center justify-center flex-shrink-0">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.2-1.7-.9-2-1-.3-.1-.5-.2-.7.2-.2.3-.8 1-1 1.2-.2.2-.4.2-.7.1-.3-.2-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6.1-.1.3-.4.5-.6.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.2-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4 0 1.4 1 2.8 1.2 3 .2.2 2 3 4.8 4.2.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.5-.1 1.7-.7 2-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.136.562 4.14 1.541 5.874L0 24l6.304-1.653A11.934 11.934 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.793 9.793 0 01-5.001-1.371l-.36-.214-3.722.976.995-3.63-.234-.373A9.778 9.778 0 012.182 12C2.182 6.57 6.57 2.182 12 2.182c5.43 0 9.818 4.388 9.818 9.818 0 5.43-4.388 9.818-9.818 9.818z"/></svg>
+                      </span>
+                      <span className="text-left">
+                        <span className="block text-sm font-semibold">WhatsApp</span>
+                        <span className="block text-[11px] text-white/75">Pre-filled message, ready to send</span>
+                      </span>
+                    </a>
+
+                    <a
+                      href={`mailto:info@tajattire.in?subject=${encodeURIComponent(`Wholesale Enquiry — ${modalItem.label}`)}&body=${encodeURIComponent(buildEnquiryMessage(modalItem.label, modalItem.price))}`}
+                      onClick={() => logChannelClick("Email", modalItem.label)}
+                      className="flex items-center gap-4 w-full border-2 border-[#C9A84C] text-charcoal py-3.5 px-5 rounded-xl hover:bg-[#C9A84C]/10 transition-colors"
+                    >
+                      <span className="w-9 h-9 rounded-full bg-[#C9A84C]/15 flex items-center justify-center flex-shrink-0">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16v16H4z" opacity="0"/><path d="M22 6l-10 7L2 6"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg>
+                      </span>
+                      <span className="text-left">
+                        <span className="block text-sm font-semibold">Email</span>
+                        <span className="block text-[11px] text-charcoal/50">info@tajattire.in</span>
+                      </span>
+                    </a>
+
+                    <button
+                      type="button"
+                      onClick={() => setShowEnquiryForm(true)}
+                      className="text-center text-[11px] text-charcoal/40 underline underline-offset-2 mt-1"
+                    >
+                      Prefer to fill a quick form instead?
+                    </button>
                   </div>
                 ) : (
                   <form onSubmit={submitQuickEnquiry} className="flex flex-col gap-4">
@@ -579,13 +650,9 @@ export function Catalogue() {
                     >
                       {qStatus === "loading" ? "Sending…" : "Send Enquiry →"}
                     </button>
-                    <a
-                      href={`https://wa.me/917976667197?text=${encodeURIComponent(`Hi! I'm interested in: ${modalItem.label}. Qty: ${qForm.quantity || "TBD"}. My name is ${qForm.name}.`)}`}
-                      target="_blank" rel="noreferrer"
-                      className="text-center text-[11px] text-[#C9A84C] underline underline-offset-2"
-                    >
-                      Or enquire via WhatsApp →
-                    </a>
+                    <button type="button" onClick={() => setShowEnquiryForm(false)} className="text-center text-[11px] text-charcoal/40 underline underline-offset-2">
+                      ← Back to call / WhatsApp / email
+                    </button>
                   </form>
                 )}
               </div>
@@ -636,26 +703,29 @@ export function Catalogue() {
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
-                  onClick={() => openModal(item.label, item.img)}
+                  onClick={() => openModal(item.label, item.img, item.price)}
                   className="group relative bg-white rounded-lg shadow-sm border border-charcoal/5 overflow-hidden flex flex-col cursor-pointer card-lift"
                 >
                   <div className="relative aspect-[4/5] overflow-hidden bg-black/5">
                     <img src={item.img} alt={item.label} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-[1.04]" />
-                    <div className="absolute inset-0 bg-[var(--gold)] opacity-0 group-hover:opacity-10 transition-opacity duration-1000" />
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <button
-                        type="button"
-                        onClick={e => { e.stopPropagation(); openModal(item.label, item.img); }}
-                        className="text-[var(--gold)] text-xs tracking-widest uppercase bg-white/95 backdrop-blur-sm px-5 py-2.5 rounded-full shadow-lg hover:bg-[#C9A84C] hover:text-white transition-colors duration-200 font-semibold"
-                      >
+                    <div className="absolute inset-0 bg-[var(--gold)] opacity-0 group-hover:opacity-10 transition-opacity duration-1000 hidden md:block" />
+                    <div className="absolute inset-0 hidden md:flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <span className="text-[var(--gold)] text-xs tracking-widest uppercase bg-white/95 backdrop-blur-sm px-5 py-2.5 rounded-full shadow-lg font-semibold">
                         Enquire →
-                      </button>
+                      </span>
                     </div>
                   </div>
                   <div className="p-5 md:p-6 flex flex-col flex-grow bg-white relative z-10">
                     <div className="h-px w-full bg-[var(--gold)]/30 mb-4" />
                     <h4 className="text-[10px] md:text-xs font-semibold tracking-wider text-charcoal mb-2">{item.label}</h4>
-                    <p className="text-[10px] md:text-xs text-charcoal/50">{item.price}</p>
+                    <p className="text-[10px] md:text-xs text-charcoal/50 mb-3">{item.price}</p>
+                    <button
+                      type="button"
+                      onClick={e => { e.stopPropagation(); openModal(item.label, item.img, item.price); }}
+                      className="mt-auto w-full py-2.5 text-[10px] md:text-[11px] tracking-widest uppercase font-semibold text-[var(--gold)] border border-[var(--gold)]/40 rounded-full hover:bg-[var(--gold)] hover:text-deep-black transition-colors duration-200"
+                    >
+                      Enquire →
+                    </button>
                   </div>
                 </motion.div>
               ))}
@@ -753,12 +823,12 @@ export function Catalogue() {
                     {viewAllItems.map(item => (
                       <div
                         key={item.id}
-                        onClick={() => { openModal(item.label, item.img); }}
+                        onClick={() => { openModal(item.label, item.img, item.price); }}
                         className="group relative bg-white rounded-lg shadow-sm border border-charcoal/5 overflow-hidden flex flex-col cursor-pointer card-lift"
                       >
                         <div className="relative aspect-[4/5] overflow-hidden bg-black/5">
                           <img src={item.img} alt={item.label} loading="lazy" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-[1.04]" />
-                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          <div className="absolute inset-0 hidden md:flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                             <span className="text-[var(--gold)] text-[11px] tracking-widest uppercase bg-white/95 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg font-semibold">
                               Enquire →
                             </span>
@@ -767,7 +837,14 @@ export function Catalogue() {
                         <div className="p-4 flex flex-col flex-grow bg-white relative z-10">
                           <div className="h-px w-full bg-[var(--gold)]/30 mb-3" />
                           <h4 className="text-[10px] md:text-xs font-semibold tracking-wider text-charcoal mb-1.5">{item.label}</h4>
-                          <p className="text-[10px] md:text-xs text-charcoal/50">{item.price}</p>
+                          <p className="text-[10px] md:text-xs text-charcoal/50 mb-2.5">{item.price}</p>
+                          <button
+                            type="button"
+                            onClick={e => { e.stopPropagation(); openModal(item.label, item.img, item.price); }}
+                            className="mt-auto w-full py-2 text-[10px] tracking-widest uppercase font-semibold text-[var(--gold)] border border-[var(--gold)]/40 rounded-full hover:bg-[var(--gold)] hover:text-deep-black transition-colors duration-200"
+                          >
+                            Enquire →
+                          </button>
                         </div>
                       </div>
                     ))}
@@ -996,7 +1073,7 @@ export function Stats() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-6">
           {items.map((it, i) => (
             <div key={i} className="text-center md:text-left min-w-0">
-              <CountUp end={it.v} prefix={it.prefix} suffix={it.suffix} className="font-display text-emerald text-[2.8rem] md:text-8xl font-light leading-none whitespace-nowrap" />
+              <CountUp end={it.v} prefix={it.prefix} suffix={it.suffix} className="font-display text-emerald text-[clamp(1.6rem,7.5vw,2.75rem)] md:text-[clamp(2.5rem,6vw,6rem)] font-light leading-none whitespace-nowrap" />
               <div className="hairline my-5 md:w-16" />
               <div className="text-xs uppercase tracking-[0.25em] text-charcoal/70">{it.label}</div>
             </div>
@@ -1642,12 +1719,36 @@ export function FactoryVisitPopup() {
   );
 }
 
+/* ─────────── FLOATING CALL ─────────── */
+export function FloatingCall() {
+  return (
+    <a
+      href="tel:+917976667197"
+      className="fixed z-[8000] bottom-[146px] right-[20px] md:bottom-[98px] md:right-[28px] w-[50px] h-[50px] md:w-[56px] md:h-[56px] rounded-full bg-[var(--gold)] shadow-[0_4px_20px_rgba(201,168,76,0.5)] flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-[0_8px_30px_rgba(201,168,76,0.7)]"
+      aria-label="Call TajAttire"
+      data-cursor="Call"
+    >
+      <div className="absolute inset-0 rounded-full border-2 border-[var(--gold)] pointer-events-none"
+           style={{ animation: 'pulse-ring-call 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite' }} />
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="z-10">
+        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+      </svg>
+      <style>{`
+        @keyframes pulse-ring-call {
+          0% { transform: scale(1); opacity: 0.6; }
+          100% { transform: scale(1.6); opacity: 0; }
+        }
+      `}</style>
+    </a>
+  );
+}
+
 /* ─────────── FLOATING WHATSAPP ─────────── */
 export function FloatingWhatsApp() {
   return (
-    <a 
-      href="https://wa.me/917976667197" 
-      target="_blank" 
+    <a
+      href="https://wa.me/917976667197"
+      target="_blank"
       rel="noreferrer"
       className="fixed z-[8000] bottom-[80px] right-[20px] md:bottom-[28px] md:right-[28px] w-[50px] h-[50px] md:w-[56px] md:h-[56px] rounded-full bg-[#25D366] shadow-[0_4px_20px_rgba(37,211,102,0.4)] flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-[0_8px_30px_rgba(37,211,102,0.6)]"
     >
