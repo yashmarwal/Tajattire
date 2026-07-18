@@ -231,6 +231,14 @@
 @keyframes fabric-pulse { 0%,100% { opacity: 0.04; } 50% { opacity: 0.06; } }
 .fabric-pulse { animation: fabric-pulse 4s ease-in-out infinite; }
 
+/* Skeleton loading shimmer (admin panel) */
+@keyframes skeleton-sweep { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+.skeleton {
+  background: linear-gradient(90deg, rgba(201,168,76,0.05) 25%, rgba(201,168,76,0.14) 50%, rgba(201,168,76,0.05) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-sweep 1.6s ease-in-out infinite;
+}
+
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

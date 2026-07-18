@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useEnquirySubmissions, useFactoryVisitRequests } from "@/hooks/useSiteData";
+import { TableRowsSkeleton } from "../components/Skeleton";
 
 type Tab = "enquiries" | "visits";
 
@@ -48,8 +49,7 @@ export function SubmissionsAdmin() {
 
       {/* Enquiries */}
       {tab === "enquiries" && (
-        loadingE ? <div className="py-12 text-center text-[rgba(248,246,241,0.3)]">Loading…</div> :
-        enquiries.length === 0 ? <EmptyState message="No enquiry submissions yet." /> : (
+        !loadingE && enquiries.length === 0 ? <EmptyState message="No enquiry submissions yet." /> : (
           <div className="overflow-x-auto">
             <table className="w-full text-xs min-w-[600px]">
               <thead>
@@ -60,7 +60,7 @@ export function SubmissionsAdmin() {
                 </tr>
               </thead>
               <tbody>
-                {enquiries.map((e, i) => (
+                {loadingE ? <TableRowsSkeleton cols={7} /> : enquiries.map((e, i) => (
                   <tr key={e.id} className={`border-b border-[rgba(201,168,76,0.03)] hover:bg-[rgba(201,168,76,0.02)] transition-colors ${i % 2 === 1 ? "bg-[rgba(255,255,255,0.01)]" : ""}`}>
                     <td className="px-4 py-3 text-[rgba(248,246,241,0.35)] whitespace-nowrap">{fmtDate(e.created_at)}</td>
                     <td className="px-4 py-3 text-[#F8F6F1] font-medium">{e.name ?? "—"}</td>
@@ -81,8 +81,7 @@ export function SubmissionsAdmin() {
 
       {/* Factory visits */}
       {tab === "visits" && (
-        loadingV ? <div className="py-12 text-center text-[rgba(248,246,241,0.3)]">Loading…</div> :
-        visits.length === 0 ? <EmptyState message="No factory visit requests yet." /> : (
+        !loadingV && visits.length === 0 ? <EmptyState message="No factory visit requests yet." /> : (
           <div className="overflow-x-auto">
             <table className="w-full text-xs min-w-[500px]">
               <thead>
@@ -93,7 +92,7 @@ export function SubmissionsAdmin() {
                 </tr>
               </thead>
               <tbody>
-                {visits.map((v, i) => (
+                {loadingV ? <TableRowsSkeleton cols={5} /> : visits.map((v, i) => (
                   <tr key={v.id} className={`border-b border-[rgba(201,168,76,0.03)] hover:bg-[rgba(201,168,76,0.02)] transition-colors ${i % 2 === 1 ? "bg-[rgba(255,255,255,0.01)]" : ""}`}>
                     <td className="px-4 py-3 text-[rgba(248,246,241,0.35)] whitespace-nowrap">{fmtDate(v.created_at)}</td>
                     <td className="px-4 py-3 text-[#F8F6F1] font-medium">{v.name ?? "—"}</td>

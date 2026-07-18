@@ -7,6 +7,27 @@ import { useImg } from "@/hooks/useImg";
 import { useBackToClose } from "@/hooks/useBackToClose";
 import { parseWorkspaceMedia } from "@/lib/siteData";
 
+/* ─────────── SECTION BLEND (soft color bridge between hard bg jumps) ─────────── */
+const BLEND_COLORS = {
+  black: "#0A0A0A",
+  cloud: "#F8F6F1",
+  emerald: "#1A5C38",
+} as const;
+
+export function SectionBlend({ from, to }: { from: keyof typeof BLEND_COLORS; to: keyof typeof BLEND_COLORS }) {
+  return (
+    <div
+      aria-hidden
+      className="relative z-[15] pointer-events-none"
+      style={{
+        height: "4rem",
+        marginTop: "-2rem",
+        marginBottom: "-2rem",
+        background: `linear-gradient(to bottom, ${BLEND_COLORS[from]}, ${BLEND_COLORS[to]})`,
+      }}
+    />
+  );
+}
 
 /* ─────────── HERO ─────────── */
 export function Hero() {
@@ -1152,6 +1173,7 @@ export function Testimonials() {
 
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState(1);
+  const [paused, setPaused] = useState(false);
   const touchStartRef = useRef<number>(0);
 
   const goNext = () => {
@@ -1164,14 +1186,15 @@ export function Testimonials() {
     setCurrent(p => (p - 1 + testimonials.length) % testimonials.length);
   };
 
-  // Auto-advance — resets on manual navigation (current in deps)
+  // Auto-advance — resets on manual navigation, pauses while the reader is engaging with it
   useEffect(() => {
+    if (paused) return;
     const timer = setInterval(() => {
       setDirection(1);
       setCurrent(p => (p + 1) % testimonials.length);
     }, 4000);
     return () => clearInterval(timer);
-  }, [current]);
+  }, [current, paused]);
 
   const onTouchStart = (e: React.TouchEvent) => {
     touchStartRef.current = e.touches[0].clientX;
@@ -1195,7 +1218,11 @@ export function Testimonials() {
           <SplitHeading text="1,000+ Retailers. One Thing in Common." as="h2" className="mt-4 font-display text-cloud font-light leading-[1.05] text-[clamp(1.8rem,6vw,4.5rem)]" />
         </div>
 
-        <div className="relative max-w-3xl">
+        <div
+          className="relative max-w-3xl"
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => setPaused(false)}
+        >
           {/* Large decorative quote mark */}
           <div
             className="absolute -top-8 -left-4 font-display leading-none text-[var(--gold)] pointer-events-none select-none"
@@ -1211,8 +1238,8 @@ export function Testimonials() {
               animate="center"
               exit="exit"
               transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-              onTouchStart={onTouchStart}
-              onTouchEnd={onTouchEnd}
+              onTouchStart={e => { setPaused(true); onTouchStart(e); }}
+              onTouchEnd={e => { setPaused(false); onTouchEnd(e); }}
               className="bg-[#0A2416] border border-[var(--gold)]/20 border-l-2 border-l-[var(--gold)] p-10 md:p-14"
               data-cursor="Read"
             >
@@ -1230,13 +1257,16 @@ export function Testimonials() {
 
           {/* Controls: arrows + dots */}
           <div className="flex items-center gap-6 mt-8">
-            <button
+            <motion.button
               onClick={goPrev}
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.9 }}
               aria-label="Previous testimonial"
-              className="w-10 h-10 rounded-full border border-[var(--gold)]/40 flex items-center justify-center text-[var(--gold)] hover:border-[var(--gold)] hover:bg-[var(--gold)]/10 transition-all duration-300"
+              data-cursor="Prev"
+              className="w-10 h-10 rounded-full border border-[var(--gold)]/40 flex items-center justify-center text-[var(--gold)] hover:border-[var(--gold)] hover:bg-[var(--gold)]/10 transition-colors duration-300"
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M9 2L4 7l5 5"/></svg>
-            </button>
+            </motion.button>
             <div className="flex gap-2 items-center">
               {testimonials.map((_, i) => (
                 <button
@@ -1251,13 +1281,16 @@ export function Testimonials() {
                 />
               ))}
             </div>
-            <button
+            <motion.button
               onClick={goNext}
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.9 }}
               aria-label="Next testimonial"
-              className="w-10 h-10 rounded-full border border-[var(--gold)]/40 flex items-center justify-center text-[var(--gold)] hover:border-[var(--gold)] hover:bg-[var(--gold)]/10 transition-all duration-300"
+              data-cursor="Next"
+              className="w-10 h-10 rounded-full border border-[var(--gold)]/40 flex items-center justify-center text-[var(--gold)] hover:border-[var(--gold)] hover:bg-[var(--gold)]/10 transition-colors duration-300"
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 2l5 5-5 5"/></svg>
-            </button>
+            </motion.button>
           </div>
         </div>
       </div>
@@ -1726,7 +1759,7 @@ export function FloatingCall() {
   return (
     <a
       href="tel:+917976667197"
-      className="fixed z-[8000] bottom-[146px] right-[20px] md:bottom-[98px] md:right-[28px] w-[50px] h-[50px] md:w-[56px] md:h-[56px] rounded-full bg-[var(--gold)] shadow-[0_4px_20px_rgba(201,168,76,0.5)] flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-[0_8px_30px_rgba(201,168,76,0.7)]"
+      className="hidden md:flex fixed z-[8000] md:bottom-[98px] md:right-[28px] w-[50px] h-[50px] md:w-[56px] md:h-[56px] rounded-full bg-[var(--gold)] shadow-[0_4px_20px_rgba(201,168,76,0.5)] items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-[0_8px_30px_rgba(201,168,76,0.7)]"
       aria-label="Call TajAttire"
       data-cursor="Call"
     >
@@ -1752,7 +1785,7 @@ export function FloatingWhatsApp() {
       href="https://wa.me/917976667197"
       target="_blank"
       rel="noreferrer"
-      className="fixed z-[8000] bottom-[80px] right-[20px] md:bottom-[28px] md:right-[28px] w-[50px] h-[50px] md:w-[56px] md:h-[56px] rounded-full bg-[#25D366] shadow-[0_4px_20px_rgba(37,211,102,0.4)] flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-[0_8px_30px_rgba(37,211,102,0.6)]"
+      className="hidden md:flex fixed z-[8000] md:bottom-[28px] md:right-[28px] w-[50px] h-[50px] md:w-[56px] md:h-[56px] rounded-full bg-[#25D366] shadow-[0_4px_20px_rgba(37,211,102,0.4)] items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-[0_8px_30px_rgba(37,211,102,0.6)]"
     >
       <div className="absolute inset-0 rounded-full border-2 border-[#25D366] pointer-events-none" 
            style={{ animation: 'pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite' }} />
@@ -2184,13 +2217,14 @@ export function FAQ() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-40px" }}
               transition={{ duration: 0.55, delay: i * 0.04, ease: [0.16, 1, 0.3, 1] }}
-              className="border-b border-charcoal/10 last:border-b-0"
+              className={`border-b border-charcoal/10 last:border-b-0 transition-colors duration-300 ${open === i ? "bg-[var(--gold)]/[0.04]" : ""}`}
             >
               <button
                 id={`faq-btn-${i}`}
                 aria-expanded={open === i}
                 onClick={() => toggle(i)}
-                className="w-full flex items-center justify-between py-6 text-left group"
+                data-cursor={open === i ? "Close" : "Open"}
+                className="w-full flex items-center justify-between py-6 px-4 -mx-4 text-left group"
               >
                 <span className="font-display text-charcoal font-light group-hover:text-[var(--emerald-deep)] transition-colors pr-8 leading-snug text-lg md:text-xl">
                   {item.q}

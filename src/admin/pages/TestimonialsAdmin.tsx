@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { getTestimonials, createTestimonial, updateTestimonial, deleteTestimonial } from "@/lib/adminApi";
 import { ConfirmDialog } from "../components/ConfirmDialog";
+import { ListSkeleton } from "../components/Skeleton";
 import type { Testimonial } from "@/lib/siteData";
 
 const blank = (): Omit<Testimonial, "id" | "created_at"> => ({
@@ -47,7 +48,7 @@ export function TestimonialsAdmin() {
       </div>
 
       {isLoading ? (
-        <div className="text-center py-12 text-[rgba(248,246,241,0.3)]">Loading…</div>
+        <ListSkeleton />
       ) : (
         <div className="space-y-3">
           {items.map(t => (

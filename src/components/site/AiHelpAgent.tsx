@@ -158,7 +158,7 @@ export function AiHelpAgent() {
         onClick={() => setOpen((p) => !p)}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.93 }}
-        className="fixed z-[7999] bottom-[80px] left-[20px] md:bottom-[28px] md:left-[28px] w-[50px] h-[50px] md:w-[56px] md:h-[56px] rounded-full bg-[var(--emerald-deep)] shadow-[0_4px_20px_rgba(26,92,56,0.5)] flex items-center justify-center border border-[var(--gold)]/30 hover:border-[var(--gold)] transition-all duration-300"
+        className="fixed z-[7999] bottom-[104px] left-[20px] md:bottom-[28px] md:left-[28px] w-[50px] h-[50px] md:w-[56px] md:h-[56px] rounded-full bg-[var(--emerald-deep)] shadow-[0_4px_20px_rgba(26,92,56,0.5)] flex items-center justify-center border border-[var(--gold)]/30 hover:border-[var(--gold)] transition-all duration-300"
         aria-label="Open chat assistant"
       >
         <AnimatePresence mode="wait">

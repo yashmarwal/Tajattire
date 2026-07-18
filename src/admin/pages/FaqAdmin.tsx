@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { getFaqItems, createFaqItem, updateFaqItem, deleteFaqItem } from "@/lib/adminApi";
 import { ConfirmDialog } from "../components/ConfirmDialog";
+import { ListSkeleton } from "../components/Skeleton";
 import type { FaqItem } from "@/lib/siteData";
 
 const blank = (): Omit<FaqItem, "id" | "created_at"> => ({ question: "", answer: "", position: 0, active: true });
@@ -44,7 +45,7 @@ export function FaqAdmin() {
       </div>
 
       {isLoading ? (
-        <div className="text-center py-12 text-[rgba(248,246,241,0.3)]">Loading…</div>
+        <ListSkeleton />
       ) : (
         <div className="space-y-2">
           {items.map((item, idx) => (

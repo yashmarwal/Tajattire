@@ -10,7 +10,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Hero, Marquee, Statement, Collections, Catalogue, CustomOrder, Craft, Why, Stats,
   HowItWorks, Testimonials, CtaBand, Inquiry, Footer, FactoryVisitPopup, FloatingWhatsApp, FloatingCall,
-  SustainabilitySection, ManufacturingTeaser, InstagramGrid, FAQ,
+  SustainabilitySection, ManufacturingTeaser, InstagramGrid, FAQ, SectionBlend,
 } from "@/components/site/Sections";
 import { StickyCtaBar } from "@/components/site/StickyCtaBar";
 import { AiHelpAgent } from "@/components/site/AiHelpAgent";
@@ -137,19 +137,32 @@ export default function App() {
         <Marquee />
         <Statement />
         <Collections />
+        <SectionBlend from="black" to="cloud" />
         <Catalogue />
+        <SectionBlend from="cloud" to="emerald" />
         <CustomOrder />
+        <SectionBlend from="emerald" to="cloud" />
         <Craft />
+        <SectionBlend from="cloud" to="emerald" />
         <Why />
+        <SectionBlend from="emerald" to="cloud" />
         <Stats />
+        <SectionBlend from="cloud" to="emerald" />
         <SustainabilitySection />
+        <SectionBlend from="emerald" to="cloud" />
         <HowItWorks />
+        <SectionBlend from="cloud" to="black" />
         <ManufacturingTeaser />
+        <SectionBlend from="black" to="emerald" />
         <Testimonials />
+        <SectionBlend from="emerald" to="cloud" />
         <InstagramGrid />
+        <SectionBlend from="cloud" to="emerald" />
         <CtaBand />
+        <SectionBlend from="emerald" to="cloud" />
         <FAQ />
         <Inquiry />
+        <SectionBlend from="cloud" to="black" />
         <Footer />
         <FactoryVisitPopup />
         {!showPreloader && <FloatingWhatsApp />}

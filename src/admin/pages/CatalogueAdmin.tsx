@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { getCatalogueItems, createCatalogueItem, updateCatalogueItem, deleteCatalogueItem } from "@/lib/adminApi";
 import { ImageUpload } from "../components/ImageUpload";
 import { ConfirmDialog } from "../components/ConfirmDialog";
+import { CatalogueGridSkeleton } from "../components/Skeleton";
 import type { CatalogueItem } from "@/lib/siteData";
 
 const CATS = ["Kurtis", "Gowns", "Tops"] as const;
@@ -104,7 +105,7 @@ export function CatalogueAdmin() {
 
       {/* Grid */}
       {isLoading ? (
-        <div className="text-center py-16 text-[rgba(248,246,241,0.3)]">Loading products…</div>
+        <CatalogueGridSkeleton />
       ) : displayed.length === 0 ? (
         <div className="text-center py-16 text-[rgba(248,246,241,0.3)] border border-dashed border-[rgba(201,168,76,0.1)]">
           No products. Click "Add Product" to get started.
