@@ -5,6 +5,7 @@ import { usePageTransition } from "@/lib/PageTransitionContext";
 import { useCatalogueItems, useTestimonials, useFaqItems, useStats, useInstagramImages, useSustainabilityCards, useSettings } from "@/hooks/useSiteData";
 import { useImg } from "@/hooks/useImg";
 import { useBackToClose } from "@/hooks/useBackToClose";
+import { parseWorkspaceMedia } from "@/lib/siteData";
 
 
 /* ─────────── HERO ─────────── */
@@ -1824,11 +1825,27 @@ export function SustainabilitySection() {
 export function ManufacturingTeaser() {
   const navigate = usePageTransition();
   const IMG = useImg();
-  const WORKSPACE_IMGS = [
-    { src: IMG.workspace1, label: "Production Floor — Jaipur" },
-    { src: IMG.workspace2, label: "Quality Check Station" },
-    { src: IMG.workspace3, label: "Finishing & Packaging" },
-  ];
+  const { data: settings } = useSettings();
+
+  const customMedia = parseWorkspaceMedia(settings?.workspace_media_json);
+  const allMedia = customMedia.length > 0
+    ? customMedia
+    : [
+        { id: "w1", type: "image" as const, url: IMG.workspace1, label: "Production Floor — Jaipur" },
+        { id: "w2", type: "image" as const, url: IMG.workspace2, label: "Quality Check Station" },
+        { id: "w3", type: "image" as const, url: IMG.workspace3, label: "Finishing & Packaging" },
+      ];
+  const WORKSPACE_IMGS = allMedia.slice(0, 3);
+
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  useBackToClose(galleryOpen, () => setGalleryOpen(false));
+  useEffect(() => {
+    if (!galleryOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = prev; };
+  }, [galleryOpen]);
+
   return (
     <section className="relative bg-[var(--deep-black)] grain py-32 overflow-hidden">
       <div className="max-w-[1500px] mx-auto px-6 lg:px-12">
@@ -1893,12 +1910,16 @@ export function ManufacturingTeaser() {
                   zIndex: 3 - i,
                 }}
               >
-                <img
-                  src={img.src}
-                  alt={img.label}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
+                {img.type === "video" ? (
+                  <video src={img.url} className="w-full h-full object-cover" muted loop autoPlay playsInline />
+                ) : (
+                  <img
+                    src={img.url}
+                    alt={img.label}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                 {i === 0 && (
                   <div className="absolute bottom-3 left-3 text-[9px] uppercase tracking-[0.2em] text-[var(--gold)] font-body">
@@ -1907,19 +1928,87 @@ export function ManufacturingTeaser() {
                 )}
               </motion.div>
             ))}
-            {/* Floating badge */}
-            <motion.div
+            {/* Floating badge — opens the full gallery */}
+            <motion.button
+              type="button"
+              onClick={() => setGalleryOpen(true)}
               initial={{ scale: 0, opacity: 0 }}
               whileInView={{ scale: 1, opacity: 1 }}
               viewport={{ once: true }}
               transition={{ type: "spring", stiffness: 300, damping: 15, delay: 0.6 }}
-              className="absolute bottom-2 right-0 z-20 border border-[var(--gold)] bg-[var(--deep-black)] text-[var(--gold)] text-[10px] uppercase font-bold py-2 px-4 rounded-full"
+              whileHover={{ scale: 1.06 }}
+              className="absolute bottom-2 right-0 z-20 border border-[var(--gold)] bg-[var(--deep-black)] text-[var(--gold)] text-[10px] uppercase font-bold py-2 px-4 rounded-full hover:bg-[var(--gold)] hover:text-deep-black transition-colors duration-200 cursor-pointer"
             >
-              ✦ Workspace Photos
-            </motion.div>
+              ✦ View All Photos &amp; Videos ({allMedia.length})
+            </motion.button>
           </div>
         </div>
       </div>
+
+      {/* ── Full Workspace Gallery ── */}
+      <AnimatePresence>
+        {galleryOpen && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9500] flex flex-col bg-[var(--deep-black)]"
+          >
+            <div className="flex-shrink-0 border-b border-[var(--gold)]/10 bg-[var(--deep-black)]/95 backdrop-blur-sm">
+              <div className="max-w-[1500px] mx-auto px-6 lg:px-12 py-5 flex items-center justify-between gap-4">
+                <div>
+                  <span className="text-[10px] uppercase tracking-[0.3em] text-[var(--gold)]">— Inside Our Workspace</span>
+                  <h3 className="font-display text-cloud text-xl md:text-2xl leading-tight">Full Gallery</h3>
+                </div>
+                <button
+                  onClick={() => setGalleryOpen(false)}
+                  className="w-9 h-9 rounded-full border border-[var(--gold)]/30 text-cloud flex items-center justify-center hover:bg-[var(--gold)] hover:text-deep-black transition-colors flex-shrink-0"
+                  aria-label="Close"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto">
+              <div className="max-w-[1500px] mx-auto px-6 lg:px-12 py-10">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+                  {allMedia.map(m => (
+                    <div key={m.id} className="relative aspect-[4/5] overflow-hidden rounded-lg border border-[var(--gold)]/10 bg-white/5">
+                      {m.type === "video" ? (
+                        <video src={m.url} className="w-full h-full object-cover" controls playsInline />
+                      ) : (
+                        <img src={m.url} alt={m.label} loading="lazy" className="w-full h-full object-cover" />
+                      )}
+                      {m.label && (
+                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent px-3 py-2 pointer-events-none">
+                          <span className="text-[10px] uppercase tracking-[0.15em] text-[var(--gold)]">{m.label}</span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Lead-capture CTA — don't let an engaged visitor leave without a next step */}
+                <div className="mt-14 border-t border-[var(--gold)]/10 pt-10 text-center">
+                  <p className="text-cloud/70 mb-6 max-w-lg mx-auto">Like what you see? Come experience it in person, or get a quote started right now.</p>
+                  <div className="flex flex-wrap justify-center gap-4">
+                    <MagneticButton
+                      href="#order"
+                      onClick={() => { setGalleryOpen(false); navigate("#order"); }}
+                      variant="gold"
+                      cursorLabel="Visit"
+                    >
+                      Request Factory Visit →
+                    </MagneticButton>
+                    <MagneticButton href="https://wa.me/917976667197" variant="wa" cursorLabel="WhatsApp">
+                      WhatsApp Us Now
+                    </MagneticButton>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }

@@ -5,9 +5,12 @@ import {
   getStats, updateStat, getMarqueeTags, createMarqueeTag, deleteMarqueeTag,
   getInstagramImages, updateInstagramImage, getSustainabilityCards, updateSustainabilityCard,
   getCollections, updateCollection, getHowItWorks, updateHowItWorksStep,
+  getSettings, updateSetting,
 } from "@/lib/adminApi";
 import { ImageUpload } from "../components/ImageUpload";
+import { MediaUpload } from "../components/MediaUpload";
 import type { Stat, MarqueeTag, InstagramImage, SustainabilityCard, Collection, HowItWorksStep } from "@/lib/siteData";
+import type { WorkspaceMediaItem } from "@/lib/siteData";
 
 const inputCls = "w-full bg-[#0A0A0A] border border-[rgba(201,168,76,0.2)] text-[#F8F6F1] px-3 py-2 text-sm placeholder:text-[rgba(248,246,241,0.2)] focus:outline-none focus:border-[#C9A84C] transition-colors";
 const textareaCls = `${inputCls} resize-none`;
@@ -213,6 +216,103 @@ function InstagramSection() {
   );
 }
 
+/* ─── WORKSPACE GALLERY (Inside Our Workspace — photos & videos) ─── */
+function WorkspaceGallerySection() {
+  const qc = useQueryClient();
+  const { data: settings = {} } = useQuery({ queryKey: ["settings"], queryFn: getSettings });
+  const [items, setItems] = useState<WorkspaceMediaItem[]>([]);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!loaded && Object.keys(settings).length) {
+      try {
+        const parsed = JSON.parse(settings.workspace_media_json || "[]");
+        setItems(Array.isArray(parsed) ? parsed : []);
+      } catch {
+        setItems([]);
+      }
+      setLoaded(true);
+    }
+  }, [settings, loaded]);
+
+  const saveM = useMutation({
+    mutationFn: (data: WorkspaceMediaItem[]) => updateSetting("workspace_media_json", JSON.stringify(data)),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["settings"] }); toast.success("Workspace gallery saved!"); },
+    onError: () => toast.error("Failed to save gallery"),
+  });
+
+  const addItem = (type: "image" | "video") => {
+    setItems(prev => [...prev, { id: `w-${Date.now()}`, type, url: "", label: "" }]);
+  };
+  const updateItem = (id: string, patch: Partial<WorkspaceMediaItem>) =>
+    setItems(prev => prev.map(it => it.id === id ? { ...it, ...patch } : it));
+  const removeItem = (id: string) => setItems(prev => prev.filter(it => it.id !== id));
+  const move = (id: string, dir: -1 | 1) => {
+    setItems(prev => {
+      const idx = prev.findIndex(it => it.id === id);
+      const swapWith = idx + dir;
+      if (idx < 0 || swapWith < 0 || swapWith >= prev.length) return prev;
+      const next = [...prev];
+      [next[idx], next[swapWith]] = [next[swapWith], next[idx]];
+      return next;
+    });
+  };
+
+  return (
+    <div className="border-t border-[rgba(201,168,76,0.08)] pt-8">
+      <SectionHeader
+        title="Workspace Gallery (Photos & Videos)"
+        subtitle="Powers the 'Inside Our Workspace' section and its full gallery popup. Leave empty to use the 3 default photos from Site Settings."
+      />
+      <div className="space-y-4">
+        {items.length === 0 && (
+          <p className="text-[rgba(248,246,241,0.3)] text-sm">No custom gallery items yet — add photos or videos below, or leave empty to use the 3 default workspace photos.</p>
+        )}
+        {items.map((item, i) => (
+          <div key={item.id} className="bg-[#141414] border border-[rgba(201,168,76,0.08)] p-4 flex gap-4 items-start">
+            <div className="w-32 flex-shrink-0">
+              <MediaUpload
+                value={item.url}
+                onChange={url => updateItem(item.id, { url })}
+                bucket="site-images"
+                accept={item.type === "video" ? "video/*" : "image/*"}
+                aspectRatio="4/3"
+                maxSizeMb={item.type === "video" ? 60 : 10}
+                label={item.type === "video" ? "Video" : "Photo"}
+              />
+            </div>
+            <div className="flex-1 space-y-2">
+              <input
+                type="text"
+                value={item.label}
+                onChange={e => updateItem(item.id, { label: e.target.value })}
+                placeholder="Caption — e.g. Production Floor — Jaipur"
+                className={inputCls}
+              />
+              <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-[rgba(248,246,241,0.35)]">
+                <span className="px-2 py-1 border border-[rgba(201,168,76,0.2)]">{item.type === "video" ? "🎬 Video" : "🖼 Photo"}</span>
+                <button type="button" onClick={() => move(item.id, -1)} disabled={i === 0} className="px-2 py-1 border border-[rgba(201,168,76,0.15)] hover:border-[#C9A84C] disabled:opacity-20 transition-colors">↑</button>
+                <button type="button" onClick={() => move(item.id, 1)} disabled={i === items.length - 1} className="px-2 py-1 border border-[rgba(201,168,76,0.15)] hover:border-[#C9A84C] disabled:opacity-20 transition-colors">↓</button>
+                <button type="button" onClick={() => removeItem(item.id)} className="ml-auto px-2 py-1 border border-red-500/30 text-red-400 hover:border-red-400 transition-colors">Remove</button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex flex-wrap gap-3 mt-4">
+        <button type="button" onClick={() => addItem("image")} className="border border-[rgba(201,168,76,0.25)] text-[#C9A84C] px-4 py-2 text-[11px] uppercase tracking-wider hover:border-[#C9A84C] hover:bg-[rgba(201,168,76,0.05)] transition-colors">
+          + Add Photo
+        </button>
+        <button type="button" onClick={() => addItem("video")} className="border border-[rgba(201,168,76,0.25)] text-[#C9A84C] px-4 py-2 text-[11px] uppercase tracking-wider hover:border-[#C9A84C] hover:bg-[rgba(201,168,76,0.05)] transition-colors">
+          + Add Video
+        </button>
+        <SaveBtn loading={saveM.isPending} onClick={() => saveM.mutate(items)} />
+      </div>
+    </div>
+  );
+}
+
 /* ─── SUSTAINABILITY ─── */
 function SustainabilitySection() {
   const qc = useQueryClient();
@@ -381,6 +481,7 @@ export function ContentAdmin() {
         <StatsSection />
         <MarqueeSection />
         <InstagramSection />
+        <WorkspaceGallerySection />
         <SustainabilitySection />
         <CollectionsSection />
         <HowItWorksSection />

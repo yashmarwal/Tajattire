@@ -100,3 +100,21 @@ export interface FactoryVisitRequest {
 }
 
 export type SiteSettings = Record<string, string>;
+
+/** A single photo or video in the "Inside Our Workspace" gallery — stored as JSON in site_settings.workspace_media_json */
+export interface WorkspaceMediaItem {
+  id: string;
+  type: "image" | "video";
+  url: string;
+  label: string;
+}
+
+export function parseWorkspaceMedia(json?: string): WorkspaceMediaItem[] {
+  if (!json) return [];
+  try {
+    const parsed = JSON.parse(json);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
