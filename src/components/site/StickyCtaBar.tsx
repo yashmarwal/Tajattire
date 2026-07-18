@@ -88,20 +88,27 @@ export function StickyCtaBar() {
               <button
                 type="button"
                 onClick={() => window.dispatchEvent(new Event("tajattire:open-ai-chat"))}
-                aria-label="Get quick help from our team"
+                aria-label="Get instant help from our team"
                 className="relative flex flex-col items-center justify-center w-14 flex-shrink-0 rounded-xl border border-[var(--gold)]/30 text-[var(--gold)] py-1.5 active:scale-95 transition-transform overflow-hidden"
               >
-                <motion.svg
-                  animate={{ scale: [1, 1.12, 1] }}
-                  transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-                  width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"
-                >
-                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-                  <circle cx="8.5" cy="11.5" r="0.9" fill="currentColor" stroke="none" />
-                  <circle cx="12" cy="11.5" r="0.9" fill="currentColor" stroke="none" />
-                  <circle cx="15.5" cy="11.5" r="0.9" fill="currentColor" stroke="none" />
-                </motion.svg>
-                <span className="text-[8px] uppercase tracking-wider mt-1">Help</span>
+                <span className="relative">
+                  <motion.svg
+                    animate={{ scale: [1, 1.12, 1] }}
+                    transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+                    width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"
+                  >
+                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                    <circle cx="8.5" cy="11.5" r="0.9" fill="currentColor" stroke="none" />
+                    <circle cx="12" cy="11.5" r="0.9" fill="currentColor" stroke="none" />
+                    <circle cx="15.5" cy="11.5" r="0.9" fill="currentColor" stroke="none" />
+                  </motion.svg>
+                  <motion.span
+                    animate={{ scale: [1, 1.3, 1], opacity: [1, 0.6, 1] }}
+                    transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute -top-0.5 -right-1 w-1.5 h-1.5 rounded-full bg-[#25D366]"
+                  />
+                </span>
+                <span className="text-[7px] uppercase tracking-wide mt-1 leading-tight text-center">Instant<br />Help</span>
               </button>
 
               <a

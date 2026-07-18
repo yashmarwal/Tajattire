@@ -95,6 +95,57 @@ const CHIPS = [
   "Visit factory?",
 ];
 
+/* ── Smalltalk: word-boundary matched so short words like "hi" never
+   collide with substrings inside real answers (e.g. "shipping"). Checked
+   only after the business KB above finds no match. ── */
+const SMALLTALK: { pattern: RegExp; answer: string }[] = [
+  {
+    pattern: /\b(good\s?morning|good\s?afternoon|good\s?evening|good\s?night)\b/,
+    answer:
+      "Good day to you too! 🙌 Looking for wholesale kurtis, gowns, or tops? I can get you pricing and MOQ in seconds — or tap 'WhatsApp Us' to talk to our team right now.",
+  },
+  {
+    pattern: /\b(hi+|hii|hiya|hello+|hey+|heya|yo|namaste|greetings)\b/,
+    answer:
+      "Hey there! 👋 Welcome to TajAttire — India's wholesale home for kurtis, gowns & tops since 2004. Ask me about pricing, MOQ, or samples, or tap 'WhatsApp Us' below to talk to our team right now.",
+  },
+  {
+    pattern: /\b(bye|goodbye|good\s?bye|see\s?ya|see\s?you|cya|take\s?care|gtg|got\s?to\s?go)\b/,
+    answer:
+      "Thanks for stopping by! Whenever you're ready, WhatsApp us at +91 79766 67197 or tap 'Request Catalogue' — we'll have your wholesale quote ready within hours. 👋",
+  },
+  {
+    pattern: /\b(thanks|thank\s?you|thx|thnx|appreciate\s?it|much\s?appreciated)\b/,
+    answer:
+      "You're most welcome! If you're ready to move forward, tap 'Enquire Now' or WhatsApp us — we'll get your wholesale quote started right away.",
+  },
+  {
+    pattern: /\bhow\s?(are|r)\s?(you|u)\b|\bhow'?s\s?it\s?going\b|\bwhat'?s\s?up\b|\bwassup\b|\bsup\b/,
+    answer:
+      "Doing great, thanks for asking! More importantly — what can I help you with today? Pricing, MOQ, or samples?",
+  },
+  {
+    pattern: /\bwho\s?are\s?you\b|\bwhat\s?are\s?you\b|\bare\s?you\s?(a\s?)?(bot|human|real|ai)\b/,
+    answer:
+      "I'm the TajAttire Assistant — here for instant answers on pricing, MOQ, and orders, any time of day. For anything more detailed, our real team is one WhatsApp message away at +91 79766 67197.",
+  },
+  {
+    pattern: /\bwhat\s?can\s?you\s?do\b|\bcan\s?you\s?help\b|\bwhat\s?do\s?you\s?do\b|\bhelp\s?me\b/,
+    answer:
+      "I can help with pricing, MOQ, samples, delivery timelines, and custom/private label orders — try a quick question below, or type what you need. For anything urgent, WhatsApp us directly.",
+  },
+  {
+    pattern: /\b(ok|okay|k|cool|nice|great|alright|sure|awesome|perfect)\b/,
+    answer:
+      "Glad to hear it! Want pricing or MOQ details next — or would you rather WhatsApp our team directly to get moving?",
+  },
+  {
+    pattern: /\b(sorry|apologi[sz]e|my\s?bad)\b/,
+    answer:
+      "No worries at all! Let's get you sorted — ask me about pricing, MOQ, or samples, or WhatsApp us at +91 79766 67197 anytime.",
+  },
+];
+
 const GREETING =
   "Hello — I'm here to help with anything about TajAttire. Pick a question below or type your own.";
 const FALLBACK =
@@ -104,6 +155,11 @@ function getAnswer(input: string): string {
   const lower = input.toLowerCase();
   for (const item of KB) {
     if (item.keys.some((k) => lower.includes(k))) {
+      return item.answer;
+    }
+  }
+  for (const item of SMALLTALK) {
+    if (item.pattern.test(lower)) {
       return item.answer;
     }
   }
@@ -152,40 +208,49 @@ export function AiHelpAgent() {
 
   return (
     <>
-      {/* ── Trigger button — desktop only; mobile uses the "Help" segment in the bottom action bar ── */}
+      {/* ── Trigger button — desktop only; mobile uses the "Instant Help" segment in the bottom action bar ── */}
       <motion.button
         id="ai-help-trigger"
         onClick={() => setOpen((p) => !p)}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.93 }}
-        data-cursor="Help"
-        className="hidden md:flex fixed z-[7999] md:bottom-[168px] md:right-[28px] md:w-[56px] md:h-[56px] rounded-full bg-[var(--emerald-deep)] shadow-[0_4px_20px_rgba(26,92,56,0.5)] items-center justify-center border border-[var(--gold)]/30 hover:border-[var(--gold)] transition-all duration-300"
-        aria-label="Get quick help from our team"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        data-cursor="Chat"
+        className="hidden md:flex fixed z-[7999] md:bottom-[168px] md:right-[28px] items-center gap-2.5 pl-3 pr-4 py-2.5 rounded-full bg-[var(--emerald-deep)] shadow-[0_4px_20px_rgba(26,92,56,0.5)] border border-[var(--gold)]/30 hover:border-[var(--gold)] transition-all duration-300"
+        aria-label="Get instant help from our team"
       >
-        <div className="absolute inset-0 rounded-full border-2 border-[var(--gold)] pointer-events-none"
-             style={{ animation: 'pulse-ring-ai 2.4s cubic-bezier(0.215, 0.61, 0.355, 1) infinite' }} />
-        <motion.svg
-          animate={{ scale: [1, 1.12, 1] }}
-          transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-          width="22"
-          height="22"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="var(--gold)"
-          strokeWidth="1.6"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="z-10"
-        >
-          <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-          <circle cx="8.5" cy="11.5" r="0.9" fill="var(--gold)" stroke="none" />
-          <circle cx="12" cy="11.5" r="0.9" fill="var(--gold)" stroke="none" />
-          <circle cx="15.5" cy="11.5" r="0.9" fill="var(--gold)" stroke="none" />
-        </motion.svg>
+        <span className="relative flex-shrink-0 w-9 h-9 rounded-full bg-[var(--gold)]/10 flex items-center justify-center">
+          <span className="absolute inset-0 rounded-full border-2 border-[var(--gold)] pointer-events-none"
+               style={{ animation: 'pulse-ring-ai 2.4s cubic-bezier(0.215, 0.61, 0.355, 1) infinite' }} />
+          <motion.svg
+            animate={{ scale: [1, 1.12, 1], rotate: [0, -4, 4, 0] }}
+            transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
+            width="19"
+            height="19"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="var(--gold)"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="z-10"
+          >
+            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+            <circle cx="8.5" cy="11.5" r="0.9" fill="var(--gold)" stroke="none" />
+            <circle cx="12" cy="11.5" r="0.9" fill="var(--gold)" stroke="none" />
+            <circle cx="15.5" cy="11.5" r="0.9" fill="var(--gold)" stroke="none" />
+          </motion.svg>
+          {/* Online indicator */}
+          <motion.span
+            animate={{ scale: [1, 1.3, 1], opacity: [1, 0.6, 1] }}
+            transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#25D366] border-2 border-[var(--emerald-deep)] z-10"
+          />
+        </span>
+        <span className="text-[var(--gold)] text-[11px] font-bold uppercase tracking-[0.12em] whitespace-nowrap">Instant Help</span>
         <style>{`
           @keyframes pulse-ring-ai {
             0% { transform: scale(1); opacity: 0.5; }
-            100% { transform: scale(1.6); opacity: 0; }
+            100% { transform: scale(1.7); opacity: 0; }
           }
         `}</style>
       </motion.button>

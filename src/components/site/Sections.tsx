@@ -685,7 +685,7 @@ export function Catalogue() {
       </AnimatePresence>
 
       {/* ── Catalogue Grid ── */}
-      <section className="relative bg-cloud grain py-32 overflow-hidden">
+      <section id="catalogue" className="relative bg-cloud grain py-32 overflow-hidden">
         <div className="max-w-[1500px] mx-auto px-6 lg:px-12">
           <div className="mb-16 text-center flex flex-col items-center">
             <span className="text-[10px] uppercase tracking-[0.3em] text-[var(--gold)] mb-6">— Our Catalogue</span>
@@ -1575,7 +1575,7 @@ export function Footer() {
               <li>Location: Jaipur, India</li>
             </ul>
             <div className="mt-5 flex gap-4">
-              <a href="#" data-cursor="IG" className="text-[var(--gold)] hover:scale-125 transition-transform inline-block">
+              <a href="https://www.instagram.com/tajattire" target="_blank" rel="noreferrer" data-cursor="IG" className="text-[var(--gold)] hover:scale-125 transition-transform inline-block">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
               </a>
             </div>
