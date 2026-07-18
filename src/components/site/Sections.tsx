@@ -357,7 +357,7 @@ export function Collections() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-15%" }}
           transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-          className="relative max-w-4xl mx-auto bg-[var(--emerald-deep)] grain border border-[var(--gold)]/25 rounded-2xl px-8 py-14 md:px-16 md:py-20 text-center overflow-hidden shimmer-sweep"
+          className="relative max-w-4xl mx-auto bg-[var(--emerald-deep)] grain border border-[var(--gold)]/25 rounded-2xl px-8 py-14 md:px-16 md:py-20 text-center overflow-hidden"
         >
           {/* Rotating gold rings */}
           <motion.div
@@ -381,15 +381,13 @@ export function Collections() {
 
           {/* Floating stat chips */}
           <div className="relative flex flex-wrap justify-center gap-4 mb-10">
-            {COLLECTION_STATS.map((s, i) => (
-              <motion.div
+            {COLLECTION_STATS.map((s) => (
+              <div
                 key={s.label}
-                animate={{ y: [0, -10, 0] }}
-                transition={{ repeat: Infinity, duration: 3.5 + i * 0.4, ease: "easeInOut", delay: i * 0.3 }}
                 className="px-4 py-2.5 rounded-full border border-[var(--gold)]/30 bg-white/5 text-cloud/90 text-xs uppercase tracking-wider"
               >
                 <b className="text-[var(--gold)] mr-1.5">{s.n}</b>{s.label}
-              </motion.div>
+              </div>
             ))}
           </div>
 
