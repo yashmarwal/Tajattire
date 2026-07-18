@@ -119,14 +119,7 @@ export function AiHelpAgent() {
   ]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const [iconPhase, setIconPhase] = useState(0); // 0=leaf, 1="ASK"
   const endRef = useRef<HTMLDivElement>(null);
-
-  /* Morph button every 2 s */
-  useEffect(() => {
-    const t = setInterval(() => setIconPhase((p) => (p + 1) % 2), 2000);
-    return () => clearInterval(t);
-  }, []);
 
   /* Scroll to latest message */
   useEffect(() => {
@@ -135,6 +128,13 @@ export function AiHelpAgent() {
 
   /* Android/browser back-button support — closes the chat instead of leaving the site */
   useBackToClose(open, () => setOpen(false));
+
+  /* Lets the mobile bottom action bar trigger this chat without prop-drilling shared state */
+  useEffect(() => {
+    const handler = () => setOpen(true);
+    window.addEventListener("tajattire:open-ai-chat", handler);
+    return () => window.removeEventListener("tajattire:open-ai-chat", handler);
+  }, []);
 
   const send = (text: string) => {
     if (!text.trim()) return;
@@ -152,50 +152,42 @@ export function AiHelpAgent() {
 
   return (
     <>
-      {/* ── Morphing trigger button ── */}
+      {/* ── Trigger button — desktop only; mobile uses the "Help" segment in the bottom action bar ── */}
       <motion.button
         id="ai-help-trigger"
         onClick={() => setOpen((p) => !p)}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.93 }}
-        className="fixed z-[7999] bottom-[104px] left-[20px] md:bottom-[28px] md:left-[28px] w-[50px] h-[50px] md:w-[56px] md:h-[56px] rounded-full bg-[var(--emerald-deep)] shadow-[0_4px_20px_rgba(26,92,56,0.5)] flex items-center justify-center border border-[var(--gold)]/30 hover:border-[var(--gold)] transition-all duration-300"
-        aria-label="Open chat assistant"
+        data-cursor="Help"
+        className="hidden md:flex fixed z-[7999] md:bottom-[168px] md:right-[28px] md:w-[56px] md:h-[56px] rounded-full bg-[var(--emerald-deep)] shadow-[0_4px_20px_rgba(26,92,56,0.5)] items-center justify-center border border-[var(--gold)]/30 hover:border-[var(--gold)] transition-all duration-300"
+        aria-label="Get quick help from our team"
       >
-        <AnimatePresence mode="wait">
-          {iconPhase === 0 ? (
-            <motion.svg
-              key="hanger"
-              initial={{ opacity: 0, y: -6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 6 }}
-              transition={{ duration: 0.3 }}
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="var(--gold)"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              {/* Clothes hanger */}
-              <path d="M12 3a2 2 0 0 1 0 4" />
-              <path d="M12 7L3.5 17h17L12 7z" />
-              <line x1="12" y1="3" x2="12" y2="7" />
-            </motion.svg>
-          ) : (
-            <motion.span
-              key="rupee"
-              initial={{ opacity: 0, scale: 0.7 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.7 }}
-              transition={{ duration: 0.3 }}
-              className="text-[var(--gold)] text-[13px] font-bold"
-            >
-              ₹
-            </motion.span>
-          )}
-        </AnimatePresence>
+        <div className="absolute inset-0 rounded-full border-2 border-[var(--gold)] pointer-events-none"
+             style={{ animation: 'pulse-ring-ai 2.4s cubic-bezier(0.215, 0.61, 0.355, 1) infinite' }} />
+        <motion.svg
+          animate={{ scale: [1, 1.12, 1] }}
+          transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="var(--gold)"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="z-10"
+        >
+          <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+          <circle cx="8.5" cy="11.5" r="0.9" fill="var(--gold)" stroke="none" />
+          <circle cx="12" cy="11.5" r="0.9" fill="var(--gold)" stroke="none" />
+          <circle cx="15.5" cy="11.5" r="0.9" fill="var(--gold)" stroke="none" />
+        </motion.svg>
+        <style>{`
+          @keyframes pulse-ring-ai {
+            0% { transform: scale(1); opacity: 0.5; }
+            100% { transform: scale(1.6); opacity: 0; }
+          }
+        `}</style>
       </motion.button>
 
       {/* ── Chat panel ── */}
@@ -209,7 +201,7 @@ export function AiHelpAgent() {
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
             className="fixed z-[8600] bg-[#0A0A0A] border border-[var(--gold)]/20 overflow-hidden shadow-[0_24px_64px_rgba(0,0,0,0.7)]
                        bottom-0 left-0 right-0 rounded-t-[20px] flex flex-col
-                       md:bottom-[96px] md:left-[28px] md:right-auto md:w-[340px] md:rounded-[16px]"
+                       md:bottom-[28px] md:right-[28px] md:left-auto md:w-[340px] md:rounded-[16px]"
             style={{ maxHeight: "72vh", minHeight: "360px" }}
           >
             {/* Mobile drag handle */}
