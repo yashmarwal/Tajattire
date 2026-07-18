@@ -12,6 +12,13 @@ import type { Stat, MarqueeTag, InstagramImage, SustainabilityCard, Collection, 
 const inputCls = "w-full bg-[#0A0A0A] border border-[rgba(201,168,76,0.2)] text-[#F8F6F1] px-3 py-2 text-sm placeholder:text-[rgba(248,246,241,0.2)] focus:outline-none focus:border-[#C9A84C] transition-colors";
 const textareaCls = `${inputCls} resize-none`;
 
+/** Extracts a shortcode from an Instagram post/reel URL and builds Instagram's direct media-redirect URL. No API key needed, but Instagram may occasionally block it — a manual upload always works as a fallback. */
+function instagramThumbnailFromLink(url: string): string | null {
+  const match = url.match(/instagram\.com\/(?:[^/]+\/)?(?:p|reel|reels|tv)\/([A-Za-z0-9_-]+)/i);
+  if (!match) return null;
+  return `https://www.instagram.com/p/${match[1]}/media/?size=l`;
+}
+
 function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
     <div className="mb-5">
@@ -133,6 +140,7 @@ function InstagramSection() {
   const qc = useQueryClient();
   const { data: images = [] } = useQuery({ queryKey: ["instagram"], queryFn: getInstagramImages });
   const [drafts, setDrafts] = useState<Record<string, InstagramImage>>({});
+  const [igLinks, setIgLinks] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const d: Record<string, InstagramImage> = {};
@@ -148,15 +156,45 @@ function InstagramSection() {
   const setDraft = (id: string, k: keyof InstagramImage, v: unknown) =>
     setDrafts(d => ({ ...d, [id]: { ...d[id], [k]: v } }));
 
+  const fetchThumbnail = (id: string) => {
+    const link = (igLinks[id] ?? "").trim();
+    if (!link) return;
+    const thumb = instagramThumbnailFromLink(link);
+    if (!thumb) {
+      toast.error("Couldn't read that link — paste a real instagram.com/p/... or /reel/... URL");
+      return;
+    }
+    setDraft(id, "image_url", thumb);
+    toast.success("Thumbnail fetched — check the preview, then Save. If it doesn't load, screenshot the post and upload it manually instead.");
+  };
+
   return (
     <div className="border-t border-[rgba(201,168,76,0.08)] pt-8">
-      <SectionHeader title="Instagram Grid" subtitle="6 images in the @tajattire section" />
+      <SectionHeader title="Instagram Grid" subtitle="6 images in the @tajattire section — paste a post/reel link to auto-fetch its thumbnail, or upload manually" />
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {images.map(img => {
           const draft = drafts[img.id] ?? img;
           return (
             <div key={img.id} className="space-y-2">
               <p className="text-[9px] uppercase tracking-[0.2em] text-[rgba(248,246,241,0.3)]">Slot {img.position}</p>
+              <div className="flex gap-1.5">
+                <input
+                  type="url"
+                  value={igLinks[img.id] ?? ""}
+                  onChange={e => setIgLinks(l => ({ ...l, [img.id]: e.target.value }))}
+                  onKeyDown={e => e.key === "Enter" && (e.preventDefault(), fetchThumbnail(img.id))}
+                  placeholder="Paste Instagram post/reel link…"
+                  className="flex-1 bg-[#0A0A0A] border border-[rgba(201,168,76,0.15)] text-[rgba(248,246,241,0.6)] px-2 py-1.5 text-[11px] focus:outline-none focus:border-[rgba(201,168,76,0.4)]"
+                />
+                <button
+                  type="button"
+                  onClick={() => fetchThumbnail(img.id)}
+                  disabled={!(igLinks[img.id] ?? "").trim()}
+                  className="bg-[#C9A84C] text-[#0A0A0A] px-3 text-[10px] font-bold uppercase tracking-wider disabled:opacity-30 hover:bg-[#D4B55A] transition-colors whitespace-nowrap"
+                >
+                  Fetch
+                </button>
+              </div>
               <ImageUpload
                 value={draft.image_url}
                 onChange={url => setDraft(img.id, "image_url", url)}

@@ -21,6 +21,7 @@ export function ImageUpload({
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [isDragOver, setIsDragOver] = useState(false);
+  const [previewFailed, setPreviewFailed] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = useCallback(async (file: File) => {
@@ -67,20 +68,31 @@ export function ImageUpload({
         onClick={() => inputRef.current?.click()}
       >
         {value ? (
-          <>
-            <img
-              src={value}
-              alt="Preview"
-              className="w-full h-full object-cover"
-            />
-            {/* Change overlay */}
-            <div className="absolute inset-0 bg-[rgba(10,10,10,0.0)] hover:bg-[rgba(10,10,10,0.6)] transition-all duration-300 flex items-center justify-center opacity-0 hover:opacity-100">
-              <div className="text-center">
-                <div className="text-[#C9A84C] text-2xl mb-1">↑</div>
-                <p className="text-[#F8F6F1] text-xs">Click to change</p>
-              </div>
+          previewFailed ? (
+            <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center bg-[#0A0A0A]">
+              <div className="text-red-400 text-2xl mb-2">⚠</div>
+              <p className="text-[rgba(248,246,241,0.5)] text-xs mb-1">Couldn't load a preview for this URL</p>
+              <p className="text-[rgba(248,246,241,0.25)] text-[10px]">It may still work on the live site — or click to upload a file instead</p>
             </div>
-          </>
+          ) : (
+            <>
+              <img
+                key={value}
+                src={value}
+                alt="Preview"
+                className="w-full h-full object-cover"
+                onError={() => setPreviewFailed(true)}
+                onLoad={() => setPreviewFailed(false)}
+              />
+              {/* Change overlay */}
+              <div className="absolute inset-0 bg-[rgba(10,10,10,0.0)] hover:bg-[rgba(10,10,10,0.6)] transition-all duration-300 flex items-center justify-center opacity-0 hover:opacity-100">
+                <div className="text-center">
+                  <div className="text-[#C9A84C] text-2xl mb-1">↑</div>
+                  <p className="text-[#F8F6F1] text-xs">Click to change</p>
+                </div>
+              </div>
+            </>
+          )
         ) : (
           <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
             <div className="text-[#C9A84C] text-3xl mb-2">↑</div>
