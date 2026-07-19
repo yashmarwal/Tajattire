@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import { uploadFile } from "@/lib/adminApi";
+import { convertHeicIfNeeded } from "@/admin/lib/heic";
 
 type Kind = "image" | "video" | "pdf" | "file";
 
@@ -36,6 +37,7 @@ export function MediaUpload({
   helpText,
 }: MediaUploadProps) {
   const [uploading, setUploading] = useState(false);
+  const [converting, setConverting] = useState(false);
   const [error, setError] = useState("");
   const [isDragOver, setIsDragOver] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -43,9 +45,21 @@ export function MediaUpload({
   const handleFile = useCallback(async (file: File) => {
     if (file.size > maxSizeMb * 1024 * 1024) { setError(`File must be smaller than ${maxSizeMb} MB — or paste a hosted URL below instead`); return; }
     setError("");
-    setUploading(true);
     try {
-      const url = await uploadFile(file, bucket);
+      let toUpload = file;
+      if (/\.hei[cf]$/i.test(file.name) || file.type === "image/heic" || file.type === "image/heif") {
+        setConverting(true);
+        try {
+          toUpload = await convertHeicIfNeeded(file);
+        } catch {
+          setError("This iPhone (HEIC) photo couldn't be converted automatically. Please export it as JPG/PNG first, then upload.");
+          setConverting(false);
+          return;
+        }
+        setConverting(false);
+      }
+      setUploading(true);
+      const url = await uploadFile(toUpload, bucket);
       onChange(url);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Upload failed. Paste a hosted URL below instead.");
@@ -107,10 +121,10 @@ export function MediaUpload({
           </div>
         )}
 
-        {uploading && (
+        {(uploading || converting) && (
           <div className="absolute inset-0 bg-[rgba(10,10,10,0.85)] flex flex-col items-center justify-center z-10">
             <div className="w-8 h-8 border-2 border-[#C9A84C] border-t-transparent rounded-full animate-spin mb-2" />
-            <p className="text-[#C9A84C] text-[10px] uppercase tracking-wider">Uploading…</p>
+            <p className="text-[#C9A84C] text-[10px] uppercase tracking-wider">{converting ? "Converting HEIC photo…" : "Uploading…"}</p>
           </div>
         )}
 

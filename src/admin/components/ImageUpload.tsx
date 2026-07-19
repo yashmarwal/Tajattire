@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import { uploadImage } from "@/lib/adminApi";
+import { convertHeicIfNeeded } from "@/admin/lib/heic";
 
 interface ImageUploadProps {
   value?: string;
@@ -19,20 +20,34 @@ export function ImageUpload({
   aspectRatio = "3/4",
 }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
+  const [converting, setConverting] = useState(false);
   const [error, setError] = useState("");
   const [isDragOver, setIsDragOver] = useState(false);
   const [previewFailed, setPreviewFailed] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = useCallback(async (file: File) => {
-    if (!file.type.startsWith("image/")) { setError("Please select an image or GIF file"); return; }
+    const isHeic = /\.hei[cf]$/i.test(file.name) || file.type === "image/heic" || file.type === "image/heif";
+    if (!isHeic && !file.type.startsWith("image/")) { setError("Please select an image or GIF file"); return; }
     const isGif = file.type === "image/gif";
     const maxSize = isGif ? 20 * 1024 * 1024 : 8 * 1024 * 1024;
     if (file.size > maxSize) { setError(`${isGif ? "GIF" : "Image"} must be smaller than ${isGif ? 20 : 8} MB`); return; }
     setError("");
-    setUploading(true);
     try {
-      const url = await uploadImage(file, bucket);
+      let toUpload = file;
+      if (isHeic) {
+        setConverting(true);
+        try {
+          toUpload = await convertHeicIfNeeded(file);
+        } catch {
+          setError("This iPhone (HEIC) photo couldn't be converted automatically. Please export it as JPG/PNG first, then upload.");
+          setConverting(false);
+          return;
+        }
+        setConverting(false);
+      }
+      setUploading(true);
+      const url = await uploadImage(toUpload, bucket);
       onChange(url);
     } catch {
       setError("Upload failed. Check your connection and try again.");
@@ -103,11 +118,11 @@ export function ImageUpload({
           </div>
         )}
 
-        {/* Uploading overlay */}
-        {uploading && (
+        {/* Uploading / converting overlay */}
+        {(uploading || converting) && (
           <div className="absolute inset-0 bg-[rgba(10,10,10,0.85)] flex flex-col items-center justify-center z-10">
             <div className="w-8 h-8 border-2 border-[#C9A84C] border-t-transparent rounded-full animate-spin mb-2" />
-            <p className="text-[#C9A84C] text-[10px] uppercase tracking-wider">Uploading…</p>
+            <p className="text-[#C9A84C] text-[10px] uppercase tracking-wider">{converting ? "Converting HEIC photo…" : "Uploading…"}</p>
           </div>
         )}
 
