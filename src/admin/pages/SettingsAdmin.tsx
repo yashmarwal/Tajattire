@@ -124,8 +124,7 @@ export function SettingsAdmin() {
   // Image/video/file URLs — saved individually on upload, no "Save" button needed
   const [imgs, setImgs] = useState<Record<string, string>>({
     hero_image: "", craft_image: "", cta_image: "",
-    form_image: "", workspace_img_1: "", workspace_img_2: "", workspace_img_3: "",
-    logo_image: "", hero_video: "",
+    form_image: "", logo_image: "", hero_video: "",
     catalogue_pdf_all: "", catalogue_pdf_kurtis: "", catalogue_pdf_gowns: "", catalogue_pdf_tops: "",
   });
 
@@ -145,9 +144,6 @@ export function SettingsAdmin() {
         craft_image:     settings.craft_image     ?? "",
         cta_image:       settings.cta_image       ?? "",
         form_image:      settings.form_image      ?? "",
-        workspace_img_1: settings.workspace_img_1 ?? "",
-        workspace_img_2: settings.workspace_img_2 ?? "",
-        workspace_img_3: settings.workspace_img_3 ?? "",
         logo_image:      settings.logo_image      ?? "",
         hero_video:      settings.hero_video       ?? "",
         catalogue_pdf_all:    settings.catalogue_pdf_all    ?? "",
@@ -312,26 +308,10 @@ export function SettingsAdmin() {
         />
       </SectionCard>
 
-      <SectionCard title="Manufacturing / Workspace Photos">
-        <SettingImage
-          label="Workspace Photo 1 — Production Floor"
-          settingKey="workspace_img_1"
-          value={imgs.workspace_img_1}
-          onChange={handleImgChange}
-        />
-        <SettingImage
-          label="Workspace Photo 2 — Quality Check"
-          settingKey="workspace_img_2"
-          value={imgs.workspace_img_2}
-          onChange={handleImgChange}
-        />
-        <SettingImage
-          label="Workspace Photo 3 — Finishing & Packaging"
-          settingKey="workspace_img_3"
-          value={imgs.workspace_img_3}
-          onChange={handleImgChange}
-        />
-      </SectionCard>
+      <div className="bg-[#141414] border border-[rgba(201,168,76,0.08)] px-6 py-4 text-xs text-[rgba(248,246,241,0.5)]">
+        Looking for <b className="text-[#C9A84C]">workspace photos & videos</b> ("Inside Our Workspace")? That's managed under{" "}
+        <b className="text-[#C9A84C]">Content &amp; Media → Workspace Gallery</b> — you can add as many as you like there, not just 3.
+      </div>
 
       <SectionCard title="Brand Logo">
         <SettingImage

@@ -262,11 +262,11 @@ function WorkspaceGallerySection() {
     <div className="border-t border-[rgba(201,168,76,0.08)] pt-8">
       <SectionHeader
         title="Workspace Gallery (Photos & Videos)"
-        subtitle="Powers the 'Inside Our Workspace' section and its full gallery popup. Leave empty to use the 3 default photos from Site Settings."
+        subtitle="Powers the 'Inside Our Workspace' section and its full gallery popup. Add as many photos and videos as you like — leave empty to use the 3 bundled default photos."
       />
       <div className="space-y-4">
         {items.length === 0 && (
-          <p className="text-[rgba(248,246,241,0.3)] text-sm">No custom gallery items yet — add photos or videos below, or leave empty to use the 3 default workspace photos.</p>
+          <p className="text-[rgba(248,246,241,0.3)] text-sm">No custom gallery items yet — click "+ Add Photo" or "+ Add Video" below to start. You're not limited to 3.</p>
         )}
         {items.map((item, i) => (
           <div key={item.id} className="bg-[#141414] border border-[rgba(201,168,76,0.08)] p-4 flex gap-4 items-start">
