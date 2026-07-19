@@ -1,13 +1,16 @@
 /** Browsers other than Safari cannot display HEIC/HEIF (the default iPhone
  * photo format) in <img>/<video> tags — it just renders blank. Convert to
- * JPEG client-side before upload so it always displays everywhere. */
+ * JPEG client-side before upload so it always displays everywhere.
+ *
+ * Uses heic-to's CSP-safe build (no Worker/Blob-URL tricks that can silently
+ * fail under bundling or a strict Content-Security-Policy — heic2any hit
+ * exactly that failure mode). */
 export async function convertHeicIfNeeded(file: File): Promise<File> {
-  const isHeic = file.type === "image/heic" || file.type === "image/heif" || /\.hei[cf]$/i.test(file.name);
-  if (!isHeic) return file;
+  const looksHeic = file.type === "image/heic" || file.type === "image/heif" || /\.hei[cf]$/i.test(file.name);
+  if (!looksHeic) return file;
 
-  const heic2any = (await import("heic2any")).default;
-  const result = await heic2any({ blob: file, toType: "image/jpeg", quality: 0.9 });
-  const blob = Array.isArray(result) ? result[0] : result;
+  const { heicTo } = await import("heic-to/csp");
+  const blob = await heicTo({ blob: file, type: "image/jpeg", quality: 0.9 });
   const newName = file.name.replace(/\.hei[cf]$/i, ".jpg");
   return new File([blob], newName, { type: "image/jpeg" });
 }
