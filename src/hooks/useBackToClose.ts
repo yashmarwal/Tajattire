@@ -37,11 +37,17 @@ export function useBackToClose(open: boolean, onClose: () => void) {
 
   // Overlay closed via UI (not the back button) — consume the pushed history entry
   // so a later physical back-press doesn't land on a dangling forward state.
+  // Guarded: if a real navigation (e.g. a route link inside the overlay) has
+  // since pushed its own entry on top, the overlay's marker is no longer the
+  // current history state — calling back() here would silently undo that
+  // navigation instead of just dropping the marker.
   useEffect(() => {
     if (!open && pushedRef.current) {
       pushedRef.current = false;
       globalDepth = Math.max(0, globalDepth - 1);
-      window.history.back();
+      if ((window.history.state as { overlay?: boolean } | null)?.overlay) {
+        window.history.back();
+      }
     }
   }, [open]);
 }

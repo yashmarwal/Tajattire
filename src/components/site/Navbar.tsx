@@ -1,23 +1,33 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLocation } from "react-router-dom";
 import { MagneticButton } from "./Primitives";
 import { usePageTransition } from "@/lib/PageTransitionContext";
 import { useImg } from "@/hooks/useImg";
 import { useBackToClose } from "@/hooks/useBackToClose";
 
 const links = [
-  { label: "Collections", href: "#collections" },
-  { label: "Craft", href: "#craft" },
-  { label: "Order", href: "#order" },
-  { label: "Connect", href: "#connect" },
+  { label: "Catalogue", href: "/catalogue" },
+  { label: "Custom Orders", href: "/custom-orders" },
+  { label: "Craft", href: "/craft" },
+  { label: "Contact", href: "/contact" },
 ];
+
+// Desktop nav only — mobile menu keeps its existing 4 links (the logo already
+// serves as the mobile "return home" tap target).
+const desktopLinks = [{ label: "Home", href: "/" }, ...links];
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
-  const [activeSection, setActiveSection] = useState("");
   const [open, setOpen] = useState(false);
+  // Which section's background currently sits directly behind the fixed
+  // navbar — flips the navbar's own colors so it never goes light-on-light
+  // or dark-on-dark against whatever content is scrolling underneath it.
+  const [bgTheme, setBgTheme] = useState<"light" | "dark">("dark");
   const navigate = usePageTransition();
+  const location = useLocation();
   const IMG = useImg();
+  const isLight = bgTheme === "light";
 
   // Back button (Android/browser) closes the mobile menu instead of leaving the site
   useBackToClose(open, () => setOpen(false));
@@ -34,22 +44,30 @@ export function Navbar() {
   }, []);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveSection(entry.target.id);
-          }
-        });
-      },
-      { rootMargin: "-50% 0px -50% 0px" }
-    );
-    links.forEach((l) => {
-      const section = document.querySelector(l.href);
-      if (section) observer.observe(section);
-    });
-    return () => observer.disconnect();
-  }, []);
+    const probeY = 40; // roughly mid-height of the h-20 navbar
+    const probeTheme = () => {
+      const sections = document.querySelectorAll<HTMLElement>("[data-bg]");
+      for (const el of sections) {
+        const rect = el.getBoundingClientRect();
+        if (rect.top <= probeY && rect.bottom > probeY) {
+          const bg = el.dataset.bg;
+          if (bg === "light" || bg === "dark") setBgTheme(bg);
+          return;
+        }
+      }
+    };
+    probeTheme();
+    window.addEventListener("scroll", probeTheme, { passive: true });
+    window.addEventListener("resize", probeTheme);
+    // Route content lazy-loads slightly after navigation — catch it mounting.
+    const observer = new MutationObserver(probeTheme);
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => {
+      window.removeEventListener("scroll", probeTheme);
+      window.removeEventListener("resize", probeTheme);
+      observer.disconnect();
+    };
+  }, [location.pathname]);
 
   return (
     <>
@@ -57,29 +75,33 @@ export function Navbar() {
         initial={{ y: -40, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 2.6, duration: 0.7 }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          scrolled ? "backdrop-blur-xl bg-[var(--emerald-deep)]/10 border-b border-[var(--gold)]/20" : "bg-transparent"
+        className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-500 ${
+          scrolled
+            ? isLight
+              ? "backdrop-blur-xl bg-cloud/70 border-b border-charcoal/10"
+              : "backdrop-blur-xl bg-[var(--emerald-deep)]/10 border-b border-[var(--gold)]/20"
+            : "bg-transparent"
         }`}
       >
         <div className="max-w-[1500px] mx-auto px-6 lg:px-12 h-20 flex items-center justify-between">
-          <a href="#top" data-cursor="Home" className="flex items-center gap-3">
-            <img src={IMG.logo} alt="TajAttire Logo" style={{ height: '36px', width: 'auto', mixBlendMode: 'lighten' }} />
-            <span className="font-display text-2xl tracking-wider text-cloud font-bold">TajAttire</span>
+          <a href="/" onClick={(e) => handleNavClick(e, "/")} data-cursor="Home" className="flex items-center gap-3">
+            <img src={IMG.logo} alt="TajAttire Logo" style={{ height: '36px', width: 'auto', mixBlendMode: isLight ? 'normal' : 'lighten' }} />
+            <span className={`font-display text-2xl tracking-wider font-bold transition-colors duration-500 ${isLight ? "text-charcoal" : "text-cloud"}`}>TajAttire</span>
           </a>
           <div className="hidden md:flex items-center gap-10">
-            {links.map((l) => (
+            {desktopLinks.map((l) => (
               <a
                 key={l.label}
                 href={l.href}
                 onClick={(e) => handleNavClick(e, l.href)}
                 data-cursor="Go"
-                className="relative text-xs uppercase tracking-[0.2em] text-cloud/80 hover:text-[var(--gold)] transition-colors group py-2"
+                className={`relative text-xs uppercase tracking-[0.2em] hover:text-[var(--gold)] transition-colors group py-2 ${isLight ? "text-charcoal/80" : "text-cloud/80"}`}
               >
                 {l.label}
                 <span className="absolute left-0 -bottom-0.5 w-0 h-px bg-[var(--gold)] group-hover:w-full transition-all duration-500" />
-                <motion.span 
+                <motion.span
                   initial={false}
-                  animate={{ scaleX: activeSection === l.href.substring(1) ? 1 : 0 }}
+                  animate={{ scaleX: location.pathname === l.href ? 1 : 0 }}
                   transition={{ duration: 0.4, type: "spring" }}
                   style={{ transformOrigin: "left" }}
                   className="absolute left-0 -bottom-0.5 h-px w-full bg-[#C9A84C]"
@@ -88,11 +110,11 @@ export function Navbar() {
             ))}
           </div>
           <div className="hidden md:block">
-            <MagneticButton href="#order" onClick={() => navigate("#order")} variant="outline" cursorLabel="Order" className="!px-5 !py-2.5 !text-[11px] rounded-full">
+            <MagneticButton href="/contact" onClick={() => navigate("/contact")} variant={isLight ? "outline-dark" : "outline"} cursorLabel="Order" className="!px-5 !py-2.5 !text-[11px] rounded-full">
               Start Ordering
             </MagneticButton>
           </div>
-          <button onClick={() => setOpen(true)} className="md:hidden text-cloud" aria-label="Menu">
+          <button onClick={() => setOpen(true)} className={`md:hidden transition-colors duration-500 ${isLight ? "text-charcoal" : "text-cloud"}`} aria-label="Menu">
             <svg width="28" height="20" viewBox="0 0 28 20" fill="none"><path d="M2 4h24M2 10h24M2 16h24" stroke="currentColor" strokeWidth="1.5"/></svg>
           </button>
         </div>
@@ -122,8 +144,8 @@ export function Navbar() {
             </div>
             {/* Mobile bottom CTA */}
             <motion.a
-              href="#order"
-              onClick={(e) => { e.preventDefault(); setOpen(false); navigate("#order"); }}
+              href="/contact"
+              onClick={(e) => { e.preventDefault(); setOpen(false); navigate("/contact"); }}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}

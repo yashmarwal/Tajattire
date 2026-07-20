@@ -31,7 +31,7 @@ export function MagneticButton({
   };
 
   const handleClick = (e: React.MouseEvent) => {
-    if (onClick && href?.startsWith("#")) e.preventDefault();
+    if (onClick && href) e.preventDefault();
     onClick?.();
   };
 

@@ -53,7 +53,7 @@ export function Hero() {
   })), []);
 
   return (
-    <section ref={ref} id="top" className="relative min-h-[100vh] w-full overflow-hidden overflow-x-hidden bg-deep-black grain">
+    <section ref={ref} id="top" data-bg="dark" className="relative min-h-[100vh] w-full overflow-hidden overflow-x-hidden bg-deep-black grain">
       <motion.div style={{ y: imgY }} className="absolute inset-0">
         {IMG.heroVideo ? (
           <video
@@ -148,7 +148,7 @@ export function Hero() {
           transition={{ delay: 4.3, duration: 1 }}
           className="mt-10 flex flex-wrap gap-5"
         >
-          <MagneticButton href="#collections" onClick={() => navigate("#collections")} variant="gold" cursorLabel="Explore">
+          <MagneticButton href="/#collections" onClick={() => navigate("/#collections")} variant="gold" cursorLabel="Explore">
             Explore Collections <span>→</span>
           </MagneticButton>
           <MagneticButton href="https://wa.me/917976667197" variant="outline" cursorLabel="Order">
@@ -237,7 +237,7 @@ export function Marquee() {
   ];
 
   return (
-    <section className="w-full bg-[#0A0A0A] border-y border-[var(--gold)]/40 py-[10px] md:py-[12px] relative z-20 flex justify-center overflow-hidden">
+    <section data-bg="dark" className="w-full bg-[#0A0A0A] border-y border-[var(--gold)]/40 py-[10px] md:py-[12px] relative z-20 flex justify-center overflow-hidden">
       {/* DESKTOP */}
       <div className="hidden md:flex justify-evenly items-center w-full min-w-full px-4 overflow-hidden">
         {boxesData.map((box, i) => (
@@ -259,7 +259,7 @@ export function Marquee() {
 export function Statement() {
   const words = `"We don't just make clothes. We build the inventory that builds your business."`.split(" ");
   return (
-    <section className="relative bg-deep-black grain py-40 overflow-hidden">
+    <section data-bg="dark" className="relative bg-deep-black grain py-40 overflow-hidden">
       {/* Taj watermark */}
       <svg viewBox="0 0 200 120" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] opacity-[0.03]">
         <path d="M100 10 L60 50 L60 100 L140 100 L140 50 Z M100 10 L100 100 M80 40 L120 40 M70 70 L130 70" stroke="white" strokeWidth="0.5" fill="none" />
@@ -316,20 +316,21 @@ const COLLECTION_STATS = [
 const MARQUEE_WORDS = ["KURTIS", "GOWNS", "TOPS", "PRIVATE LABEL", "CUSTOM PRINTS", "BULK EMBROIDERY", "FABRIC SELECTION"];
 
 export function Collections() {
+  const navigate = usePageTransition();
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const orbY1 = useTransform(scrollYProgress, [0, 1], [-60, 60]);
   const orbY2 = useTransform(scrollYProgress, [0, 1], [60, -60]);
 
   return (
-    <section id="collections" ref={ref} className="relative bg-deep-black grain py-28 md:py-40 overflow-hidden">
+    <section id="collections" ref={ref} data-bg="dark" className="relative bg-deep-black grain py-28 md:py-40 overflow-hidden">
       {/* Ambient floating glow */}
       <motion.div style={{ y: orbY1 }} className="pointer-events-none absolute -top-24 -left-24 w-[420px] h-[420px] rounded-full bg-[var(--gold)]/10 blur-[100px]" />
       <motion.div style={{ y: orbY2 }} className="pointer-events-none absolute -bottom-32 -right-16 w-[420px] h-[420px] rounded-full bg-[var(--emerald-deep)]/40 blur-[110px]" />
 
       <div className="relative max-w-[1500px] mx-auto px-6 lg:px-12">
         <div className="flex items-center justify-between mb-14">
-          <span className="text-xs uppercase tracking-[0.3em] text-[var(--gold)]">04 — Custom Collections</span>
+          <span className="text-xs uppercase tracking-[0.3em] text-[var(--gold)]">01 — Custom Collections</span>
           <span className="hidden md:block text-xs uppercase tracking-[0.3em] text-[var(--gold)]/50">Est. 2004 · Jaipur</span>
         </div>
 
@@ -404,7 +405,7 @@ export function Collections() {
           </div>
 
           <div className="relative">
-            <MagneticButton href="#order" variant="gold" cursorLabel="Start">
+            <MagneticButton href="/custom-orders" onClick={() => navigate("/custom-orders")} variant="gold" cursorLabel="Start">
               Start Your Custom Collection →
             </MagneticButton>
           </div>
@@ -695,7 +696,7 @@ export function Catalogue() {
       </AnimatePresence>
 
       {/* ── Catalogue Grid ── */}
-      <section id="catalogue" className="relative bg-cloud grain py-32 overflow-hidden">
+      <section id="catalogue" data-bg="light" className="relative bg-cloud grain py-32 overflow-hidden">
         <div className="max-w-[1500px] mx-auto px-6 lg:px-12">
           <div className="mb-16 text-center flex flex-col items-center">
             <span className="text-[10px] uppercase tracking-[0.3em] text-[var(--gold)] mb-6">— Our Catalogue</span>
@@ -895,7 +896,7 @@ export function Catalogue() {
 
 export function CustomOrder() {
   return (
-    <section className="relative bg-[#1A5C38] grain py-32 overflow-hidden border-t border-[var(--gold)]/20">
+    <section data-bg="dark" className="relative bg-[#1A5C38] grain py-32 overflow-hidden border-t border-[var(--gold)]/20">
       <div className="max-w-[1500px] mx-auto px-6 lg:px-12">
         <motion.div 
           initial={{ opacity: 0, y: 60, scale: 0.97 }}
@@ -940,11 +941,11 @@ export function CustomOrder() {
 export function Craft() {
   const IMG = useImg();
   return (
-    <section id="craft" className="relative bg-cloud grain py-32 overflow-hidden">
+    <section id="craft" data-bg="light" className="relative bg-cloud grain py-32 overflow-hidden">
       <div className="max-w-[1500px] mx-auto px-6 lg:px-12 grid md:grid-cols-2 gap-16 items-center">
         <CurtainImage src={IMG.craft} alt="The craft" className="aspect-[3/4] w-full" />
         <div className="relative">
-          <div className="absolute inset-0 overflow-hidden pointer-events-none -m-10 p-10"><div className="outline-num text-[clamp(6rem,20vw,18rem)] absolute -top-20 -left-4 md:-left-10 select-none max-w-full overflow-hidden">05</div></div>
+          <div className="absolute inset-0 overflow-hidden pointer-events-none -m-10 p-10"><div className="outline-num text-[clamp(6rem,20vw,18rem)] absolute -top-20 -left-4 md:-left-10 select-none max-w-full overflow-hidden">01</div></div>
           <div className="relative">
             <SplitHeading text="Not Just Fabric." as="h2" className="block font-display text-emerald text-[2rem] leading-tight md:text-7xl font-light" />
             <SplitHeading text="A Philosophy." delay={0.3} as="h2" className="block font-display text-emerald italic text-[2rem] leading-tight md:text-7xl font-light" />
@@ -983,7 +984,7 @@ const whys = [
 
 export function Why() {
   return (
-    <section className="relative bg-[var(--emerald-deep)] grain py-32 overflow-x-clip">
+    <section data-bg="dark" className="relative bg-[var(--emerald-deep)] grain py-32 overflow-x-clip">
       <div className="max-w-[1500px] mx-auto px-6 lg:px-12">
         <div className="flex items-end justify-between mb-20 flex-wrap gap-6">
           <SplitHeading
@@ -991,7 +992,7 @@ export function Why() {
             as="h2"
             className="font-display text-cloud font-light max-w-3xl leading-[1.05] text-[clamp(1.8rem,6vw,4.5rem)]"
           />
-          <span className="text-xs uppercase tracking-[0.3em] text-[var(--gold)]">06 — Why TajAttire</span>
+          <span className="text-xs uppercase tracking-[0.3em] text-[var(--gold)]">02 — Why TajAttire</span>
         </div>
 
         {/* DESKTOP LAYOUT */}
@@ -1084,7 +1085,7 @@ export function Stats() {
         { v: 20, suffix: "+", label: "States Delivered Across India" },
       ];
   return (
-    <section className="relative bg-cloud grain py-32 overflow-hidden">
+    <section data-bg="light" className="relative bg-cloud grain py-32 overflow-hidden">
       <div
         className="absolute inset-0 opacity-[0.04]"
         style={{ backgroundImage: "linear-gradient(var(--gold) 1px, transparent 1px), linear-gradient(90deg, var(--gold) 1px, transparent 1px)", backgroundSize: "60px 60px" }}
@@ -1101,7 +1102,7 @@ export function Stats() {
       />
       <div className="relative max-w-[1500px] mx-auto px-6 lg:px-12">
         <div className="mb-16">
-          <span className="text-xs uppercase tracking-[0.3em] text-emerald">07 — By the Numbers</span>
+          <span className="text-xs uppercase tracking-[0.3em] text-emerald">02 — By the Numbers</span>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-6">
           {items.map((it, i) => (
@@ -1126,10 +1127,10 @@ const steps = [
 
 export function HowItWorks() {
   return (
-    <section className="relative bg-cloud grain py-32 overflow-hidden">
+    <section data-bg="light" className="relative bg-cloud grain py-32 overflow-hidden">
       <div className="max-w-[1500px] mx-auto px-6 lg:px-12">
         <div className="mb-20 max-w-3xl">
-          <span className="text-xs uppercase tracking-[0.3em] text-emerald">08 — How It Works</span>
+          <span className="text-xs uppercase tracking-[0.3em] text-emerald">03 — How It Works</span>
           <SplitHeading text="From First Look to First Shipment." as="h2" className="mt-4 font-display text-emerald text-[2rem] leading-tight md:text-7xl font-light" />
           <p className="mt-6 text-charcoal/70 max-w-xl">Three steps. Zero confusion. Exactly how wholesale should work.</p>
         </div>
@@ -1221,10 +1222,10 @@ export function Testimonials() {
   };
 
   return (
-    <section className="relative bg-[var(--emerald-deep)] grain py-32 overflow-x-clip">
+    <section data-bg="dark" className="relative bg-[var(--emerald-deep)] grain py-32 overflow-x-clip">
       <div className="max-w-[1500px] mx-auto px-6 lg:px-12">
         <div className="mb-16 max-w-3xl">
-          <span className="text-xs uppercase tracking-[0.3em] text-[var(--gold)]">09 — Testimonials</span>
+          <span className="text-xs uppercase tracking-[0.3em] text-[var(--gold)]">01 — Testimonials</span>
           <SplitHeading text="1,000+ Retailers. One Thing in Common." as="h2" className="mt-4 font-display text-cloud font-light leading-[1.05] text-[clamp(1.8rem,6vw,4.5rem)]" />
         </div>
 
@@ -1315,7 +1316,7 @@ export function CtaBand() {
   const { data: settings } = useSettings();
   const catalogPdf = settings?.catalogue_pdf_all || "";
   return (
-    <section className="relative min-h-[80vh] grain shimmer-sweep overflow-hidden flex items-center">
+    <section data-bg="dark" className="relative min-h-[80vh] grain shimmer-sweep overflow-hidden flex items-center">
       <div className="absolute inset-0">
         <img src={IMG.cta} alt="" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-[var(--emerald-deep)]/80" />
@@ -1327,7 +1328,7 @@ export function CtaBand() {
           {catalogPdf ? (
             <MagneticButton href={catalogPdf} target="_blank" rel="noreferrer" download variant="gold" cursorLabel="Download">Download Catalog</MagneticButton>
           ) : (
-            <MagneticButton href="#order" onClick={() => navigate("#order")} variant="gold" cursorLabel="Catalog">Request Catalog</MagneticButton>
+            <MagneticButton href="/contact" onClick={() => navigate("/contact")} variant="gold" cursorLabel="Catalog">Request Catalog</MagneticButton>
           )}
           <MagneticButton href="https://wa.me/917976667197" variant="outline" cursorLabel="Chat">WhatsApp Us Now</MagneticButton>
         </div>
@@ -1425,7 +1426,7 @@ export function Inquiry() {
   };
 
   return (
-    <section id="order" className="relative bg-[#F8F6F1] flex flex-col md:flex-row min-h-screen">
+    <section id="order" data-bg="light" className="relative bg-[#F8F6F1] flex flex-col md:flex-row min-h-screen">
       <div className="md:w-1/2 relative min-h-[500px] md:min-h-screen bg-[#1A5C38] flex items-center justify-center">
         <img src={IMG.form} alt="Indian Fashion Editorial" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-[#1A5C38]/60" />
@@ -1546,8 +1547,13 @@ export function Inquiry() {
 /* ─────────── FOOTER ─────────── */
 export function Footer() {
   const IMG = useImg();
+  const navigate = usePageTransition();
+  const handleFooterClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    navigate(href);
+  };
   return (
-    <footer id="connect" className="relative bg-deep-black grain pt-24 pb-8 overflow-hidden">
+    <footer id="connect" data-bg="dark" className="relative bg-deep-black grain pt-24 pb-8 overflow-hidden">
       <motion.div 
         initial={{ scaleY: 1 }} whileInView={{ scaleY: 0 }} viewport={{ once: true, amount: 0.1 }}
         transition={{ duration: 1, ease: [0.76, 0, 0.24, 1] }}
@@ -1577,10 +1583,13 @@ export function Footer() {
           <div>
             <h4 className="text-[10px] uppercase tracking-[0.3em] text-[var(--gold)] mb-4">Quick Links</h4>
             <ul className="space-y-2 text-sm">
-              <li><a href="#collections" data-cursor="Go" className="hover:text-[var(--gold)] transition-colors">Collections</a></li>
-              <li><a href="#craft" data-cursor="Go" className="hover:text-[var(--gold)] transition-colors">Why Us</a></li>
-              <li><a href="#order" data-cursor="Go" className="hover:text-[var(--gold)] transition-colors">How to Order</a></li>
-              <li><a href="#connect" data-cursor="Go" className="hover:text-[var(--gold)] transition-colors">Contact</a></li>
+              <li><a href="/#collections" onClick={(e) => handleFooterClick(e, "/#collections")} data-cursor="Go" className="hover:text-[var(--gold)] transition-colors">Collections</a></li>
+              <li><a href="/craft" onClick={(e) => handleFooterClick(e, "/craft")} data-cursor="Go" className="hover:text-[var(--gold)] transition-colors">Why Us</a></li>
+              <li><a href="/custom-orders" onClick={(e) => handleFooterClick(e, "/custom-orders")} data-cursor="Go" className="hover:text-[var(--gold)] transition-colors">Custom Orders</a></li>
+              <li><a href="/reviews" onClick={(e) => handleFooterClick(e, "/reviews")} data-cursor="Go" className="hover:text-[var(--gold)] transition-colors">Reviews</a></li>
+              <li><a href="/faq" onClick={(e) => handleFooterClick(e, "/faq")} data-cursor="Go" className="hover:text-[var(--gold)] transition-colors">FAQ</a></li>
+              <li><a href="/contact" onClick={(e) => handleFooterClick(e, "/contact")} data-cursor="Go" className="hover:text-[var(--gold)] transition-colors">How to Order</a></li>
+              <li><a href="#connect" onClick={(e) => handleFooterClick(e, "#connect")} data-cursor="Go" className="hover:text-[var(--gold)] transition-colors">Contact</a></li>
             </ul>
           </div>
           <div>
@@ -1825,7 +1834,7 @@ export function SustainabilitySection() {
       ];
 
   return (
-    <section className="relative bg-[var(--emerald-deep)] grain py-32 overflow-hidden">
+    <section data-bg="dark" className="relative bg-[var(--emerald-deep)] grain py-32 overflow-hidden">
       <div className="max-w-[1500px] mx-auto px-6 lg:px-12">
         <div className="grid md:grid-cols-2 gap-16 items-start">
           {/* Text side */}
@@ -1894,7 +1903,7 @@ export function ManufacturingTeaser() {
   }, [galleryOpen]);
 
   return (
-    <section className="relative bg-[var(--deep-black)] grain py-32 overflow-hidden">
+    <section data-bg="dark" className="relative bg-[var(--deep-black)] grain py-32 overflow-hidden">
       <div className="max-w-[1500px] mx-auto px-6 lg:px-12">
         <div className="grid md:grid-cols-2 gap-16 items-center">
           {/* Text side */}
@@ -1926,8 +1935,8 @@ export function ManufacturingTeaser() {
               </span>
             </div>
             <MagneticButton
-              href="#order"
-              onClick={() => navigate("#order")}
+              href="/contact"
+              onClick={() => navigate("/contact")}
               variant="outline"
               cursorLabel="Visit"
             >
@@ -2039,8 +2048,8 @@ export function ManufacturingTeaser() {
                   <p className="text-cloud/70 mb-6 max-w-lg mx-auto">Like what you see? Come experience it in person, or get a quote started right now.</p>
                   <div className="flex flex-wrap justify-center gap-4">
                     <MagneticButton
-                      href="#order"
-                      onClick={() => { setGalleryOpen(false); navigate("#order"); }}
+                      href="/contact"
+                      onClick={() => { setGalleryOpen(false); navigate("/contact"); }}
                       variant="gold"
                       cursorLabel="Visit"
                     >
@@ -2077,7 +2086,7 @@ export function InstagramGrid() {
     : DEFAULT_IG_IMAGES;
 
   return (
-    <section className="relative bg-[var(--cloud)] grain py-32 overflow-hidden">
+    <section data-bg="light" className="relative bg-[var(--cloud)] grain py-32 overflow-hidden">
       <div className="max-w-[1500px] mx-auto px-6 lg:px-12">
         <div className="text-center mb-16">
           <span className="text-[10px] uppercase tracking-[0.3em] text-[var(--gold)] block mb-6">— Follow the Journey</span>
@@ -2200,7 +2209,7 @@ export function FAQ() {
   const toggle = (i: number) => setOpen((p) => (p === i ? null : i));
 
   return (
-    <section className="relative bg-[var(--cloud)] grain py-32 overflow-hidden">
+    <section data-bg="light" className="relative bg-[var(--cloud)] grain py-32 overflow-hidden">
       <div className="max-w-[1500px] mx-auto px-6 lg:px-12">
         {/* Heading */}
         <div className="text-center mb-16 flex flex-col items-center">

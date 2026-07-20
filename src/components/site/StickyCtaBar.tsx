@@ -39,10 +39,10 @@ export function StickyCtaBar() {
           >
             <a
               id="sticky-cta-desktop"
-              href="#order"
+              href="/contact"
               onClick={(e) => {
                 e.preventDefault();
-                navigate("#order");
+                navigate("/contact");
               }}
               style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
               className="text-[10px] tracking-[0.22em] uppercase text-[var(--gold)] hover:text-[var(--cloud)] py-5 px-3 border border-[var(--gold)]/30 hover:border-[var(--gold)] hover:bg-[var(--emerald-deep)]/50 transition-all duration-300 whitespace-nowrap backdrop-blur-sm"
@@ -112,8 +112,8 @@ export function StickyCtaBar() {
               </button>
 
               <a
-                href="#order"
-                onClick={(e) => { e.preventDefault(); navigate("#order"); }}
+                href="/contact"
+                onClick={(e) => { e.preventDefault(); navigate("/contact"); }}
                 className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-[var(--gold)] text-[var(--deep-black)] text-[11px] font-bold uppercase tracking-[0.14em] active:scale-[0.98] transition-transform"
               >
                 Enquire Now →

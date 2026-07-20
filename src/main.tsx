@@ -1,6 +1,7 @@
 import { StrictMode, Suspense, lazy } from "react";
 import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter } from "react-router-dom";
 import "./styles.css";
 
 // Code-split so public visitors never download the admin panel's JS, and
@@ -22,7 +23,13 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <Suspense fallback={null}>
-        {isAdmin ? <AdminApp /> : <App />}
+        {isAdmin ? (
+          <AdminApp />
+        ) : (
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        )}
       </Suspense>
     </QueryClientProvider>
   </StrictMode>
