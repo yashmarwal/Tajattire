@@ -1612,6 +1612,18 @@ export function Footer() {
           <span>© 2025 TajAttire. All rights reserved.</span>
           <span>GST: 08EZDPA6047K1Z9</span>
         </div>
+        <div className="mt-4 text-center text-xs text-cloud/30">
+          Developed by{" "}
+          <a
+            href="https://wa.me/918595475007?text=Hello%2C%20I%E2%80%99m%20interested%20in%20developing%20a%20website."
+            target="_blank"
+            rel="noreferrer"
+            data-cursor="Go"
+            className="text-[var(--gold)] hover:underline transition-colors"
+          >
+            Yash Marwal
+          </a>
+        </div>
       </div>
     </footer>
   );
