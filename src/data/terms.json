@@ -1,0 +1,39 @@
+{
+  "_comment": "Wholesale terms in ONE place. Cards, popups, forms, the assistant, the FAQ page and structured data all read from here. Admin-added categories fall back to `defaultCategory`.",
+  "currency": "INR",
+  "startingPrice": "₹180",
+  "startingPriceNote": "per piece for kurtis; gowns and tops vary by fabric and design",
+  "designCount": "500+",
+  "states": "20+",
+  "payment": "50% advance on confirmation, 50% before dispatch (NEFT / RTGS / IMPS / UPI)",
+  "couriers": "Delhivery, Bluedart and DTDC",
+  "responseTime": "within 2 business hours, Monday to Saturday",
+  "custom": { "moq": "200 pcs", "moqNumber": 200, "leadTime": "20–30 days" },
+  "defaultCategory": { "moq": "100 pcs", "moqNumber": 100, "leadTime": "7–15 days" },
+  "categories": [
+    {
+      "name": "Kurtis",
+      "slug": "kurtis",
+      "moq": "100 pcs",
+      "moqNumber": 100,
+      "leadTime": "7–15 days",
+      "blurb": "Cotton, rayon, printed and embroidered kurtis."
+    },
+    {
+      "name": "Gowns",
+      "slug": "gowns",
+      "moq": "100 pcs",
+      "moqNumber": 100,
+      "leadTime": "7–15 days",
+      "blurb": "Floor-length and anarkali gowns for occasion wear."
+    },
+    {
+      "name": "Tops",
+      "slug": "tops",
+      "moq": "100 pcs",
+      "moqNumber": 100,
+      "leadTime": "7–15 days",
+      "blurb": "Contemporary everyday tops and tunics."
+    }
+  ]
+}

@@ -1,28 +1,35 @@
 import { useSettings } from "@/hooks/useSiteData";
 
-const IMG_DEFAULTS = {
-  hero:       "/hero.jpg",
-  craft:      "https://images.unsplash.com/photo-1610189025214-7b6c6c44f6f0?w=1200&q=80",
-  cta:        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1920&q=80",
-  form:       "https://images.unsplash.com/photo-1617059062265-1ca7b50d6e92?w=1200&q=80",
-  workspace1: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=800&q=80",
-  workspace2: "https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?w=800&q=80",
-  workspace3: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=800&q=80",
-  logo:       "/logo.png",
+/** Bundled fallbacks — only the owner's own photo and logo. Section photos the
+ * owner hasn't uploaded yet render a branded panel instead of stock imagery. */
+export const IMG_DEFAULTS = {
+  hero: "/images/hero-1024.webp",
+  heroMobile: "/images/hero-640.webp",
+  logo: "/images/logo-mark-96.webp",
 };
 
-/** Returns site images from Supabase site_settings, falling back to bundled defaults */
+/**
+ * Site images from the admin (site_settings), falling back to the bundled
+ * defaults. `ready` is false only on a first-ever visit while the single
+ * settings request is in flight — components show a neutral panel during
+ * that moment rather than a default that would then be swapped.
+ */
 export function useImg() {
-  const { data: settings } = useSettings();
+  const { data: s, isError } = useSettings();
+  const ready = s !== undefined || isError;
+  const pick = (v: string | undefined, fallback: string) => (ready ? v || fallback : "");
+  const heroDesktop = pick(s?.hero_image, IMG_DEFAULTS.hero);
   return {
-    hero:       settings?.hero_image       || IMG_DEFAULTS.hero,
-    heroVideo:  settings?.hero_video       || "",
-    craft:      settings?.craft_image      || IMG_DEFAULTS.craft,
-    cta:        settings?.cta_image        || IMG_DEFAULTS.cta,
-    form:       settings?.form_image       || IMG_DEFAULTS.form,
-    workspace1: settings?.workspace_img_1  || IMG_DEFAULTS.workspace1,
-    workspace2: settings?.workspace_img_2  || IMG_DEFAULTS.workspace2,
-    workspace3: settings?.workspace_img_3  || IMG_DEFAULTS.workspace3,
-    logo:       settings?.logo_image       || IMG_DEFAULTS.logo,
+    ready,
+    hero: heroDesktop,
+    heroMobile: ready
+      ? s?.hero_image_mobile || (s?.hero_image ? s.hero_image : IMG_DEFAULTS.heroMobile)
+      : "",
+    heroVideo: s?.hero_video || "",
+    heroVideoMobile: s?.hero_video_mobile || "",
+    craft: pick(s?.craft_image, IMG_DEFAULTS.hero),
+    cta: pick(s?.cta_image, ""),
+    form: pick(s?.form_image, ""),
+    logo: pick(s?.logo_image, IMG_DEFAULTS.logo),
   };
 }

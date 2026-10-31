@@ -1,95 +1,67 @@
-import { useRef, useState, useEffect } from "react";
-import { motion, useInView, useTransform, useScroll } from "framer-motion";
+import { useRef, useState, useEffect, type ElementType } from "react";
+import { motion, useInView, useReducedMotion } from "framer-motion";
 
-export function MagneticButton({
-  children,
+const EASE = [0.16, 1, 0.3, 1] as const;
+
+/** Heading whose words rise into view through a mask. The mask has built-in
+ * padding (see .reveal-mask) so italics and descenders are never clipped. */
+export function SplitHeading({
+  text,
   className = "",
-  href,
-  onClick,
-  cursorLabel = "View",
-  variant = "gold",
-  target,
-  rel,
-  download,
+  as: As = "h2",
+  delay = 0,
 }: {
-  children: React.ReactNode;
+  text: string;
   className?: string;
-  href?: string;
-  onClick?: () => void;
-  cursorLabel?: string;
-  variant?: "gold" | "outline" | "outline-dark" | "wa";
-  target?: string;
-  rel?: string;
-  download?: boolean;
+  as?: ElementType;
+  delay?: number;
 }) {
-  const base = "btn-liquid inline-flex items-center gap-2 px-7 py-3.5 text-sm tracking-[0.15em] uppercase font-medium border";
-  const variants = {
-    gold: "bg-[var(--gold)] border-[var(--gold)] text-[var(--deep-black)]",
-    outline: "bg-transparent border-[var(--cloud)] text-[var(--cloud)]",
-    "outline-dark": "bg-transparent border-[var(--emerald-deep)] text-[var(--emerald-deep)]",
-    wa: "bg-[#25D366] border-[#25D366] text-white",
-  };
-
-  const handleClick = (e: React.MouseEvent) => {
-    if (onClick && href) e.preventDefault();
-    onClick?.();
-  };
-
-  // No cursor-follow "magnetic" drag — the button stays put; btn-liquid's
-  // internal fill sweep (CSS, on :hover) is the only hover feedback.
-  const Comp: any = href ? "a" : "button";
-  return (
-    <Comp
-      href={href}
-      target={target}
-      rel={rel}
-      download={download}
-      onClick={handleClick}
-      data-cursor={cursorLabel}
-      className={`${base} ${variants[variant]} ${className}`}
-    >
-      {children}
-    </Comp>
-  );
-}
-
-export function SplitHeading({ text, className = "", as: As = "h2", delay = 0 }: { text: string; className?: string; as?: any; delay?: number }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-10%" });
+  const ref = useRef<HTMLElement>(null);
+  const inView = useInView(ref, { once: true, margin: "0px 0px -10% 0px" });
+  const reduce = useReducedMotion();
   const words = text.split(" ");
   return (
-    <As ref={ref} className={className} style={{ wordBreak: "normal", overflowWrap: "normal" }}>
-      <div style={{ overflow: "hidden" }}>
-        <span className="inline-block">
-          {words.map((w, i) => (
-            <span key={i} style={{ display: "inline-block", overflow: "hidden", marginRight: "0.25em", whiteSpace: "nowrap" }}>
-              <motion.span
-                initial={{ y: "100%", opacity: 0 }}
-                animate={inView ? { y: 0, opacity: 1 } : {}}
-                transition={{ duration: 1.2, delay: delay + i * 0.12, ease: [0.16, 1, 0.3, 1] }}
-                className="inline-block"
-              >
-                {w}
-              </motion.span>
-            </span>
-          ))}
+    <As ref={ref} className={className}>
+      {words.map((w, i) => (
+        <span key={i}>
+          <span className="reveal-mask">
+            <motion.span
+              className="inline-block"
+              initial={reduce ? false : { y: "110%" }}
+              animate={inView || reduce ? { y: 0 } : undefined}
+              transition={{ duration: 0.95, delay: delay + i * 0.07, ease: EASE }}
+            >
+              {w}
+            </motion.span>
+          </span>
+          {i < words.length - 1 ? " " : null}
         </span>
-      </div>
+      ))}
     </As>
   );
 }
 
-export function FadeLines({ lines, className = "", lineClass = "" }: { lines: string[]; className?: string; lineClass?: string }) {
+/** Paragraphs that rise and fade in, staggered, once. */
+export function FadeLines({
+  lines,
+  className = "",
+  lineClass = "",
+}: {
+  lines: string[];
+  className?: string;
+  lineClass?: string;
+}) {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-15%" });
+  const inView = useInView(ref, { once: true, margin: "0px 0px -12% 0px" });
+  const reduce = useReducedMotion();
   return (
     <div ref={ref} className={className}>
       {lines.map((l, i) => (
         <motion.p
           key={i}
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: i * 0.2 }}
+          initial={reduce ? false : { opacity: 0, y: 18 }}
+          animate={inView || reduce ? { opacity: 1, y: 0 } : undefined}
+          transition={{ duration: 0.9, ease: EASE, delay: i * 0.12 }}
           className={lineClass}
         >
           {l}
@@ -99,68 +71,113 @@ export function FadeLines({ lines, className = "", lineClass = "" }: { lines: st
   );
 }
 
-export function CurtainImage({ src, alt, className = "" }: { src: string; alt: string; className?: string }) {
+/** A hairline that draws in from the left. */
+export function DrawRule({ className = "" }: { className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-10%" });
+  const inView = useInView(ref, { once: true, margin: "0px 0px -10% 0px" });
+  const reduce = useReducedMotion();
   return (
-    <div ref={ref} className={`relative overflow-hidden ${className}`}>
-      <motion.img
-        src={src}
-        alt={alt}
-        initial={{ scale: 1.2 }}
-        animate={inView ? { scale: 1 } : {}}
-        transition={{ duration: 2.2, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full h-full object-cover"
-        loading="lazy"
-      />
+    <motion.div
+      ref={ref}
+      aria-hidden="true"
+      className={`hairline ${className}`}
+      style={{ transformOrigin: "left center" }}
+      initial={reduce ? false : { scaleX: 0 }}
+      animate={inView || reduce ? { scaleX: 1 } : undefined}
+      transition={{ duration: 1.1, ease: EASE }}
+    />
+  );
+}
+
+/** Image revealed by a curtain sliding off it. Fixed aspect ratio comes from the parent. */
+export function CurtainImage({
+  src,
+  alt,
+  className = "",
+  onError,
+}: {
+  src: string;
+  alt: string;
+  className?: string;
+  onError?: () => void;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "0px 0px -10% 0px" });
+  const reduce = useReducedMotion();
+  return (
+    <div ref={ref} className={`relative overflow-hidden bg-[var(--emerald-deep)] ${className}`}>
+      {src && (
+        <motion.img
+          src={src}
+          alt={alt}
+          loading="lazy"
+          decoding="async"
+          onError={onError}
+          initial={reduce ? false : { scale: 1.15 }}
+          animate={inView || reduce ? { scale: 1 } : undefined}
+          transition={{ duration: 1.8, ease: EASE }}
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      )}
       <motion.div
-        initial={{ x: "0%" }}
-        animate={inView ? { x: "100%" } : {}}
-        transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+        aria-hidden="true"
+        initial={reduce ? false : { x: "0%" }}
+        animate={inView || reduce ? { x: "101%" } : undefined}
+        transition={{ duration: 1.4, ease: EASE, delay: 0.15 }}
         className="absolute inset-0 bg-[var(--emerald-deep)]"
+        style={reduce ? { display: "none" } : undefined}
       />
     </div>
   );
 }
 
-export function CountUp({ end, prefix = "", suffix = "", className = "" }: { end: number; prefix?: string; suffix?: string; className?: string }) {
+/** Counts up once when visible. Tabular figures so the width never jitters,
+ * and no thousands separator below 10,000 (a year must never read "2,004"). */
+export function CountUp({
+  end,
+  prefix = "",
+  suffix = "",
+  className = "",
+}: {
+  end: number;
+  prefix?: string;
+  suffix?: string;
+  className?: string;
+}) {
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true });
-  const [val, setVal] = useState(0);
-  const [isDone, setIsDone] = useState(false);
+  const reduce = useReducedMotion();
+  const [val, setVal] = useState(reduce ? end : 0);
   useEffect(() => {
-    if (!inView) return;
+    if (!inView || reduce) return;
+    let raf = 0;
     const start = performance.now();
-    const dur = 4500;
+    const dur = 2200;
     const tick = (t: number) => {
       const p = Math.min(1, (t - start) / dur);
-      const eased = p === 1 ? 1 : 1 - Math.pow(1 - p, 6);
-      setVal(Math.round(end * eased));
-      if (p < 1) requestAnimationFrame(tick);
-      else setIsDone(true);
+      setVal(Math.round(end * (1 - Math.pow(1 - p, 4))));
+      if (p < 1) raf = requestAnimationFrame(tick);
     };
-    requestAnimationFrame(tick);
-  }, [inView, end]);
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [inView, end, reduce]);
+  const fmt = end >= 10000 ? val.toLocaleString("en-IN") : String(val);
+  // Reserve the final width up front so counting never shifts layout
+  const finalText = `${prefix}${end >= 10000 ? end.toLocaleString("en-IN") : end}${suffix}`;
   return (
-    <motion.span 
-      ref={ref} 
-      className={className}
-      initial={{ textShadow: "0px 0px 0px transparent" }}
-      animate={isDone ? { textShadow: ["0px 0px 20px var(--gold)", "0px 0px 0px transparent"] } : {}}
-      transition={{ duration: 1.2, ease: "easeOut" }}
+    <span
+      ref={ref}
+      className={`relative inline-block whitespace-nowrap tabular-nums ${className}`}
+      aria-label={finalText}
     >
-      {prefix}{val.toLocaleString()}{suffix}
-    </motion.span>
-  );
-}
-
-export function Parallax({ children, speed = 0.3, className = "" }: { children: React.ReactNode; speed?: number; className?: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], [`${-50 * speed}%`, `${50 * speed}%`]);
-  return (
-    <div ref={ref} className={`relative overflow-hidden ${className}`}>
-      <motion.div style={{ y }} className="absolute inset-0">{children}</motion.div>
-    </div>
+      <span aria-hidden="true" className="invisible">
+        {finalText}
+      </span>
+      <span aria-hidden="true" className="absolute inset-0">
+        {prefix}
+        {fmt}
+        {suffix}
+      </span>
+    </span>
   );
 }

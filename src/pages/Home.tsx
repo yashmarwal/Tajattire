@@ -1,22 +1,20 @@
-import { Hero, Marquee, Statement, Collections, Catalogue, Stats, CtaBand, SectionBlend } from "@/components/site/Sections";
 import { PageMeta } from "@/components/site/PageMeta";
+import { Hero } from "@/components/site/sections/Hero";
+import { Marquee, Statement } from "@/components/site/sections/Intro";
+import { Collections, MostLoved, HomePicks } from "@/components/site/sections/HomeProducts";
+import { Stats, CtaBand } from "@/components/site/sections/Story";
 
 export default function Home() {
   return (
     <>
-      <PageMeta
-        title="TajAttire — Handcrafted Heritage | Wholesale Kurtis, Gowns & Tops"
-        description="India's most trusted wholesale partner for kurtis, gowns and contemporary tops. 500+ designs. MOQ 100. Starting ₹180. Pan-India delivery."
-        path="/"
-      />
+      <PageMeta path="/" />
       <Hero />
       <Marquee />
       <Statement />
       <Collections />
-      <SectionBlend from="black" to="cloud" />
-      <Catalogue />
+      <MostLoved />
+      <HomePicks />
       <Stats />
-      <SectionBlend from="cloud" to="emerald" />
       <CtaBand />
     </>
   );
