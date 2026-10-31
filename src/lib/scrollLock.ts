@@ -14,6 +14,16 @@ const saved: Partial<CSSStyleDeclaration> = {};
 
 export const isScrollLocked = () => count > 0;
 
+/** The page's real scroll offset, even while it is frozen behind an overlay. */
+export const currentScrollY = () => (count > 0 ? savedY : window.scrollY);
+
+/** Navigating away from an open overlay (e.g. a menu link): when the overlay
+ * releases the page, land at `y` (the top of the new page) instead of the
+ * position the previous page was frozen at. */
+export function releaseTo(y = 0) {
+  if (count > 0) savedY = y;
+}
+
 function lock() {
   if (count++ > 0) return;
   savedY = window.scrollY;

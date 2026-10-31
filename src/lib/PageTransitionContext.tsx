@@ -3,7 +3,7 @@ import { flushSync } from "react-dom";
 import { useNavigate, useLocation, useNavigationType } from "react-router-dom";
 import { pageFor } from "./routes";
 import { scrollToTopInstant, scrollToElement, scrollToYInstant } from "./lenis-store";
-import { isScrollLocked } from "./scrollLock";
+import { isScrollLocked, currentScrollY, releaseTo } from "./scrollLock";
 
 /** Navigate to a route ("/catalogue", "/#collections"), cross-fading pages
  * with the View Transitions API where supported. */
@@ -49,7 +49,7 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
   // scroll events must not be recorded against the page we just left.
   const suppressSave = useRef(false);
   const rememberCurrent = () => {
-    positions.current[entryKey.current] = Math.round(window.scrollY);
+    positions.current[entryKey.current] = Math.round(currentScrollY());
     suppressSave.current = true;
   };
   // Set while our own transition handles scrolling, so the effect below doesn't fight it
@@ -90,6 +90,9 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
       const commit = () => {
         rememberCurrent();
         handledByTransition.current = true;
+        // If an overlay (the mobile menu) froze the page, release it at the
+        // top of the NEW page rather than at the old page's position.
+        releaseTo(0);
         flushSync(() => routerNavigate(path + hash));
         if (!hash) scrollToTopInstant();
       };

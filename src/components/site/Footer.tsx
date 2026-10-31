@@ -148,14 +148,17 @@ export function Footer() {
           <span>© {new Date().getFullYear()} TajAttire. All rights reserved.</span>
           <span>GSTIN {GSTIN}</span>
           {credit && (
-            <a
-              href={`https://wa.me/${DEV_CREDIT.whatsapp}${DEV_CREDIT.message ? `?text=${encodeURIComponent(DEV_CREDIT.message)}` : ""}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="[@media(hover:hover)]:hover:text-[var(--gold)]"
-            >
-              {DEV_CREDIT.text}
-            </a>
+            <span>
+              {DEV_CREDIT.prefix}{" "}
+              <a
+                href={`https://wa.me/${DEV_CREDIT.whatsapp}${DEV_CREDIT.message ? `?text=${encodeURIComponent(DEV_CREDIT.message)}` : ""}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[var(--gold)] [@media(hover:hover)]:hover:underline"
+              >
+                {DEV_CREDIT.text}
+              </a>
+            </span>
           )}
         </div>
       </div>
