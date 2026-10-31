@@ -1,0 +1,92 @@
+[
+  {
+    "path": "/",
+    "name": "Home",
+    "title": "TajAttire — Wholesale Kurtis, Gowns & Tops from Jaipur",
+    "description": "Jaipur-based wholesale manufacturer of kurtis, gowns and contemporary tops since 2004. 500+ designs, MOQ 100 pieces, prices from ₹180, delivery across India.",
+    "source": ["src/pages/Home.tsx", "src/components/site/Sections.tsx"]
+  },
+  {
+    "path": "/catalogue",
+    "name": "Catalogue",
+    "title": "Wholesale Catalogue — Kurtis, Gowns & Tops | TajAttire",
+    "description": "Browse TajAttire's wholesale catalogue of kurtis, gowns and tops. MOQ 100 pieces per style, prices from ₹180, dispatch in 7–15 days.",
+    "source": ["src/pages/Catalogue.tsx"]
+  },
+  {
+    "path": "/catalogue/kurtis",
+    "name": "Kurtis",
+    "parent": "/catalogue",
+    "category": "Kurtis",
+    "title": "Wholesale Kurtis — Cotton, Rayon & Embroidered | TajAttire",
+    "description": "Wholesale kurtis from Jaipur: cotton, rayon, printed and embroidered styles. MOQ 100 pieces per style, from ₹180 per piece.",
+    "source": ["src/pages/Catalogue.tsx"]
+  },
+  {
+    "path": "/catalogue/gowns",
+    "name": "Gowns",
+    "parent": "/catalogue",
+    "category": "Gowns",
+    "title": "Wholesale Gowns — Floor-length & Anarkali | TajAttire",
+    "description": "Wholesale floor-length and anarkali gowns made in Jaipur. MOQ 100 pieces per style, dispatch in 7–15 days.",
+    "source": ["src/pages/Catalogue.tsx"]
+  },
+  {
+    "path": "/catalogue/tops",
+    "name": "Tops",
+    "parent": "/catalogue",
+    "category": "Tops",
+    "title": "Wholesale Contemporary Tops | TajAttire",
+    "description": "Wholesale contemporary tops and tunics from TajAttire, Jaipur. MOQ 100 pieces per style, dispatch in 7–15 days.",
+    "source": ["src/pages/Catalogue.tsx"]
+  },
+  {
+    "path": "/custom-orders",
+    "name": "Custom Orders",
+    "title": "Custom & Private-Label Manufacturing | TajAttire",
+    "description": "Private-label kurtis, gowns and tops made to your design in Jaipur — custom prints, fabric selection, embroidery and branded packaging from 200 pieces.",
+    "source": ["src/pages/CustomOrders.tsx"]
+  },
+  {
+    "path": "/craft",
+    "name": "Our Craft",
+    "title": "Our Craft & Manufacturing in Jaipur | TajAttire",
+    "description": "How TajAttire designs, makes and checks every wholesale order in its Jaipur production unit — from first look to first shipment.",
+    "source": ["src/pages/Craft.tsx"]
+  },
+  {
+    "path": "/reviews",
+    "name": "Reviews",
+    "title": "Retailer Reviews & Instagram | TajAttire",
+    "description": "What retailers say about stocking TajAttire, plus the latest pieces from @tajattire on Instagram.",
+    "source": ["src/pages/Reviews.tsx"]
+  },
+  {
+    "path": "/faq",
+    "name": "FAQ",
+    "title": "Wholesale FAQ — MOQ, Pricing, Delivery | TajAttire",
+    "description": "Answers on TajAttire's minimum order, wholesale pricing, payment terms, samples, private label and delivery times.",
+    "source": ["src/pages/Faq.tsx", "src/data/faq.json"]
+  },
+  {
+    "path": "/contact",
+    "name": "Contact",
+    "title": "Contact & Wholesale Enquiry | TajAttire",
+    "description": "Send a wholesale enquiry to TajAttire, Jaipur — we reply within 2 business hours on WhatsApp. MOQ 100 pieces, from ₹180.",
+    "source": ["src/pages/Contact.tsx"]
+  },
+  {
+    "path": "/privacy",
+    "name": "Privacy Policy",
+    "title": "Privacy Policy | TajAttire",
+    "description": "How TajAttire handles the details you share through our enquiry forms, WhatsApp and email.",
+    "source": ["src/pages/Legal.tsx"]
+  },
+  {
+    "path": "/terms",
+    "name": "Terms of Trade",
+    "title": "Terms of Trade | TajAttire",
+    "description": "TajAttire's wholesale terms: minimum orders, payment, production times, samples, shipping and replacements.",
+    "source": ["src/pages/Legal.tsx", "src/data/terms.json"]
+  }
+]

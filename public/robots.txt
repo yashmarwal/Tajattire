@@ -1,45 +1,36 @@
 # TajAttire — robots.txt
+# Everything public may be crawled; the admin panel never.
 
-# Default: allow everything except the admin panel
 User-agent: *
 Disallow: /admin
+Disallow: /admin.html
 
-# Search & AI-citation crawlers — explicitly allowed (redundant with the
-# default above, but kept explicit so intent is unambiguous per-bot)
+# Search engines and AI answer engines (citations) — allowed
 User-agent: Googlebot
-Disallow: /admin
-
 User-agent: Bingbot
-Disallow: /admin
-
 User-agent: OAI-SearchBot
-Disallow: /admin
-
 User-agent: ChatGPT-User
-Disallow: /admin
-
 User-agent: PerplexityBot
-Disallow: /admin
-
+User-agent: Perplexity-User
 User-agent: Claude-SearchBot
-Disallow: /admin
-
 User-agent: Claude-User
+User-agent: DuckAssistBot
 Disallow: /admin
+Disallow: /admin.html
 
-# AI training crawlers — allowed (add "Disallow: /" to opt a specific one
-# out of training data while staying eligible for citations elsewhere)
+# AI training crawlers — allowed (change to "Disallow: /" to opt out of training)
 User-agent: GPTBot
-Disallow: /admin
-
 User-agent: ClaudeBot
-Disallow: /admin
-
 User-agent: Google-Extended
+User-agent: Applebot-Extended
 Disallow: /admin
+Disallow: /admin.html
 
-# Known aggressive/non-compliant crawler — blocked entirely
+# Aggressive / non-compliant crawlers — blocked entirely
 User-agent: Bytespider
+User-agent: SemrushBot-BA
+User-agent: MJ12bot
+User-agent: DotBot
 Disallow: /
 
 Sitemap: https://tajattire.in/sitemap.xml

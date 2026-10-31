@@ -1,15 +1,13 @@
-import { Catalogue as CatalogueSection } from "@/components/site/Sections";
+import { useLocation } from "react-router-dom";
 import { PageMeta } from "@/components/site/PageMeta";
+import { CatalogueBrowser } from "@/components/site/products/CatalogueBrowser";
 
 export default function Catalogue() {
+  const { pathname } = useLocation();
   return (
     <>
-      <PageMeta
-        title="Wholesale Catalogue — Every Design, Ready to Ship | TajAttire"
-        description="Browse TajAttire's full wholesale catalogue of kurtis, gowns and tops — 500+ designs ready to ship, MOQ 100, starting ₹180."
-        path="/catalogue"
-      />
-      <CatalogueSection />
+      <PageMeta path={pathname.replace(/\/+$/, "")} />
+      <CatalogueBrowser />
     </>
   );
 }

@@ -3,7 +3,7 @@
 export interface CatalogueItem {
   id: string;
   name: string;
-  category: "Kurtis" | "Gowns" | "Tops";
+  category: string;
   image_url: string;
   label: string;
   price: string;

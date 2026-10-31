@@ -1,8 +1,16 @@
 import { supabase } from "./supabase";
 import type {
-  CatalogueItem, Testimonial, FaqItem, Stat, Collection,
-  HowItWorksStep, SustainabilityCard, MarqueeTag, InstagramImage,
-  EnquirySubmission, FactoryVisitRequest,
+  CatalogueItem,
+  Testimonial,
+  FaqItem,
+  Stat,
+  Collection,
+  HowItWorksStep,
+  SustainabilityCard,
+  MarqueeTag,
+  InstagramImage,
+  EnquirySubmission,
+  FactoryVisitRequest,
 } from "./siteData";
 
 /* ─────────── FILE UPLOAD (images, video, gif, pdf) ─────────── */
@@ -18,28 +26,34 @@ async function uploadToBucket(file: File, bucket: string): Promise<string> {
     if (msg.includes("Failed to fetch") || msg.includes("NetworkError")) {
       throw new Error("Network error — check your internet connection and try again.");
     }
-    if (msg.includes("row-level security") || msg.includes("violates") || msg.includes("policy")) {
+    if (
+      msg.includes("row-level security") ||
+      msg.includes("violates") ||
+      msg.includes("policy") ||
+      msg.includes("Unauthorized")
+    ) {
       throw new Error(
-        "Storage permission denied. Please go to Supabase → Storage → Buckets → '" +
-        bucket + "' → Policies and allow anon INSERT/SELECT/UPDATE access."
+        "Upload not allowed for this account. Make sure you're signed in with an admin e-mail " +
+          "(listed in the lock-down script on the Dashboard), then try again.",
       );
     }
     if (msg.toLowerCase().includes("mime type")) {
       throw new Error(
-        "This bucket doesn't allow that file type yet. Paste a hosted file URL instead, " +
-        "or go to Supabase → Storage → Buckets → '" + bucket + "' → allow this MIME type."
+        "That file type isn't allowed here. Use JPG, PNG, WEBP, GIF, MP4, WEBM or PDF.",
       );
     }
     throw new Error(`Upload failed: ${msg}`);
   }
 
-  const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(data.path);
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from(bucket).getPublicUrl(data.path);
   return publicUrl;
 }
 
 export async function uploadImage(
   file: File,
-  bucket: "product-images" | "site-images" = "product-images"
+  bucket: "product-images" | "site-images" = "product-images",
 ): Promise<string> {
   return uploadToBucket(file, bucket);
 }
@@ -66,7 +80,12 @@ export async function createCatalogueItem(item: Omit<CatalogueItem, "id" | "crea
 }
 
 export async function updateCatalogueItem(id: string, updates: Partial<CatalogueItem>) {
-  const { data, error } = await supabase.from("catalogue_items").update(updates).eq("id", id).select().single();
+  const { data, error } = await supabase
+    .from("catalogue_items")
+    .update(updates)
+    .eq("id", id)
+    .select()
+    .single();
   if (error) throw error;
   return data as CatalogueItem;
 }
@@ -92,7 +111,12 @@ export async function createTestimonial(item: Omit<Testimonial, "id" | "created_
 }
 
 export async function updateTestimonial(id: string, updates: Partial<Testimonial>) {
-  const { data, error } = await supabase.from("testimonials").update(updates).eq("id", id).select().single();
+  const { data, error } = await supabase
+    .from("testimonials")
+    .update(updates)
+    .eq("id", id)
+    .select()
+    .single();
   if (error) throw error;
   return data as Testimonial;
 }
@@ -118,7 +142,12 @@ export async function createFaqItem(item: Omit<FaqItem, "id" | "created_at">) {
 }
 
 export async function updateFaqItem(id: string, updates: Partial<FaqItem>) {
-  const { data, error } = await supabase.from("faq_items").update(updates).eq("id", id).select().single();
+  const { data, error } = await supabase
+    .from("faq_items")
+    .update(updates)
+    .eq("id", id)
+    .select()
+    .single();
   if (error) throw error;
   return data as FaqItem;
 }
@@ -136,7 +165,12 @@ export async function getStats() {
 }
 
 export async function updateStat(id: string, updates: Partial<Stat>) {
-  const { data, error } = await supabase.from("stats").update(updates).eq("id", id).select().single();
+  const { data, error } = await supabase
+    .from("stats")
+    .update(updates)
+    .eq("id", id)
+    .select()
+    .single();
   if (error) throw error;
   return data as Stat;
 }
@@ -146,7 +180,9 @@ export async function getSettings(): Promise<Record<string, string>> {
   const { data, error } = await supabase.from("site_settings").select("*");
   if (error) throw error;
   const out: Record<string, string> = {};
-  (data ?? []).forEach((row: { key: string; value: string }) => { out[row.key] = row.value; });
+  (data ?? []).forEach((row: { key: string; value: string }) => {
+    out[row.key] = row.value;
+  });
   return out;
 }
 
@@ -165,7 +201,12 @@ export async function getCollections() {
 }
 
 export async function updateCollection(id: string, updates: Partial<Collection>) {
-  const { data, error } = await supabase.from("collections").update(updates).eq("id", id).select().single();
+  const { data, error } = await supabase
+    .from("collections")
+    .update(updates)
+    .eq("id", id)
+    .select()
+    .single();
   if (error) throw error;
   return data as Collection;
 }
@@ -178,7 +219,12 @@ export async function getHowItWorks() {
 }
 
 export async function updateHowItWorksStep(id: string, updates: Partial<HowItWorksStep>) {
-  const { data, error } = await supabase.from("how_it_works").update(updates).eq("id", id).select().single();
+  const { data, error } = await supabase
+    .from("how_it_works")
+    .update(updates)
+    .eq("id", id)
+    .select()
+    .single();
   if (error) throw error;
   return data as HowItWorksStep;
 }
@@ -191,7 +237,12 @@ export async function getSustainabilityCards() {
 }
 
 export async function updateSustainabilityCard(id: string, updates: Partial<SustainabilityCard>) {
-  const { data, error } = await supabase.from("sustainability_cards").update(updates).eq("id", id).select().single();
+  const { data, error } = await supabase
+    .from("sustainability_cards")
+    .update(updates)
+    .eq("id", id)
+    .select()
+    .single();
   if (error) throw error;
   return data as SustainabilityCard;
 }
@@ -204,7 +255,11 @@ export async function getMarqueeTags() {
 }
 
 export async function createMarqueeTag(text: string, position = 0) {
-  const { data, error } = await supabase.from("marquee_tags").insert({ text, position }).select().single();
+  const { data, error } = await supabase
+    .from("marquee_tags")
+    .insert({ text, position })
+    .select()
+    .single();
   if (error) throw error;
   return data as MarqueeTag;
 }
@@ -222,7 +277,12 @@ export async function getInstagramImages() {
 }
 
 export async function updateInstagramImage(id: string, updates: Partial<InstagramImage>) {
-  const { data, error } = await supabase.from("instagram_images").update(updates).eq("id", id).select().single();
+  const { data, error } = await supabase
+    .from("instagram_images")
+    .update(updates)
+    .eq("id", id)
+    .select()
+    .single();
   if (error) throw error;
   return data as InstagramImage;
 }
@@ -230,19 +290,25 @@ export async function updateInstagramImage(id: string, updates: Partial<Instagra
 /* ─────────── SUBMISSIONS ─────────── */
 export async function getEnquirySubmissions() {
   const { data, error } = await supabase
-    .from("enquiry_submissions").select("*").order("created_at", { ascending: false });
+    .from("enquiry_submissions")
+    .select("*")
+    .order("created_at", { ascending: false });
   if (error) throw error;
   return (data ?? []) as EnquirySubmission[];
 }
 
 export async function getFactoryVisitRequests() {
   const { data, error } = await supabase
-    .from("factory_visit_requests").select("*").order("created_at", { ascending: false });
+    .from("factory_visit_requests")
+    .select("*")
+    .order("created_at", { ascending: false });
   if (error) throw error;
   return (data ?? []) as FactoryVisitRequest[];
 }
 
-export async function createEnquirySubmission(submission: Omit<EnquirySubmission, "id" | "created_at">) {
+export async function createEnquirySubmission(
+  submission: Omit<EnquirySubmission, "id" | "created_at">,
+) {
   const { error } = await supabase.from("enquiry_submissions").insert(submission);
   if (error) throw error;
 }
