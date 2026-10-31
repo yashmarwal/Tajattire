@@ -5,7 +5,7 @@ import { usePageTransition } from "@/lib/PageTransitionContext";
 import { useImg } from "@/hooks/useImg";
 import { useBackToClose } from "@/hooks/useBackToClose";
 import { useProducts } from "@/lib/catalog";
-import { useScrollLock, isScrollLocked } from "@/lib/scrollLock";
+import { useScrollLock, isScrollLocked, releaseTo } from "@/lib/scrollLock";
 import { waLink, telLink, mailLink, PHONE_DISPLAY, EMAIL } from "@/lib/contact";
 import { IconWhatsApp, IconPhone, IconMail, IconClose, IconArrow } from "./icons";
 
@@ -169,8 +169,11 @@ export function Navbar() {
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
     e.preventDefault();
     if (isActive(pathname, href) && href === pathname) {
-      setOpen(false);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      // Same page: go to its top. If the menu froze the page, release it there.
+      if (open) {
+        releaseTo(0);
+        setOpen(false);
+      } else window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
     navigate(href);
