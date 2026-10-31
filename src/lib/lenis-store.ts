@@ -39,3 +39,9 @@ export function lockScroll(locked: boolean) {
   if (locked) instance.stop();
   else instance.start();
 }
+
+/** Jump to an exact vertical offset (used to restore position on Back). */
+export function scrollToYInstant(y: number) {
+  if (instance) instance.scrollTo(y, { immediate: true, force: true });
+  window.scrollTo({ top: y, left: 0, behavior: "instant" as ScrollBehavior });
+}

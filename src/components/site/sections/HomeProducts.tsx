@@ -8,6 +8,7 @@ import { SplitHeading } from "../Primitives";
 import { Pill } from "../Pill";
 import { ProductCard } from "../products/ProductCard";
 import { ProductDialog } from "../products/ProductDialog";
+import { CollectionStack } from "../CollectionStack";
 import { IconChevron, IconArrow } from "../icons";
 
 /* ─────────── Collections → filtered catalogue ─────────── */
@@ -46,7 +47,21 @@ export function Collections() {
           </p>
         </div>
 
-        <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+        <div className="md:hidden">
+          <CollectionStack
+            items={categories.map((c) => {
+              const count = countFor(c.name);
+              return {
+                slug: c.slug,
+                name: c.name,
+                meta: `Min. ${c.moq} · ${c.leadTime}`,
+                count: count > 0 ? `${count} online` : "Lookbook on request",
+                cover: coverFor(c.name),
+              };
+            })}
+          />
+        </div>
+        <ul className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {categories.map((c, i) => {
             const cover = coverFor(c.name);
             const n = countFor(c.name);

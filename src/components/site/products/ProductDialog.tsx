@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Product } from "@/lib/catalog";
 import { useBackToClose } from "@/hooks/useBackToClose";
-import { lockScroll } from "@/lib/lenis-store";
+import { useScrollLock } from "@/lib/scrollLock";
 import { sendForm, logLead, LIMITS } from "@/lib/forms";
 import { waLink, telLink, mailLink, productEnquiryText, PHONE_DISPLAY, EMAIL } from "@/lib/contact";
 import { Honeypot } from "../Honeypot";
@@ -168,18 +168,14 @@ export function ProductDialog({
     setLightbox(null);
   }, [product?.id]);
 
+  useScrollLock(!!product);
   useEffect(() => {
     if (!product) return;
-    lockScroll(true);
-    const prev = document.documentElement.style.overflow;
-    document.documentElement.style.overflow = "hidden";
     const t = setTimeout(() => closeRef.current?.focus({ preventScroll: true }), 50);
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && lightbox === null && onClose();
     window.addEventListener("keydown", onKey);
     return () => {
       clearTimeout(t);
-      lockScroll(false);
-      document.documentElement.style.overflow = prev;
       window.removeEventListener("keydown", onKey);
     };
   }, [product, onClose, lightbox]);

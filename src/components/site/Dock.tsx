@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { usePageTransition } from "@/lib/PageTransitionContext";
+import { isScrollLocked } from "@/lib/scrollLock";
 import { waLink, telLink, PHONE_DISPLAY } from "@/lib/contact";
 import { IconGrid, IconEnquire, IconWhatsApp, IconPhone } from "./icons";
 
@@ -49,7 +50,7 @@ export function Dock() {
     let raf = 0;
     let lastY = window.scrollY;
     const onScroll = () => {
-      if (raf) return;
+      if (raf || isScrollLocked()) return;
       raf = requestAnimationFrame(() => {
         raf = 0;
         const y = window.scrollY;

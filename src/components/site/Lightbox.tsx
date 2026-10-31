@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import { useBackToClose } from "@/hooks/useBackToClose";
-import { lockScroll } from "@/lib/lenis-store";
+import { useScrollLock } from "@/lib/scrollLock";
 import { IconClose, IconChevron } from "./icons";
 
 export interface LightboxItem {
@@ -37,15 +37,9 @@ export function Lightbox({
     if (strip) strip.scrollLeft = index * strip.clientWidth;
   }, [index]);
 
+  useScrollLock(true);
   useEffect(() => {
-    lockScroll(true);
-    const prev = document.documentElement.style.overflow;
-    document.documentElement.style.overflow = "hidden";
     closeRef.current?.focus({ preventScroll: true });
-    return () => {
-      lockScroll(false);
-      document.documentElement.style.overflow = prev;
-    };
   }, []);
 
   const goTo = (i: number) => {

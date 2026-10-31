@@ -5,7 +5,7 @@ import { usePageTransition } from "@/lib/PageTransitionContext";
 import { useImg } from "@/hooks/useImg";
 import { useBackToClose } from "@/hooks/useBackToClose";
 import { useProducts } from "@/lib/catalog";
-import { lockScroll } from "@/lib/lenis-store";
+import { useScrollLock, isScrollLocked } from "@/lib/scrollLock";
 import { waLink, telLink, mailLink, PHONE_DISPLAY, EMAIL } from "@/lib/contact";
 import { IconWhatsApp, IconPhone, IconMail, IconClose, IconArrow } from "./icons";
 
@@ -119,6 +119,7 @@ export function Navbar() {
     let raf = 0;
     const probe = () => {
       raf = 0;
+      if (isScrollLocked()) return; // page is frozen behind an overlay
       setScrolled(window.scrollY > 40);
       const y = 40;
       // Innermost (last in document order) section under the bar wins
@@ -147,18 +148,12 @@ export function Navbar() {
 
   /* ── mobile menu ── */
   useBackToClose(open, () => setOpen(false));
+  useScrollLock(open);
   useEffect(() => {
     if (!open) return;
-    lockScroll(true);
-    const prev = document.documentElement.style.overflow;
-    document.documentElement.style.overflow = "hidden";
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
     window.addEventListener("keydown", onKey);
-    return () => {
-      lockScroll(false);
-      document.documentElement.style.overflow = prev;
-      window.removeEventListener("keydown", onKey);
-    };
+    return () => window.removeEventListener("keydown", onKey);
   }, [open]);
   // Close instantly (no exit animation) when the route changes, inside the same
   // commit as the page swap — so the cross-fade never shows a half-closed menu.

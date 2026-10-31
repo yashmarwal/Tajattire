@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useBackToClose } from "@/hooks/useBackToClose";
-import { lockScroll } from "@/lib/lenis-store";
+import { useScrollLock } from "@/lib/scrollLock";
 import terms from "@/data/terms.json";
 import { waLink, mailLink, PHONE_DISPLAY, EMAIL, FOUNDED_YEAR } from "@/lib/contact";
 import { OPEN_CHAT_EVENT, CHAT_STATE_EVENT } from "./Dock";
@@ -210,21 +210,10 @@ export function AiHelpAgent() {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
     window.addEventListener("keydown", onKey);
-    // Desktop shows a centred dialog, so the page behind stops scrolling
-    const dialog = window.matchMedia("(min-width: 1024px)").matches;
-    const prev = document.documentElement.style.overflow;
-    if (dialog) {
-      lockScroll(true);
-      document.documentElement.style.overflow = "hidden";
-    }
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      if (dialog) {
-        lockScroll(false);
-        document.documentElement.style.overflow = prev;
-      }
-    };
+    return () => window.removeEventListener("keydown", onKey);
   }, [open]);
+  // The page behind never scrolls while the chat is open (phones included)
+  useScrollLock(open);
 
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
@@ -280,14 +269,14 @@ export function AiHelpAgent() {
         // Desktop: larger centred dialog over a dimmed backdrop.
         <motion.div
           key="chat"
-          className="fixed inset-0 z-[75] pointer-events-none lg:pointer-events-auto lg:flex lg:items-center lg:justify-center lg:p-8"
+          className="fixed inset-0 z-[75] lg:flex lg:items-center lg:justify-center lg:p-8"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.22 }}
         >
           <div
-            className="hidden lg:block absolute inset-0 bg-black/55"
+            className="absolute inset-0 bg-black/40 lg:bg-black/55"
             aria-hidden="true"
             onClick={() => setOpen(false)}
           />

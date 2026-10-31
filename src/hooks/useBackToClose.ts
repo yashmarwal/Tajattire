@@ -7,6 +7,9 @@ import { useEffect, useRef } from "react";
  * several are stacked (e.g. a lightbox opened from a product dialog).
  */
 let globalDepth = 0;
+// Set when WE call history.back() to drop a closed overlay's entry, so the
+// overlay underneath doesn't mistake that popstate for the user's Back.
+let ignoreNextPop = false;
 
 export function useBackToClose(open: boolean, onClose: () => void) {
   const pushedRef = useRef(false);
@@ -22,7 +25,15 @@ export function useBackToClose(open: boolean, onClose: () => void) {
     pushedRef.current = false;
     globalDepth = Math.max(0, globalDepth - 1);
     const state = window.history.state as { overlay?: boolean; depth?: number } | null;
-    if (state?.overlay && state.depth === depthRef.current) window.history.back();
+    if (state?.overlay && state.depth === depthRef.current) {
+      ignoreNextPop = true;
+      // Cleared after every listener has seen this popstate — even if no
+      // overlay is listening any more — so a later real Back still works.
+      window.addEventListener("popstate", () => setTimeout(() => (ignoreNextPop = false), 0), {
+        once: true,
+      });
+      window.history.back();
+    }
   };
 
   useEffect(() => {
@@ -40,6 +51,7 @@ export function useBackToClose(open: boolean, onClose: () => void) {
 
   useEffect(() => {
     const onPop = () => {
+      if (ignoreNextPop) return; // our own history.back(), not the user's
       if (pushedRef.current && depthRef.current === globalDepth) {
         pushedRef.current = false;
         globalDepth = Math.max(0, globalDepth - 1);
