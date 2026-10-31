@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { useImg } from "@/hooks/useImg";
 import { useSettings } from "@/hooks/useSiteData";
@@ -9,6 +9,65 @@ import { Pill, PillRow } from "../Pill";
 import { IconWhatsApp } from "../icons";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
+
+const MEDIA_CLS =
+  "absolute inset-0 w-full h-[118%] object-cover transition-opacity duration-700 ease-out";
+const SHOWN = 0.55;
+
+/**
+ * Hero video with NO poster image: a poster paints a still photo first and
+ * then the video "jumps" in. Instead the dark background holds until the
+ * video is really playing, then the video fades in.
+ */
+function HeroVideo({ desktop, mobile }: { desktop: string; mobile: string }) {
+  const [ready, setReady] = useState(false);
+  const ref = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    const v = ref.current;
+    if (v && v.readyState >= 3 && !v.paused) setReady(true);
+  }, []);
+  return (
+    <video
+      ref={ref}
+      className={MEDIA_CLS}
+      style={{ opacity: ready ? SHOWN : 0 }}
+      autoPlay
+      muted
+      loop
+      playsInline
+      preload="auto"
+      onPlaying={() => setReady(true)}
+    >
+      {mobile !== desktop && <source src={mobile} media="(max-width: 767px)" />}
+      <source src={desktop} />
+    </video>
+  );
+}
+
+/** Photo (or animated GIF/WebP) that fades in once decoded — never half-drawn. */
+function HeroImage({ src, mobile }: { src: string; mobile: string }) {
+  const [ready, setReady] = useState(false);
+  const ref = useRef<HTMLImageElement>(null);
+  useEffect(() => {
+    if (ref.current?.complete && ref.current.naturalWidth) setReady(true);
+  }, [src]);
+  return (
+    <picture>
+      {mobile && <source media="(max-width: 767px)" srcSet={mobile} />}
+      <img
+        ref={ref}
+        src={src}
+        alt=""
+        fetchPriority="high"
+        decoding="async"
+        onLoad={() => setReady(true)}
+        onError={healDeadImage}
+        className={MEDIA_CLS}
+        style={{ opacity: ready ? SHOWN : 0 }}
+      />
+    </picture>
+  );
+}
 
 export function Hero() {
   const IMG = useImg();
@@ -31,61 +90,19 @@ export function Hero() {
 
   const show = introDone || reduce;
 
-  // The "motion" slots accept MP4/WEBM video or an animated GIF/WebP image
+  // The "motion" slots accept MP4/WEBM video or an animated GIF/WebP image.
   const isVideo = (u: string) => /\.(mp4|webm|mov|m4v)(\?|$)/i.test(u);
   const desktopMotion = IMG.heroVideo;
   const mobileMotion = IMG.heroVideoMobile || IMG.heroVideo;
-  const mediaCls = "absolute inset-0 w-full h-[118%] object-cover opacity-55";
-  const heroMotion =
-    desktopMotion && isVideo(desktopMotion) && isVideo(mobileMotion) ? (
-      <video
-        className={mediaCls}
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="metadata"
-        poster={IMG.hero || undefined}
-      >
-        {mobileMotion !== desktopMotion && <source src={mobileMotion} media="(max-width: 767px)" />}
-        <source src={desktopMotion} />
-      </video>
-    ) : desktopMotion || IMG.heroVideoMobile ? (
-      <picture>
-        {(IMG.heroVideoMobile || IMG.heroMobile) && (
-          <source
-            media="(max-width: 767px)"
-            srcSet={
-              IMG.heroVideoMobile && !isVideo(IMG.heroVideoMobile)
-                ? IMG.heroVideoMobile
-                : IMG.heroMobile
-            }
-          />
-        )}
-        <img
-          src={desktopMotion && !isVideo(desktopMotion) ? desktopMotion : IMG.hero}
-          alt=""
-          fetchPriority="high"
-          decoding="async"
-          onError={healDeadImage}
-          className={mediaCls}
-        />
-      </picture>
-    ) : (
-      IMG.hero && (
-        <picture>
-          <source media="(max-width: 767px)" srcSet={IMG.heroMobile} />
-          <img
-            src={IMG.hero}
-            alt=""
-            fetchPriority="high"
-            decoding="async"
-            onError={healDeadImage}
-            className={mediaCls}
-          />
-        </picture>
-      )
-    );
+  const useVideo = !!desktopMotion && isVideo(desktopMotion) && isVideo(mobileMotion);
+  const imgSrc = desktopMotion && !isVideo(desktopMotion) ? desktopMotion : IMG.hero;
+  const imgSrcMobile =
+    IMG.heroVideoMobile && !isVideo(IMG.heroVideoMobile) ? IMG.heroVideoMobile : IMG.heroMobile;
+  const heroMotion = useVideo ? (
+    <HeroVideo desktop={desktopMotion} mobile={mobileMotion} />
+  ) : imgSrc ? (
+    <HeroImage src={imgSrc} mobile={imgSrcMobile} />
+  ) : null;
   const rise = (delay: number) => ({
     initial: reduce ? false : { y: "110%" },
     animate: show ? { y: 0 } : undefined,

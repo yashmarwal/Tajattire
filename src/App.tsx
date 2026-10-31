@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
-import { MotionConfig, motion, useScroll } from "framer-motion";
+import { MotionConfig } from "framer-motion";
 import { SmoothScroll } from "@/components/site/SmoothScroll";
 import { Preloader } from "@/components/site/Preloader";
 import { Navbar } from "@/components/site/Navbar";
@@ -19,7 +19,6 @@ export default function App() {
   const [playIntro] = useState(shouldPlayIntro);
   const [introDone, setIntroDone] = useState(!playIntro);
   const [showPreloader, setShowPreloader] = useState(playIntro);
-  const { scrollYProgress } = useScroll();
 
   const onReveal = useCallback(() => {
     setIntroDone(true);
@@ -36,11 +35,6 @@ export default function App() {
       <IntroContext.Provider value={introDone}>
         <PageTransitionProvider>
           <div className="relative bg-deep-black">
-            <motion.div
-              aria-hidden="true"
-              className="fixed top-0 inset-x-0 h-[2px] bg-[var(--gold)] z-[60] origin-left"
-              style={{ scaleX: scrollYProgress }}
-            />
             {showPreloader && <Preloader onReveal={onReveal} onDone={onDone} />}
             <SmoothScroll />
             <Navbar />

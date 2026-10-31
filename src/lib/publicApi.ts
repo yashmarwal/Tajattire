@@ -2,14 +2,7 @@
  * Read-only data for the public site over plain REST — no Supabase SDK in the
  * visitor's download (the SDK is only loaded by the admin panel).
  */
-import type {
-  CatalogueItem,
-  Testimonial,
-  FaqItem,
-  Stat,
-  InstagramImage,
-  SustainabilityCard,
-} from "./siteData";
+import type { CatalogueItem, Testimonial, FaqItem, Stat, SustainabilityCard } from "./siteData";
 
 const URL_ = import.meta.env.VITE_SUPABASE_URL;
 const KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -33,8 +26,6 @@ export const fetchTestimonials = () =>
 export const fetchFaq = () =>
   rest<FaqItem>("faq_items", "select=*&active=eq.true&order=position.asc");
 export const fetchStats = () => rest<Stat>("stats", "select=*&order=position.asc");
-export const fetchInstagram = () =>
-  rest<InstagramImage>("instagram_images", "select=*&order=position.asc");
 export const fetchSustainability = () =>
   rest<SustainabilityCard>("sustainability_cards", "select=*&order=position.asc");
 

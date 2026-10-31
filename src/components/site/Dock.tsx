@@ -104,7 +104,7 @@ export function Dock() {
           {...press("browse")}
         >
           <IconGrid size={19} />
-          <span>Browse</span>
+          <span>Products</span>
         </a>
         <a
           href={waLink("Hi TajAttire! I'd like to know more about your wholesale range.")}

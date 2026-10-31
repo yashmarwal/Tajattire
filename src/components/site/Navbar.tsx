@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 import { usePageTransition } from "@/lib/PageTransitionContext";
 import { useImg } from "@/hooks/useImg";
 import { useBackToClose } from "@/hooks/useBackToClose";
+import { useProducts } from "@/lib/catalog";
 import { lockScroll } from "@/lib/lenis-store";
 import { waLink, telLink, mailLink, PHONE_DISPLAY, EMAIL } from "@/lib/contact";
 import { IconWhatsApp, IconPhone, IconMail, IconClose, IconArrow } from "./icons";
@@ -16,10 +17,14 @@ const DESKTOP_LINKS = [
   { label: "FAQ", href: "/faq" },
 ];
 
-const MOBILE_LINKS = [
+const TILES = [
+  { label: "Catalogue", href: "/catalogue", wide: true },
   { label: "Home", href: "/" },
-  ...DESKTOP_LINKS,
-  { label: "Contact", href: "/contact" },
+  { label: "Custom Orders", href: "/custom-orders" },
+  { label: "Our Craft", href: "/craft" },
+  { label: "Reviews", href: "/reviews" },
+  { label: "FAQ", href: "/faq" },
+  { label: "Contact", href: "/contact", accent: true },
 ];
 
 const isActive = (pathname: string, href: string) =>
@@ -321,52 +326,9 @@ export function Navbar() {
               </button>
             </div>
 
-            <nav aria-label="Mobile" className="flex-1 overflow-y-auto px-6 py-4">
-              <ol>
-                {MOBILE_LINKS.map((l, i) => {
-                  const on = isActive(pathname, l.href);
-                  return (
-                    <motion.li
-                      key={l.href}
-                      initial={{ opacity: 0, y: 14 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{
-                        delay: 0.04 + i * 0.035,
-                        duration: 0.4,
-                        ease: [0.16, 1, 0.3, 1],
-                      }}
-                      className="border-b border-white/[0.08]"
-                    >
-                      <a
-                        href={l.href}
-                        onClick={go(l.href)}
-                        aria-current={on ? "page" : undefined}
-                        className="flex items-center gap-5 py-4 active:opacity-70"
-                      >
-                        <span
-                          className={`text-[11px] tabular-nums tracking-[0.2em] w-6 ${on ? "text-[var(--gold)]" : "text-cloud/40"}`}
-                        >
-                          {String(i + 1).padStart(2, "0")}
-                        </span>
-                        <span
-                          className={`font-display text-[2rem] leading-none ${on ? "text-[var(--gold)] italic" : "text-cloud"}`}
-                        >
-                          {l.label}
-                        </span>
-                        {on && (
-                          <span
-                            className="ml-auto w-1.5 h-1.5 rounded-full bg-[var(--gold)]"
-                            aria-hidden="true"
-                          />
-                        )}
-                      </a>
-                    </motion.li>
-                  );
-                })}
-              </ol>
-            </nav>
+            <MobileGrid pathname={pathname} go={go} />
 
-            <div className="shrink-0 px-6 pb-6 pt-4 border-t border-white/10">
+            <div className="shrink-0 px-4 pb-5 pt-4 border-t border-white/10">
               <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--gold)] mb-3">
                 Talk to us
               </p>
@@ -443,5 +405,92 @@ function GlidePill({ width, animate, tone }: { width: number; animate: boolean; 
         }}
       />
     </div>
+  );
+}
+
+/** Bento-style grid menu. The Catalogue tile shows one of the owner's own
+ * product photos (loaded only when the menu opens). */
+function MobileGrid({
+  pathname,
+  go,
+}: {
+  pathname: string;
+  go: (href: string) => (e: React.MouseEvent<HTMLAnchorElement>) => void;
+}) {
+  const { products, categories } = useProducts();
+  const cover = products.find((p) => p.image)?.image;
+  const tileH = "h-[clamp(84px,13svh,112px)]";
+  return (
+    <nav aria-label="Mobile" className="flex-1 overflow-y-auto px-4 py-4">
+      <ol className="grid grid-cols-2 gap-2.5">
+        {TILES.map((t, i) => {
+          const on = isActive(pathname, t.href);
+          const num = String(i + 1).padStart(2, "0");
+          return (
+            <motion.li
+              key={t.href}
+              initial={{ opacity: 0, y: 12, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ delay: 0.03 + i * 0.03, duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+              className={t.wide ? "col-span-2" : ""}
+            >
+              <a
+                href={t.href}
+                onClick={go(t.href)}
+                aria-current={on ? "page" : undefined}
+                className={`relative flex flex-col justify-between overflow-hidden rounded-[20px] border p-4 active:scale-[0.98] transition-transform ${
+                  t.wide ? "h-[clamp(108px,17svh,150px)]" : tileH
+                } ${
+                  t.accent
+                    ? "bg-[var(--gold)] border-[var(--gold)] text-deep-black"
+                    : on
+                      ? "bg-white/[0.08] border-[var(--gold)] text-[var(--gold)]"
+                      : "bg-white/[0.04] border-white/10 text-cloud"
+                }`}
+              >
+                {t.wide && cover && (
+                  <>
+                    <img
+                      src={cover}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                    <span className="absolute inset-0 bg-black/55" aria-hidden="true" />
+                  </>
+                )}
+                <span className="relative flex items-start justify-between">
+                  <span
+                    className={`text-[10px] tabular-nums tracking-[0.2em] ${t.accent ? "text-deep-black/60" : on ? "text-[var(--gold)]" : "text-cloud/45"}`}
+                  >
+                    {num}
+                  </span>
+                  <span
+                    className={`w-7 h-7 rounded-full grid place-items-center ${t.accent ? "bg-deep-black text-[var(--gold)]" : on ? "bg-[var(--gold)] text-deep-black" : "bg-white/10 text-cloud"}`}
+                    aria-hidden="true"
+                  >
+                    <IconArrow size={12} />
+                  </span>
+                </span>
+                <span className="relative">
+                  <span
+                    className={`block font-display leading-none ${t.wide ? "text-[2rem]" : "text-[1.45rem]"} ${on && !t.accent ? "italic" : ""}`}
+                  >
+                    {t.label}
+                  </span>
+                  {t.wide && (
+                    <span className="block text-[11px] text-cloud/70 mt-1.5">
+                      {categories.map((c) => c.name).join(" · ")}
+                      {products.length > 0 ? ` · ${products.length} online` : ""}
+                    </span>
+                  )}
+                </span>
+              </a>
+            </motion.li>
+          );
+        })}
+      </ol>
+    </nav>
   );
 }

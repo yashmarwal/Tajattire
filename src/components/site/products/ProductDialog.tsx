@@ -12,7 +12,15 @@ import { IconWhatsApp, IconPhone, IconMail, IconClose, IconArrow } from "../icon
 
 type Status = "idle" | "loading" | "success" | "error";
 
-function QuickForm({ product, onDone }: { product: Product; onDone: () => void }) {
+function QuickForm({
+  product,
+  onDone,
+  dark = false,
+}: {
+  product: Product;
+  onDone: () => void;
+  dark?: boolean;
+}) {
   const [form, setForm] = useState({ name: "", whatsapp: "", quantity: "" });
   const [trap, setTrap] = useState("");
   const [status, setStatus] = useState<Status>("idle");
@@ -47,14 +55,16 @@ function QuickForm({ product, onDone }: { product: Product; onDone: () => void }
   if (status === "success") {
     return (
       <div className="text-center py-5" role="status">
-        <p className="font-display text-xl text-charcoal">Enquiry sent — thank you.</p>
-        <p className="text-charcoal/60 text-sm mt-1">
+        <p className={`font-display text-xl ${dark ? "text-white" : "text-charcoal"}`}>
+          Enquiry sent — thank you.
+        </p>
+        <p className={`text-sm mt-1 ${dark ? "text-white/70" : "text-charcoal/60"}`}>
           We'll reply on WhatsApp within 2 business hours.
         </p>
         <button
           type="button"
           onClick={onDone}
-          className="mt-4 text-xs uppercase tracking-[0.18em] text-[var(--emerald-deep)] underline underline-offset-4"
+          className={`mt-4 text-xs uppercase tracking-[0.18em] underline underline-offset-4 ${dark ? "text-white" : "text-[var(--emerald-deep)]"}`}
         >
           Close
         </button>
@@ -62,15 +72,17 @@ function QuickForm({ product, onDone }: { product: Product; onDone: () => void }
     );
   }
 
-  const field =
-    "w-full bg-transparent border-b border-charcoal/20 py-2 text-[15px] text-charcoal placeholder:text-charcoal/35 focus:outline-none focus:border-[var(--emerald-deep)]";
+  const field = dark
+    ? "w-full bg-transparent border-b border-white/30 py-2 text-[16px] text-white placeholder:text-white/45 focus:outline-none focus:border-white"
+    : "w-full bg-transparent border-b border-charcoal/20 py-2 text-[15px] text-charcoal placeholder:text-charcoal/35 focus:outline-none focus:border-[var(--emerald-deep)]";
+  const lbl = dark
+    ? "block text-[10px] uppercase tracking-[0.2em] text-white/65 mb-1"
+    : "block text-[10px] uppercase tracking-[0.2em] text-charcoal/55 mb-1";
   return (
     <form onSubmit={submit} className="relative grid gap-4" noValidate={false}>
       <Honeypot value={trap} onChange={setTrap} />
       <label className="block">
-        <span className="block text-[10px] uppercase tracking-[0.2em] text-charcoal/55 mb-1">
-          Your name
-        </span>
+        <span className={lbl}>Your name</span>
         <input
           required
           maxLength={LIMITS.short}
@@ -82,9 +94,7 @@ function QuickForm({ product, onDone }: { product: Product; onDone: () => void }
         />
       </label>
       <label className="block">
-        <span className="block text-[10px] uppercase tracking-[0.2em] text-charcoal/55 mb-1">
-          WhatsApp number
-        </span>
+        <span className={lbl}>WhatsApp number</span>
         <input
           required
           type="tel"
@@ -99,9 +109,7 @@ function QuickForm({ product, onDone }: { product: Product; onDone: () => void }
         />
       </label>
       <label className="block">
-        <span className="block text-[10px] uppercase tracking-[0.2em] text-charcoal/55 mb-1">
-          Quantity (min. {product.moq})
-        </span>
+        <span className={lbl}>Quantity (min. {product.moq})</span>
         <input
           maxLength={LIMITS.short}
           value={form.quantity}
@@ -111,7 +119,7 @@ function QuickForm({ product, onDone }: { product: Product; onDone: () => void }
         />
       </label>
       {status === "error" && (
-        <p role="alert" className="text-red-700 text-xs">
+        <p role="alert" className={dark ? "text-red-200 text-xs" : "text-red-700 text-xs"}>
           Couldn't send just now — your details are still here. Press Send to retry, or use
           WhatsApp.
         </p>
@@ -132,7 +140,7 @@ function QuickForm({ product, onDone }: { product: Product; onDone: () => void }
   );
 }
 
-/** Desktop: centred two-column dialog. Phones: compact bottom sheet. */
+/** Desktop: centred two-column dialog. Phones: floating frosted card. */
 export function ProductDialog({
   product,
   gallery,
@@ -145,6 +153,13 @@ export function ProductDialog({
   const [showForm, setShowForm] = useState(false);
   const [lightbox, setLightbox] = useState<number | null>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const [compact, setCompact] = useState(() => window.matchMedia("(max-width: 767px)").matches);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const on = () => setCompact(mq.matches);
+    mq.addEventListener("change", on);
+    return () => mq.removeEventListener("change", on);
+  }, []);
 
   useBackToClose(!!product, onClose);
 
@@ -183,7 +198,170 @@ export function ProductDialog({
   return createPortal(
     <>
       <AnimatePresence>
-        {product && (
+        {product && compact && (
+          // Phones: floating card — full-bleed photo that melts into a frosted
+          // blur of itself, with the name, terms and actions on top.
+          <motion.div
+            key="card"
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={onClose}
+          >
+            <div className="absolute inset-0 bg-black/55" aria-hidden="true" />
+            <motion.div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="pd-title"
+              onClick={(e) => e.stopPropagation()}
+              initial={{ opacity: 0, y: 24, scale: 0.94 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 16, scale: 0.96 }}
+              transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
+              className="relative w-[min(88vw,400px)] h-[min(82svh,680px)] overflow-hidden rounded-[34px] bg-[#1b1d1c] shadow-[0_30px_80px_-20px_rgba(0,0,0,0.7)]"
+            >
+              {product.image && (
+                <>
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                  {/* frosted lower half: a blurred copy of the same photo, revealed by a mask */}
+                  <img
+                    src={product.image}
+                    alt=""
+                    aria-hidden="true"
+                    className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl"
+                    style={{
+                      maskImage: "linear-gradient(to bottom, transparent 34%, #000 62%)",
+                      WebkitMaskImage: "linear-gradient(to bottom, transparent 34%, #000 62%)",
+                    }}
+                  />
+                  <span
+                    aria-hidden="true"
+                    className="absolute inset-0 bg-black/35"
+                    style={{
+                      maskImage: "linear-gradient(to bottom, transparent 40%, #000 75%)",
+                      WebkitMaskImage: "linear-gradient(to bottom, transparent 40%, #000 75%)",
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setLightbox(lbIndex)}
+                    className="absolute inset-x-0 top-0 h-[46%]"
+                    aria-label="Open photo full screen"
+                  />
+                </>
+              )}
+
+              <div className="absolute top-4 left-4 right-4 flex items-start justify-between gap-3 pointer-events-none">
+                <span className="flex flex-wrap gap-1.5">
+                  <span className="rounded-full bg-white/20 backdrop-blur-md text-white px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]">
+                    {product.category}
+                  </span>
+                  {product.badge && (
+                    <span className="rounded-full bg-[var(--gold)] text-deep-black px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]">
+                      {product.badge}
+                    </span>
+                  )}
+                </span>
+                <button
+                  ref={closeRef}
+                  type="button"
+                  onClick={onClose}
+                  aria-label="Close"
+                  className="pointer-events-auto w-10 h-10 rounded-full bg-black/35 backdrop-blur-md text-white grid place-items-center active:scale-95"
+                >
+                  <IconClose size={16} />
+                </button>
+              </div>
+
+              <div
+                className="absolute inset-x-0 bottom-0 max-h-[64%] overflow-y-auto overscroll-contain px-5 pb-5 pt-6 text-center text-white"
+                data-lenis-prevent
+                style={{ paddingBottom: "max(1.25rem, env(safe-area-inset-bottom))" }}
+              >
+                {showForm ? (
+                  <div className="text-left">
+                    <h2
+                      id="pd-title"
+                      className="font-display text-[1.6rem] leading-tight text-center mb-4"
+                    >
+                      {product.name}
+                    </h2>
+                    <QuickForm product={product} onDone={onClose} dark />
+                    <button
+                      type="button"
+                      onClick={() => setShowForm(false)}
+                      className="mt-4 block mx-auto text-[11px] text-white/70 underline underline-offset-4"
+                    >
+                      ← Back
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <p className="font-display text-[2.1rem] leading-none tabular-nums">
+                      {product.moq}
+                    </p>
+                    <p className="text-[10px] uppercase tracking-[0.22em] text-white/70 mt-1.5">
+                      minimum per style
+                    </p>
+                    <h2
+                      id="pd-title"
+                      className="font-display text-[1.55rem] leading-tight mt-4 line-clamp-2"
+                    >
+                      {product.name}
+                    </h2>
+                    <p className="text-[12px] text-white/75 mt-1.5">
+                      Dispatch in {product.leadTime}
+                      {product.price ? ` · ${product.price}` : ""}
+                    </p>
+                    <a
+                      href={waLink(message)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-5 flex items-center justify-center gap-2 w-full h-12 rounded-full bg-white/85 backdrop-blur-md text-charcoal text-[12px] font-semibold uppercase tracking-[0.16em] active:scale-[0.98] transition-transform"
+                    >
+                      <IconWhatsApp size={16} className="text-[#128C7E]" /> Get a quote
+                    </a>
+                    <div className="mt-2 grid grid-cols-3 gap-2">
+                      <a
+                        href={telLink}
+                        aria-label={`Call ${PHONE_DISPLAY}`}
+                        className="h-11 rounded-full bg-black/35 backdrop-blur-md grid place-items-center text-[11px] font-semibold uppercase tracking-[0.12em] active:scale-95"
+                      >
+                        <span className="inline-flex items-center gap-1.5">
+                          <IconPhone size={14} /> Call
+                        </span>
+                      </a>
+                      <a
+                        href={mailLink(`Wholesale enquiry — ${product.name}`, message)}
+                        aria-label={`Email ${EMAIL}`}
+                        className="h-11 rounded-full bg-black/35 backdrop-blur-md grid place-items-center text-[11px] font-semibold uppercase tracking-[0.12em] active:scale-95"
+                      >
+                        <span className="inline-flex items-center gap-1.5">
+                          <IconMail size={14} /> Email
+                        </span>
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => setShowForm(true)}
+                        aria-label="Prefer a quick form?"
+                        className="h-11 rounded-full bg-black/35 backdrop-blur-md text-[11px] font-semibold uppercase tracking-[0.12em] active:scale-95"
+                      >
+                        Form
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+        {product && !compact && (
           <motion.div
             key="backdrop"
             className="fixed inset-0 z-[100] flex items-end md:items-center justify-center md:p-6"

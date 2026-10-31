@@ -36,9 +36,6 @@ export const useSettings = () =>
     refetchOnWindowFocus: true,
   });
 
-export const useInstagramImages = () =>
-  useQuery({ queryKey: ["instagram"], queryFn: pub.fetchInstagram, ...OPTS });
-
 export const useSustainabilityCards = () =>
   useQuery({ queryKey: ["sustainability"], queryFn: pub.fetchSustainability, ...OPTS });
 

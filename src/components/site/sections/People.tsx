@@ -1,199 +1,211 @@
-import { useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { useTestimonials, useInstagramImages, useFaqItems } from "@/hooks/useSiteData";
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { useTestimonials, useFaqItems } from "@/hooks/useSiteData";
 import { DEFAULT_FAQ } from "@/lib/seo";
-import { waLink, INSTAGRAM_URL, INSTAGRAM_HANDLE } from "@/lib/contact";
+import { waLink, GSTIN, FOUNDED_YEAR } from "@/lib/contact";
 import { SplitHeading } from "../Primitives";
 import { Pill, PillRow } from "../Pill";
-import { IconChevron, IconInstagram, IconWhatsApp } from "../icons";
+import { IconWhatsApp } from "../icons";
 
-/* ─────────── Testimonials — only real ones entered by the owner ─────────── */
+/* ─────────── Reviews: a wall of real quotes + ways to verify us ─────────── */
+const Stars = ({ n, className = "" }: { n: number; className?: string }) => (
+  <span className={`inline-flex gap-0.5 ${className}`} aria-label={`${n} out of 5`}>
+    {Array.from({ length: 5 }).map((_, i) => (
+      <svg
+        key={i}
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+        fill={i < n ? "currentColor" : "none"}
+        stroke="currentColor"
+        strokeWidth="1.5"
+      >
+        <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z" />
+      </svg>
+    ))}
+  </span>
+);
+
 export function Testimonials() {
-  const { data, isLoading } = useTestimonials();
-  const items = data ?? [];
-  const [current, setCurrent] = useState(0);
-  const [dir, setDir] = useState(1);
-  const [paused, setPaused] = useState(false);
-  const reduce = useReducedMotion();
-  const touchX = useRef(0);
+  const { data } = useTestimonials();
+  const items = (data ?? []).filter((t) => t.quote?.trim());
+  const avg = items.length
+    ? items.reduce((s, t) => s + Math.max(1, Math.min(5, t.stars || 5)), 0) / items.length
+    : 0;
 
-  const go = (d: 1 | -1) => {
-    setDir(d);
-    setCurrent((p) => (p + d + items.length) % items.length);
-  };
-
-  useEffect(() => {
-    if (paused || reduce || items.length < 2) return;
-    const t = setInterval(() => {
-      setDir(1);
-      setCurrent((p) => (p + 1) % items.length);
-    }, 6000);
-    return () => clearInterval(t);
-  }, [paused, reduce, items.length, current]);
+  const proofs = [
+    {
+      k: "01",
+      title: "Order a sample first",
+      copy: "Samples cost a nominal charge that's adjusted against your first bulk order — judge the stitching yourself.",
+      cta: {
+        label: "Ask for a sample",
+        href: waLink("Hi TajAttire! I'd like to order a sample before a bulk order."),
+      },
+    },
+    {
+      k: "02",
+      title: "Visit our Jaipur unit",
+      copy: "Buyers are welcome by appointment to see the range, the floor and the quality checks in person.",
+      cta: {
+        label: "Book a visit",
+        href: waLink("Hi TajAttire! I'd like to book a visit to your Jaipur unit."),
+      },
+    },
+    {
+      k: "03",
+      title: "Speak to a store we supply",
+      copy: "Ask us and we'll connect you with a retailer who already stocks TajAttire.",
+      cta: {
+        label: "Ask for references",
+        href: waLink("Hi TajAttire! Could you share references from retailers you supply?"),
+      },
+    },
+    {
+      k: "04",
+      title: `Registered business since ${FOUNDED_YEAR}`,
+      copy: `GST-registered wholesale manufacturer in Jaipur. GSTIN ${GSTIN}.`,
+    },
+  ];
 
   return (
-    <section
-      data-bg="dark"
-      className="relative bg-[var(--emerald-deep)] pt-36 md:pt-44 pb-24 md:pb-32 overflow-x-clip"
-    >
+    <section data-bg="light" className="relative bg-cloud pt-36 md:pt-44 pb-24 md:pb-32">
       <div className="max-w-[1500px] mx-auto px-6 lg:px-12">
-        <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--gold)]">Reviews</p>
-        <SplitHeading
-          as="h1"
-          text="What retailers say."
-          className="mt-5 font-display text-cloud font-light leading-[1.02] text-[clamp(2.4rem,7vw,5.5rem)]"
-        />
-
-        {isLoading ? (
-          <div className="mt-12 h-72 max-w-3xl rounded-[26px] bg-white/5" aria-hidden="true" />
-        ) : items.length === 0 ? (
-          <div className="mt-12 max-w-3xl rounded-[26px] border border-white/10 bg-[#0A2416] p-8 md:p-12">
-            <p className="font-display text-cloud text-2xl md:text-3xl leading-snug">
-              We're gathering reviews from our retail partners.
-            </p>
-            <p className="text-cloud/65 mt-3 leading-relaxed">
-              Want to hear from a store that stocks TajAttire? Ask us on WhatsApp and we'll put you
-              in touch, or visit our Jaipur unit to see the work yourself.
-            </p>
-            <div className="mt-8">
-              <Pill
-                href={waLink("Hi TajAttire! Could you share references from retailers you supply?")}
-                variant="primary"
-                icon={<IconWhatsApp size={16} />}
-              >
-                Ask for references
-              </Pill>
-            </div>
-          </div>
-        ) : (
-          <div
-            className="relative mt-12 max-w-3xl"
-            onMouseEnter={() => setPaused(true)}
-            onMouseLeave={() => setPaused(false)}
-          >
-            <div className="relative min-h-[300px] md:min-h-[320px]">
-              <AnimatePresence mode="wait" custom={dir} initial={false}>
-                <motion.figure
-                  key={current}
-                  custom={dir}
-                  initial={{ opacity: 0, x: dir * 40 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: dir * -40 }}
-                  transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-                  onTouchStart={(e) => {
-                    touchX.current = e.touches[0].clientX;
-                    setPaused(true);
-                  }}
-                  onTouchEnd={(e) => {
-                    const d = touchX.current - e.changedTouches[0].clientX;
-                    if (Math.abs(d) > 40) go(d > 0 ? 1 : -1);
-                    setPaused(false);
-                  }}
-                  className="rounded-[26px] border border-[var(--gold)]/20 bg-[#0A2416] p-8 md:p-12"
-                >
-                  <div
-                    className="flex gap-1 mb-6 text-[var(--gold)]"
-                    aria-label={`${items[current].stars || 5} out of 5`}
-                  >
-                    {Array.from({
-                      length: Math.max(1, Math.min(5, items[current].stars || 5)),
-                    }).map((_, j) => (
-                      <span key={j} aria-hidden="true">
-                        ★
-                      </span>
-                    ))}
-                  </div>
-                  <blockquote className="font-display italic text-cloud leading-snug text-[clamp(1.25rem,2.6vw,1.75rem)]">
-                    “{items[current].quote}”
-                  </blockquote>
-                  <figcaption className="mt-8">
-                    <span className="block text-cloud font-medium text-sm">
-                      {items[current].name}
-                    </span>
-                    {items[current].role && (
-                      <span className="block text-cloud/55 text-[11px] uppercase tracking-[0.18em] mt-1">
-                        {items[current].role}
-                      </span>
-                    )}
-                  </figcaption>
-                </motion.figure>
-              </AnimatePresence>
-            </div>
-            {items.length > 1 && (
-              <div className="flex items-center gap-5 mt-8">
-                <button
-                  type="button"
-                  onClick={() => go(-1)}
-                  aria-label="Previous review"
-                  className="w-11 h-11 rounded-full border border-[var(--gold)]/40 text-[var(--gold)] grid place-items-center active:scale-95"
-                >
-                  <IconChevron dir="left" />
-                </button>
-                <span
-                  className="text-xs tabular-nums tracking-[0.2em] text-cloud/60"
-                  aria-live="polite"
-                >
-                  {current + 1} / {items.length}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => go(1)}
-                  aria-label="Next review"
-                  className="w-11 h-11 rounded-full border border-[var(--gold)]/40 text-[var(--gold)] grid place-items-center active:scale-95"
-                >
-                  <IconChevron />
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    </section>
-  );
-}
-
-/* ─────────── Instagram — only the owner's own images ─────────── */
-export function InstagramGrid() {
-  const { data } = useInstagramImages();
-  const images = (data ?? []).filter((i) => i.image_url);
-  return (
-    <section data-bg="light" className="relative bg-cloud py-24 md:py-32">
-      <div className="max-w-[1500px] mx-auto px-6 lg:px-12">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10 md:mb-14">
+        <header className="grid lg:grid-cols-[1.4fr_1fr] gap-10 lg:items-end">
           <div>
             <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--emerald-deep)] mb-5">
-              Follow the journey
+              Reviews & trust
             </p>
-            <h2 className="font-display text-[var(--emerald-deep)] font-light leading-[1.05] text-[clamp(2rem,5vw,4rem)]">
-              {INSTAGRAM_HANDLE} <span className="italic">on Instagram</span>
-            </h2>
+            <SplitHeading
+              as="h1"
+              text="Trusted the"
+              className="font-display text-charcoal font-light leading-[1.02] text-[clamp(2.4rem,7vw,5.5rem)]"
+            />
+            <SplitHeading
+              text="old-fashioned way."
+              delay={0.12}
+              className="font-display italic text-[var(--emerald-deep)] font-light leading-[1.02] text-[clamp(2.4rem,7vw,5.5rem)]"
+            />
           </div>
-          <Pill href={INSTAGRAM_URL} variant="secondary-dark" icon={<IconInstagram size={16} />}>
-            Follow us
-          </Pill>
-        </div>
-        {images.length > 0 && (
-          <ul className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
-            {images.slice(0, 6).map((img) => (
-              <li key={img.id}>
-                <a
-                  href={INSTAGRAM_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group relative block aspect-square overflow-hidden rounded-[14px] bg-[#EDE9DF]"
-                >
-                  <img
-                    src={img.image_url}
-                    alt={img.alt || "TajAttire on Instagram"}
-                    loading="lazy"
-                    decoding="async"
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1.2s] ease-out [@media(hover:hover)]:group-hover:scale-105"
-                  />
-                </a>
+          <div className="lg:min-h-[136px] flex items-end">
+            {items.length > 0 ? (
+              <div className="rounded-[26px] bg-[var(--emerald-deep)] text-cloud p-7 flex items-center gap-6">
+                <span className="font-display text-6xl leading-none tabular-nums">
+                  {avg.toFixed(1)}
+                </span>
+                <span>
+                  <Stars n={Math.round(avg)} className="text-[var(--gold)]" />
+                  <span className="block text-[12px] text-cloud/70 mt-1.5">
+                    From {items.length} retailer review{items.length > 1 ? "s" : ""}
+                  </span>
+                </span>
+              </div>
+            ) : (
+              <p className="text-charcoal/65 leading-relaxed max-w-md">
+                We'd rather you check than take our word for it. Here are four ways to see our work
+                for yourself — reviews from our retail partners will appear here as they share them.
+              </p>
+            )}
+          </div>
+        </header>
+
+        <div className="mt-14 md:mt-16">
+          <h2 className="font-display text-charcoal text-[clamp(1.6rem,3.5vw,2.6rem)] leading-tight">
+            Four ways to check us yourself.
+          </h2>
+          <ul className="mt-8 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {proofs.map((p) => (
+              <li
+                key={p.k}
+                className="rounded-[24px] bg-white border border-charcoal/[0.07] p-6 flex flex-col"
+              >
+                <span className="font-display text-[var(--gold)] text-3xl tabular-nums">{p.k}</span>
+                <h3 className="font-display text-charcoal text-xl mt-4 leading-snug">{p.title}</h3>
+                <p className="text-charcoal/65 text-sm leading-relaxed mt-2 flex-1">{p.copy}</p>
+                {p.cta && (
+                  <a
+                    href={p.cta.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-5 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--emerald-deep)]"
+                  >
+                    <IconWhatsApp size={14} /> {p.cta.label}
+                  </a>
+                )}
               </li>
             ))}
           </ul>
+        </div>
+
+        {/* Real reviews come after the proof tiles, so when they load nothing above them moves */}
+        {items.length > 0 && (
+          <div className="mt-16 md:mt-20">
+            <h2 className="font-display text-charcoal text-[clamp(1.6rem,3.5vw,2.6rem)] leading-tight">
+              What retailers say
+            </h2>
+            <ul className="mt-8 columns-1 sm:columns-2 lg:columns-3 gap-4 md:gap-5 [column-fill:_balance]">
+              {items.map((t, i) => (
+                <motion.li
+                  key={t.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "0px 0px -8% 0px" }}
+                  transition={{ duration: 0.7, delay: (i % 3) * 0.08, ease: [0.16, 1, 0.3, 1] }}
+                  className="break-inside-avoid mb-4 md:mb-5"
+                >
+                  <figure
+                    className={`rounded-[24px] p-7 md:p-8 border ${i === 0 ? "bg-[var(--deep-black)] text-cloud border-transparent" : "bg-white text-charcoal border-charcoal/[0.07]"}`}
+                  >
+                    <Stars
+                      n={Math.max(1, Math.min(5, t.stars || 5))}
+                      className="text-[var(--gold)]"
+                    />
+                    <blockquote
+                      className={`font-display leading-snug mt-5 ${i === 0 ? "text-[1.6rem] md:text-[1.9rem]" : "text-[1.25rem]"}`}
+                    >
+                      “{t.quote}”
+                    </blockquote>
+                    <figcaption className="mt-6 flex items-center gap-3">
+                      <span
+                        className={`w-9 h-9 rounded-full grid place-items-center text-[13px] font-semibold ${i === 0 ? "bg-[var(--gold)] text-deep-black" : "bg-[var(--emerald-deep)] text-cloud"}`}
+                        aria-hidden="true"
+                      >
+                        {t.name.trim().charAt(0).toUpperCase()}
+                      </span>
+                      <span>
+                        <span className="block text-sm font-medium">{t.name}</span>
+                        {t.role && (
+                          <span
+                            className={`block text-[11px] uppercase tracking-[0.16em] ${i === 0 ? "text-cloud/55" : "text-charcoal/50"}`}
+                          >
+                            {t.role}
+                          </span>
+                        )}
+                      </span>
+                    </figcaption>
+                  </figure>
+                </motion.li>
+              ))}
+            </ul>
+          </div>
         )}
+
+        <div className="mt-16 rounded-[26px] bg-[var(--emerald-deep)] px-6 py-10 md:px-12 md:py-12 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <p className="font-display text-cloud text-[clamp(1.5rem,3vw,2.2rem)] leading-tight max-w-xl">
+            Stock TajAttire?{" "}
+            <span className="italic text-[var(--gold)]">We'd love to hear how it sells.</span>
+          </p>
+          <PillRow>
+            <Pill
+              href={waLink("Hi TajAttire! I'd like to share a review of your products.")}
+              variant="primary"
+              icon={<IconWhatsApp size={16} />}
+            >
+              Share your review
+            </Pill>
+          </PillRow>
+        </div>
       </div>
     </section>
   );

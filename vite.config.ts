@@ -41,6 +41,7 @@ export default defineConfig({
     tsconfigPaths(),
     preloadCriticalFonts([
       /cormorant-garamond-latin-300-normal.*\.woff2$/,
+      /cormorant-garamond-latin-300-italic.*\.woff2$/,
       /inter-latin-400-normal.*\.woff2$/,
     ]),
   ],

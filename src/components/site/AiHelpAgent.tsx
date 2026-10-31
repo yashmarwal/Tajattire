@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useBackToClose } from "@/hooks/useBackToClose";
+import { lockScroll } from "@/lib/lenis-store";
 import terms from "@/data/terms.json";
 import { waLink, mailLink, PHONE_DISPLAY, EMAIL, FOUNDED_YEAR } from "@/lib/contact";
 import { OPEN_CHAT_EVENT, CHAT_STATE_EVENT } from "./Dock";
@@ -209,7 +210,20 @@ export function AiHelpAgent() {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    // Desktop shows a centred dialog, so the page behind stops scrolling
+    const dialog = window.matchMedia("(min-width: 1024px)").matches;
+    const prev = document.documentElement.style.overflow;
+    if (dialog) {
+      lockScroll(true);
+      document.documentElement.style.overflow = "hidden";
+    }
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      if (dialog) {
+        lockScroll(false);
+        document.documentElement.style.overflow = prev;
+      }
+    };
   }, [open]);
 
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
@@ -262,158 +276,174 @@ export function AiHelpAgent() {
   return (
     <AnimatePresence>
       {open && (
-        <motion.section
-          id="ai-chat-panel"
-          role="dialog"
-          aria-label="TajAttire quick answers"
-          initial={{ opacity: 0, y: 16, scale: 0.98 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 16, scale: 0.98 }}
-          transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-          onAnimationComplete={() => open && inputRef.current?.focus({ preventScroll: true })}
-          style={{
-            bottom: "calc(var(--dock-h) + 10px)",
-            transformOrigin: "bottom center",
-            willChange: "transform, opacity",
-          }}
-          className="fixed z-[75] left-3 right-3 sm:left-auto sm:right-6 sm:w-[360px] flex flex-col overflow-hidden rounded-[20px] bg-[#0C0E0D] border border-[var(--gold)]/20 shadow-[0_24px_64px_rgba(0,0,0,0.55)] max-h-[min(70vh,560px)]"
+        // Phones: panel sits above the dock and the page stays usable.
+        // Desktop: larger centred dialog over a dimmed backdrop.
+        <motion.div
+          key="chat"
+          className="fixed inset-0 z-[75] pointer-events-none lg:pointer-events-auto lg:flex lg:items-center lg:justify-center lg:p-8"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.22 }}
         >
-          <header className="flex items-center justify-between gap-3 px-4 py-3 border-b border-white/[0.07] shrink-0">
-            <div className="flex items-center gap-3">
-              <span className="dock-orb" aria-hidden="true">
-                <span className="dock-orb-core" />
-              </span>
-              <div>
-                <p className="text-cloud text-[13px] font-medium leading-tight">Quick answers</p>
-                <p className="text-cloud/45 text-[11px] leading-tight">
-                  From TajAttire's own terms · team on WhatsApp
-                </p>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              aria-label="Close chat"
-              className="w-9 h-9 rounded-full grid place-items-center text-cloud/60 hover:text-cloud active:scale-95"
-            >
-              <IconClose size={16} />
-            </button>
-          </header>
-
           <div
-            ref={listRef}
-            className="flex-1 min-h-[180px] overflow-y-auto overscroll-contain px-4 py-4 space-y-3"
-            data-lenis-prevent
-            aria-live="polite"
+            className="hidden lg:block absolute inset-0 bg-black/55"
+            aria-hidden="true"
+            onClick={() => setOpen(false)}
+          />
+          <motion.section
+            id="ai-chat-panel"
+            role="dialog"
+            aria-label="TajAttire quick answers"
+            initial={{ opacity: 0, y: 18, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 18, scale: 0.97 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            onAnimationComplete={() => open && inputRef.current?.focus({ preventScroll: true })}
+            style={{ willChange: "transform, opacity" }}
+            className="pointer-events-auto absolute left-3 right-3 bottom-[calc(var(--dock-h)+10px)] origin-bottom h-[min(74svh,620px)] sm:left-auto sm:right-6 sm:w-[420px] lg:relative lg:inset-auto lg:origin-center lg:w-[min(640px,92vw)] lg:h-[min(78vh,720px)] flex flex-col overflow-hidden rounded-[22px] lg:rounded-[28px] bg-[#0C0E0D] border border-[var(--gold)]/20 shadow-[0_24px_64px_rgba(0,0,0,0.55)]"
           >
-            {messages.map((m) => (
-              <div
-                key={m.id}
-                className={`flex ${m.from === "user" ? "justify-end" : "justify-start"}`}
+            <header className="flex items-center justify-between gap-3 px-4 py-3 border-b border-white/[0.07] shrink-0">
+              <div className="flex items-center gap-3">
+                <span className="dock-orb" aria-hidden="true">
+                  <span className="dock-orb-core" />
+                </span>
+                <div>
+                  <p className="text-cloud text-[13px] lg:text-[15px] font-medium leading-tight">
+                    Quick answers
+                  </p>
+                  <p className="text-cloud/45 text-[11px] leading-tight">
+                    From TajAttire's own terms · team on WhatsApp
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                aria-label="Close chat"
+                className="w-9 h-9 rounded-full grid place-items-center text-cloud/60 hover:text-cloud active:scale-95"
               >
-                <div
-                  className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-[13px] leading-relaxed ${
-                    m.from === "user"
-                      ? "bg-[var(--emerald-deep)] text-cloud rounded-br-md"
-                      : "bg-white/[0.06] text-cloud/90 rounded-bl-md"
-                  }`}
-                >
-                  {m.text}
-                  {m.handoffFor && (
-                    <div className="mt-2.5 flex flex-wrap gap-2">
-                      <a
-                        href={waLink(`Hi TajAttire, a question from your website: ${m.handoffFor}`)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 rounded-full bg-[#25D366] text-white px-3 py-1.5 text-[11px] font-semibold"
-                      >
-                        <IconWhatsApp size={13} /> WhatsApp
-                      </a>
-                      <a
-                        href={mailLink("Question from the website", m.handoffFor)}
-                        className="inline-flex items-center gap-1.5 rounded-full border border-white/20 text-cloud px-3 py-1.5 text-[11px] font-semibold"
-                      >
-                        <IconMail size={13} /> Email
-                      </a>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-            {typing && (
-              <div className="flex justify-start">
-                <div className="rounded-2xl rounded-bl-md bg-white/[0.06] px-3.5 py-2.5 text-[12px] text-cloud/55 flex items-center gap-2">
-                  <span className="flex gap-1" aria-hidden="true">
-                    {[0, 1, 2].map((i) => (
-                      <span
-                        key={i}
-                        className="w-1.5 h-1.5 rounded-full bg-[var(--gold)]/70 animate-pulse"
-                        style={{ animationDelay: `${i * 160}ms` }}
-                      />
-                    ))}
-                  </span>
-                  writing…
-                </div>
-              </div>
-            )}
-            {messages.length === 1 && !typing && (
-              <div className="flex flex-wrap gap-2 pt-1">
-                {CHIPS.map((c) => (
-                  <button
-                    key={c}
-                    type="button"
-                    onClick={() => send(c)}
-                    className="rounded-full border border-[var(--gold)]/30 text-[var(--gold)] px-3 py-1.5 text-[11px] active:scale-95 transition-transform"
-                  >
-                    {c}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+                <IconClose size={16} />
+              </button>
+            </header>
 
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              send(input);
-            }}
-            className="flex gap-2 px-3 pt-2.5 border-t border-white/[0.07] shrink-0"
-            style={{ paddingBottom: "max(10px, env(safe-area-inset-bottom))" }}
-          >
-            <label htmlFor="ai-chat-input" className="sr-only">
-              Your question
-            </label>
-            <input
-              id="ai-chat-input"
-              ref={inputRef}
-              value={input}
-              maxLength={300}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Type your question…"
-              autoComplete="off"
-              enterKeyHint="send"
-              className="flex-1 min-w-0 rounded-full bg-white/[0.06] border border-white/10 px-4 py-2.5 text-[16px] sm:text-[13px] text-cloud placeholder:text-white/35 focus:outline-none focus:border-[var(--gold)]/50"
-            />
-            <button
-              type="submit"
-              disabled={!input.trim() || typing}
-              aria-label="Send"
-              className="w-11 h-11 shrink-0 rounded-full bg-[var(--gold)] text-[var(--deep-black)] grid place-items-center disabled:opacity-40"
+            <div
+              ref={listRef}
+              className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-4 py-4 lg:px-6 lg:py-6 space-y-3"
+              data-lenis-prevent
+              aria-live="polite"
             >
-              <svg
-                width="15"
-                height="15"
-                viewBox="0 0 14 14"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                aria-hidden="true"
+              {messages.map((m) => (
+                <div
+                  key={m.id}
+                  className={`flex ${m.from === "user" ? "justify-end" : "justify-start"}`}
+                >
+                  <div
+                    className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 lg:px-4 lg:py-3 text-[13px] lg:text-[15px] leading-relaxed ${
+                      m.from === "user"
+                        ? "bg-[var(--emerald-deep)] text-cloud rounded-br-md"
+                        : "bg-white/[0.06] text-cloud/90 rounded-bl-md"
+                    }`}
+                  >
+                    {m.text}
+                    {m.handoffFor && (
+                      <div className="mt-2.5 flex flex-wrap gap-2">
+                        <a
+                          href={waLink(
+                            `Hi TajAttire, a question from your website: ${m.handoffFor}`,
+                          )}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 rounded-full bg-[#25D366] text-white px-3 py-1.5 text-[11px] font-semibold"
+                        >
+                          <IconWhatsApp size={13} /> WhatsApp
+                        </a>
+                        <a
+                          href={mailLink("Question from the website", m.handoffFor)}
+                          className="inline-flex items-center gap-1.5 rounded-full border border-white/20 text-cloud px-3 py-1.5 text-[11px] font-semibold"
+                        >
+                          <IconMail size={13} /> Email
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+              {typing && (
+                <div className="flex justify-start">
+                  <div className="rounded-2xl rounded-bl-md bg-white/[0.06] px-3.5 py-2.5 text-[12px] text-cloud/55 flex items-center gap-2">
+                    <span className="flex gap-1" aria-hidden="true">
+                      {[0, 1, 2].map((i) => (
+                        <span
+                          key={i}
+                          className="w-1.5 h-1.5 rounded-full bg-[var(--gold)]/70 animate-pulse"
+                          style={{ animationDelay: `${i * 160}ms` }}
+                        />
+                      ))}
+                    </span>
+                    writing…
+                  </div>
+                </div>
+              )}
+              {messages.length === 1 && !typing && (
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {CHIPS.map((c) => (
+                    <button
+                      key={c}
+                      type="button"
+                      onClick={() => send(c)}
+                      className="rounded-full border border-[var(--gold)]/30 text-[var(--gold)] px-3 py-1.5 text-[11px] active:scale-95 transition-transform"
+                    >
+                      {c}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                send(input);
+              }}
+              className="flex gap-2 px-3 pt-2.5 border-t border-white/[0.07] shrink-0"
+              style={{ paddingBottom: "max(10px, env(safe-area-inset-bottom))" }}
+            >
+              <label htmlFor="ai-chat-input" className="sr-only">
+                Your question
+              </label>
+              <input
+                id="ai-chat-input"
+                ref={inputRef}
+                value={input}
+                maxLength={300}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Type your question…"
+                autoComplete="off"
+                enterKeyHint="send"
+                className="flex-1 min-w-0 rounded-full bg-white/[0.06] border border-white/10 px-4 py-2.5 text-[16px] sm:text-[14px] lg:text-[15px] lg:py-3 text-cloud placeholder:text-white/35 focus:outline-none focus:border-[var(--gold)]/50"
+              />
+              <button
+                type="submit"
+                disabled={!input.trim() || typing}
+                aria-label="Send"
+                className="w-11 h-11 shrink-0 rounded-full bg-[var(--gold)] text-[var(--deep-black)] grid place-items-center disabled:opacity-40"
               >
-                <path d="M2 12L12 7 2 2M12 7H2" />
-              </svg>
-            </button>
-          </form>
-        </motion.section>
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 14 14"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  aria-hidden="true"
+                >
+                  <path d="M2 12L12 7 2 2M12 7H2" />
+                </svg>
+              </button>
+            </form>
+          </motion.section>
+        </motion.div>
       )}
     </AnimatePresence>
   );

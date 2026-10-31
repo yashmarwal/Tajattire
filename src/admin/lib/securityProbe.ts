@@ -24,7 +24,7 @@ const TARGETS: { table: string; label: string; row: Record<string, null> }[] = [
   { table: "testimonials", label: "Testimonials", row: { id: null } },
   { table: "faq_items", label: "FAQ", row: { id: null } },
   { table: "stats", label: "Stats", row: { id: null } },
-  { table: "instagram_images", label: "Instagram grid", row: { id: null } },
+  { table: "instagram_images", label: "Old Instagram grid data", row: { id: null } },
 ];
 
 export async function runSecurityProbe(): Promise<ProbeResult[]> {

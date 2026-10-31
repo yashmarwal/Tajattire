@@ -8,7 +8,6 @@ import type {
   HowItWorksStep,
   SustainabilityCard,
   MarqueeTag,
-  InstagramImage,
   EnquirySubmission,
   FactoryVisitRequest,
 } from "./siteData";
@@ -267,24 +266,6 @@ export async function createMarqueeTag(text: string, position = 0) {
 export async function deleteMarqueeTag(id: string) {
   const { error } = await supabase.from("marquee_tags").delete().eq("id", id);
   if (error) throw error;
-}
-
-/* ─────────── INSTAGRAM ─────────── */
-export async function getInstagramImages() {
-  const { data, error } = await supabase.from("instagram_images").select("*").order("position");
-  if (error) throw error;
-  return (data ?? []) as InstagramImage[];
-}
-
-export async function updateInstagramImage(id: string, updates: Partial<InstagramImage>) {
-  const { data, error } = await supabase
-    .from("instagram_images")
-    .update(updates)
-    .eq("id", id)
-    .select()
-    .single();
-  if (error) throw error;
-  return data as InstagramImage;
 }
 
 /* ─────────── SUBMISSIONS ─────────── */
