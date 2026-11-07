@@ -13,14 +13,6 @@ export const CITY = "Jaipur, Rajasthan, India";
 export const GSTIN = "08EZDPA6047K1Z9";
 export const FOUNDED_YEAR = 2004;
 
-/** Footer developer credit: "Built by <name>" → WhatsApp with a pre-filled message. */
-export const DEV_CREDIT = {
-  prefix: "Built by",
-  text: "Phaseline",
-  whatsapp: "918595475007", // digits only, with country code
-  message: "Hello, I’m interested in developing a website.",
-};
-
 export const waLink = (text?: string) =>
   `https://wa.me/${WHATSAPP_NUMBER}${text ? `?text=${encodeURIComponent(text)}` : ""}`;
 

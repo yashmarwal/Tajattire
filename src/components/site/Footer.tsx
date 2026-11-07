@@ -9,10 +9,10 @@ import {
   INSTAGRAM_URL,
   GSTIN,
   CITY,
-  DEV_CREDIT,
   FOUNDED_YEAR,
 } from "@/lib/contact";
 import { IconWhatsApp, IconInstagram, IconMail, IconPhone } from "./icons";
+import PhaselineCredit from "./PhaselineCredit";
 
 export function Footer() {
   const navigate = usePageTransition();
@@ -32,7 +32,6 @@ export function Footer() {
       </a>
     </li>
   );
-  const credit = DEV_CREDIT.text && DEV_CREDIT.whatsapp;
 
   return (
     <footer data-bg="dark" className="site-footer relative bg-deep-black pt-20 md:pt-24 text-sm">
@@ -147,19 +146,9 @@ export function Footer() {
         <div className="py-6 flex flex-col sm:flex-row sm:flex-wrap sm:items-center sm:justify-between gap-2 text-[12px] text-cloud/45">
           <span>© {new Date().getFullYear()} TajAttire. All rights reserved.</span>
           <span>GSTIN {GSTIN}</span>
-          {credit && (
-            <span>
-              {DEV_CREDIT.prefix}{" "}
-              <a
-                href={`https://wa.me/${DEV_CREDIT.whatsapp}${DEV_CREDIT.message ? `?text=${encodeURIComponent(DEV_CREDIT.message)}` : ""}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[var(--gold)] [@media(hover:hover)]:hover:underline"
-              >
-                {DEV_CREDIT.text}
-              </a>
-            </span>
-          )}
+          <div className="flex justify-center sm:justify-end">
+            <PhaselineCredit />
+          </div>
         </div>
       </div>
     </footer>
